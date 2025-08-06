@@ -1,6 +1,8 @@
+# ─────────────────────────────────────────────────────────────
 # 🔐 Do not track sensitive or system-specific files
+# ─────────────────────────────────────────────────────────────
 
-# SSH
+# SSH configuration (private hosts, secrets, identities)
 ssh/config.private
 *.key
 *.pem
@@ -8,20 +10,19 @@ ssh/config.private
 *.cert
 *.csr
 
-# GPG / cryptographic
+# GPG or other encrypted/cryptographic data
 *.gpg
 *.asc
 *.enc
 
-# Secrets / tokens
+# Secret files or credentials
 secrets.*
 *.secrets
 *.env
 .env.*
 .token
-*.bak
 
-# Backups and temporary files
+# Backup and temporary files
 *~
 *.swp
 *.tmp
@@ -29,19 +30,17 @@ secrets.*
 *.bak
 *.orig
 
+# Logs
+*.log
+
 # macOS metadata
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# System folders
 .Trashes
 .Spotlight-V100
 .fseventsd
 
-# Logs
-*.log
-
-# Node / npm (por si alguna vez tienes scripts)
+# Node/NPM (just in case you use scripts)
 node_modules/
 npm-debug.log*

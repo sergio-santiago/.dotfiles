@@ -1,0 +1,14 @@
+# Public SSH config — safe to version in git
+# This file is included from ~/.ssh/config (manually or via symlink)
+
+# Use 1Password SSH agent for all hosts (macOS default)
+Host *
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+
+# Add public or non-sensitive hosts below if needed.
+# For private or company-specific hosts, use ~/.ssh/config.private (excluded from git).
+
+# Example:
+# Host your-alias
+#   HostName your-host.example.com
+#   User your-user
