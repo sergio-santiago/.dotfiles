@@ -1,0 +1,16 @@
+[user]
+	name = Sergio Santiago
+	email = sergio@secture.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN3Uo9wcjJLsXcEcJ85BxA8ZHEJe670weClg+rOwSSWo
+
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[commit]
+	gpgsign = true
+
+[core]
+	editor = code --wait
