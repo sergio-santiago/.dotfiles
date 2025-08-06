@@ -1,8 +1,3 @@
-# Default 1Password SSH Agent
-Host *
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
-# Example custom host (replace as needed)
-# Host your-alias
-#   HostName your-host.example.com
-#   User your-user
+# ~/.ssh/config
+Include ~/dotfiles/ssh/config.public
+Include ~/.ssh/config.private
