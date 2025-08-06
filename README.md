@@ -21,7 +21,7 @@ This section explains how to restore the configuration, link files safely, and m
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/your-username/dotfiles.git ~/dotfiles
+   git clone git@github.com:sergio-santiago/dotfiles.git ~/dotfiles
    ```
 
 2. Create symlinks to your real config files:
