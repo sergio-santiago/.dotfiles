@@ -1,3 +1,8 @@
 # ~/.ssh/config
+# Central SSH configuration with public and private separation
+
+# Load version-controlled public config from .dotfiles repo
 Include ~/.dotfiles/ssh/config.public
+
+# Load private, machine-specific or sensitive config
 Include ~/.ssh/config.private

@@ -1,7 +1,7 @@
 # Public SSH config — safe to version in git
-# This file is included from ~/.ssh/config (manually or via symlink)
+# This file is included from ~/.ssh/config (via symlink)
 
-# Use 1Password SSH agent for all hosts (macOS default)
+# Route all SSH connections through 1Password's agent
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
