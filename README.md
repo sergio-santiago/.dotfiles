@@ -1,4 +1,4 @@
-# 🛠️ Sergio’s dotfiles — macOS Fish Shell Environment
+# 🛠️ Sergio’s .dotfiles — macOS Fish Shell Environment
 
 This repository contains my personal macOS development environment configuration, focused on:
 
@@ -21,7 +21,7 @@ This section explains how to restore the configuration, link files safely, and m
 1. Clone this repository:
 
    ```bash
-   git clone git@github.com:sergio-santiago/dotfiles.git ~/dotfiles
+   git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
    ```
 
 2. Create symlinks to your real config files:
@@ -29,16 +29,16 @@ This section explains how to restore the configuration, link files safely, and m
    ```bash
    # SSH
    mkdir -p ~/.ssh
-   ln -sf ~/dotfiles/ssh/config ~/.ssh/config
+   ln -sf ~/.dotfiles/ssh/config ~/.ssh/config
 
    # Fish
    mkdir -p ~/.config/fish/conf.d ~/.config/fish/functions
-   ln -sf ~/dotfiles/fish/config.fish ~/.config/fish/config.fish
-   ln -sf ~/dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
-   ln -sf ~/dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
+   ln -sf ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
+   ln -sf ~/.dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
+   ln -sf ~/.dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
 
    # Git
-   ln -sf ~/dotfiles/git/gitconfig ~/.gitconfig
+   ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
    ```
 
    > ⚠️ **Warning:** This will overwrite existing files. Back up any current config before linking.
@@ -103,7 +103,7 @@ To keep personal hosts out of version control:
 1. The tracked `ssh/config` contains:
 
    ```ssh
-   Include ~/dotfiles/ssh/config.public
+   Include ~/.dotfiles/ssh/config.public
    Include ~/.ssh/config.private
    ```
 
