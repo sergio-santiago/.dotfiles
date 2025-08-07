@@ -7,9 +7,6 @@
 # Ensure Homebrew environment variables are available
 eval (/opt/homebrew/bin/brew shellenv)
 
-# Enable Nerd Fonts support for bobthefish theme
-set -g theme_nerd_fonts yes
-
 # Initialize fnm (Fast Node Manager)
 fnm env | source
 
@@ -18,10 +15,11 @@ fnm env | source
 # ─────────────────────────────────────────────────────────────────────────────
 
 if status is-interactive
+    starship init fish | source # Enable Starship prompt
     banner_sergio # Custom welcome banner
+    # fish_greeting runs automatically on shell startup
 
     # Aliases are defined in conf.d/aliases.fish
-    # Note: Prompt and plugins are managed by Fisher (e.g., bobthefish)
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -35,4 +33,4 @@ end
 #   Host *
 #     IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 #
-# And in 1Password settings: Developer → Enable "Integrate with SSH"
+# And in 1Password settings: Developer → Enable "Use the SSH Agent"
