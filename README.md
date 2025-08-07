@@ -3,22 +3,25 @@
 This repository contains my personal macOS development environment configuration, with a focus on:
 
 - 🐟 **Fish shell**  
-  Clean setup with custom functions and a visually enhanced Starship prompt
+  Clean and minimal setup with custom functions and a visually enhanced Starship prompt
 
 - 🎨 **Custom banner**  
-  Multi-line ASCII welcome with fallback support and optional rainbow effect (via `lolcat`)
+  Multi-line ASCII welcome message with fallback support and optional rainbow effect (`lolcat`)
 
 - 🧾 **Aliases**  
   Well-structured and documented with practical usage examples
 
 - 🔐 **SSH**  
-  Public/private split config, using 1Password SSH agent for secure key management
+  Split configuration for public and private hosts, with secure key management via 1Password SSH agent
 
 - 🧠 **Git**  
-  Opinionated configuration with SSH-based commit signing and commit edit with VSCode
+  Clean and secure setup using SSH-based commit signing, with VSCode as the default commit editor
 
 - 🌈 **Color theme**  
-  Truecolor support with pastel/rainbow-inspired palette optimized for dark terminals
+  Truecolor-friendly palette (pastel + rainbow inspired), optimized for dark terminal environments
+
+- 💾 **iTerm2 backup**  
+  Full export of iTerm2 preferences, including a custom color scheme and fonts, easily restorable
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
@@ -144,6 +147,36 @@ To keep personal hosts out of version control:
 
 3. Put your private or machine-specific SSH hosts there (e.g., staging, personal VPS, etc.)
 
+---
+
+### 💻 iTerm2 Configuration (Theme, Colors & Profiles)
+
+To preserve the full appearance and behavior of iTerm2 environment (profiles, color schemes, font, etc.), the app preferences are exported and tracked here:
+
+```bash
+~/.dotfiles/iterm/com.googlecode.iterm2.plist
+```
+
+✅ **To load this config on a new Mac:**
+
+1. Open **iTerm2 > Settings > General > Preferences**
+2. Enable: ✔️ `Load preferences from a custom folder or URL`
+3. Set the folder path to:
+
+   ```bash
+   /Users/sergiosantiago/.dotfiles/iterm
+   ```
+
+4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
+5. Restart iTerm2 to apply all changes
+
+---
+
+#### 💾 Notes
+
+- This includes current default profile with custom color palette and font
+- Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
+- Backup this file again if you change iTerm2 preferences in the future
 ---
 
 ### 📦 Notes
