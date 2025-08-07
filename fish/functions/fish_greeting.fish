@@ -1,6 +1,6 @@
 function fish_greeting
     set greeting "󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽-
-       Let's code, Sergi󰋙 󱞤 󱑽󱑽󱑽-
+     Let's code, Sergi󰋙   󱞤 󱑽󱑽󱑽-
 󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽 󱊾 󱑽-"
 
     if type -q lolcat
