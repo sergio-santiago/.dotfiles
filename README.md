@@ -1,12 +1,24 @@
 # 🛠️ Sergio’s .dotfiles — macOS Fish Shell Environment
 
-This repository contains my personal macOS development environment configuration, focused on:
+This repository contains my personal macOS development environment configuration, with a focus on:
 
-- 🐟 Fish shell setup with clean config and plugin management via Fisher
-- 🧾 Well-documented aliases with usage examples
-- 🎨 Custom ASCII banner with color and terminal width fallback
-- 🔐 SSH config using 1Password SSH agent
-- 🧠 Git config with SSH commit signing and VSCode integration
+- 🐟 **Fish shell**  
+  Clean setup with custom functions and a visually enhanced Starship prompt
+
+- 🎨 **Custom banner**  
+  Multi-line ASCII welcome with fallback support and optional rainbow effect (via `lolcat`)
+
+- 🧾 **Aliases**  
+  Well-structured and documented with practical usage examples
+
+- 🔐 **SSH**  
+  Public/private split config, using 1Password SSH agent for secure key management
+
+- 🧠 **Git**  
+  Opinionated configuration with SSH-based commit signing and commit edit with VSCode
+
+- 🌈 **Color theme**  
+  Truecolor support with pastel/rainbow-inspired palette optimized for dark terminals
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
@@ -36,6 +48,10 @@ This section explains how to restore the configuration, link files safely, and m
    ln -sf ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
    ln -sf ~/.dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
    ln -sf ~/.dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
+   ln -sf ~/.dotfiles/fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
+
+   # Starship
+   ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
    # Git
    ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
@@ -48,40 +64,38 @@ This section explains how to restore the configuration, link files safely, and m
 
 ### 🐟 Fish Shell Setup
 
-1. Install `fish` and set it as your default shell (optional):
+1. Install `fish` and set it as your default shell:
 
    ```bash
    brew install fish
    chsh -s /opt/homebrew/bin/fish
    ```
 
-2. Install Fisher (plugin manager):
+2. Install starship prompt:
 
    ```bash
-   curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+   brew install starship
    ```
 
-3. Install required plugins:
+3. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font) and use it in your terminal:
 
    ```bash
    fisher install oh-my-fish/theme-bobthefish
    ```
 
-4. Install a Nerd Font (e.g. [FiraCode Nerd Font](https://www.nerdfonts.com/font-downloads)) and use it in your terminal.
-
-5. Install `fnm` for Node.js version management:
+4. Install `fnm` for Node.js version management with fish:
 
    ```bash
    brew install fnm
    ```
 
-6. Optional: for colorful banner output:
+5. Optional: for colorful banner output:
 
    ```bash
    brew install lolcat
    ```
 
-7. Install tools used in aliases:
+6. Install tools used in aliases:
 
    ```bash
    brew install lsd bat btop tree
@@ -90,9 +104,23 @@ This section explains how to restore the configuration, link files safely, and m
 > `config.fish` already contains:
 >
 > - `fnm env | source` to initialize fnm
-> - `set -g theme_nerd_fonts yes` for Nerd Font support
+> - `starship init fish | source` to initialize starship
 > - `banner_sergio` function for custom banner
 > - Aliases are automatically loaded from `conf.d/aliases.fish`
+
+### 🧩 Disable Starship in WebStorm Terminal
+
+If custom Starship config renders incorrectly in the integrated terminal of JetBrains IDEs,
+you can disable it by overriding the config path:
+
+1. Go to **Preferences > Tools > Terminal**
+2. Set the shell path to:
+
+   ```bash
+   env STARSHIP_CONFIG=/dev/null /opt/homebrew/bin/fish
+    ```
+This launches fish with an empty Starship config, disabling the prompt in WebStorm
+without affecting your normal terminal.
 
 ---
 
@@ -114,7 +142,7 @@ To keep personal hosts out of version control:
    chmod 600 ~/.ssh/config.private
    ```
 
-3. Put your private or machine-specific SSH hosts there (e.g. staging, personal VPS, etc.)
+3. Put your private or machine-specific SSH hosts there (e.g., staging, personal VPS, etc.)
 
 ---
 
@@ -122,7 +150,7 @@ To keep personal hosts out of version control:
 
 - Aliases are defined in `fish/conf.d/aliases.fish`, with descriptions and usage examples
 - Banner logic is in `fish/functions/banner_sergio.fish`, adapts to terminal width
-- Git config includes SSH key signing via 1Password and VSCode as default editor
+- Git config includes SSH key signing via 1Password and VSCode as the default editor for commits
 - `~/.ssh/config` includes both public and private SSH configs via `Include`
 
 ---
