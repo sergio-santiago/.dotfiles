@@ -19,21 +19,21 @@ function banner_sergio
            \____/        ║                                                                                    ║        \____/        
                          ╚════════════════════════════════════════════════════════════════════════════════════╝
                                                ╔════════════════════════════════════════╗
-                                               ║  👨‍💻  Welcome to 𝕊ergi⬡'s Terminal!  🚀 ║
+                                               ║          Welcome to Terminal!          ║
                                                ╚════════════════════════════════════════╝
     "
 
     # Compact fallback banner
     set compact_banner_text "
 ╔════════════════════════════════════════╗
-║  👨‍💻  Welcome to 𝕊ergi⬡'s Terminal!  🚀 ║
+║          Welcome to Terminal!          ║
 ╚════════════════════════════════════════╝
     "
 
     if test "$cols" -ge "$min_width"
         # Show big banner
         if type -q lolcat
-            echo "$full_banner_text" | lolcat
+            echo "$full_banner_text" | lolcat -t
         else
             set_color brcyan
             echo "$full_banner_text"
@@ -42,7 +42,7 @@ function banner_sergio
     else
         # Show compact fallback banner
         if type -q lolcat
-            echo "$compact_banner_text" | lolcat
+            echo "$compact_banner_text" | lolcat -t
         else
             set_color brcyan
             echo "$compact_banner_text"
