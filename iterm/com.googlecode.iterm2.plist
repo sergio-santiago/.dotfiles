@@ -24,6 +24,8 @@ The script should do this: \(ai.prompt)</string>
 	<integer>1</integer>
 	<key>AppleWindowTabbingMode</key>
 	<string>manual</string>
+	<key>ClickToSelectCommand</key>
+	<false/>
 	<key>Default Bookmark Guid</key>
 	<string>D4873B2B-CCD5-4C37-AF18-188ED1097441</string>
 	<key>DimBackgroundWindows</key>
@@ -35,6 +37,8 @@ The script should do this: \(ai.prompt)</string>
 	<key>EnableDivisionView</key>
 	<true/>
 	<key>FocusFollowsMouse</key>
+	<false/>
+	<key>FocusOnRightOrMiddleClick</key>
 	<false/>
 	<key>HapticFeedbackForEsc</key>
 	<false/>
@@ -742,15 +746,15 @@ The script should do this: \(ai.prompt)</string>
 			<key>Badge Color (Dark)</key>
 			<dict>
 				<key>Alpha Component</key>
-				<real>0.5</real>
+				<real>0.478668212890625</real>
 				<key>Blue Component</key>
-				<real>0.65218597462148864</real>
+				<real>0.6660163402557373</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.65218597462148864</real>
+				<real>0.67759078741073608</real>
 				<key>Red Component</key>
-				<real>0.9787440299987793</real>
+				<real>0.89186310768127441</real>
 			</dict>
 			<key>Badge Color (Light)</key>
 			<dict>
@@ -965,10 +969,12 @@ The script should do this: \(ai.prompt)</string>
 			<true/>
 			<key>Draw Powerline Glyphs</key>
 			<false/>
+			<key>Enable Triggers in Interactive Apps</key>
+			<true/>
 			<key>Faint Text Alpha</key>
 			<real>0.5</real>
 			<key>Faint Text Alpha (Dark)</key>
-			<real>0.50022321428571426</real>
+			<real>0.50174851190476188</real>
 			<key>Faint Text Alpha (Light)</key>
 			<real>0.5</real>
 			<key>Flashing Bell</key>
@@ -1070,6 +1076,8 @@ The script should do this: \(ai.prompt)</string>
 				<key>Red Component</key>
 				<real>0.19802422821521759</real>
 			</dict>
+			<key>Load Shell Integration Automatically</key>
+			<false/>
 			<key>Match Background Color</key>
 			<dict>
 				<key>Alpha Component</key>
@@ -1088,13 +1096,13 @@ The script should do this: \(ai.prompt)</string>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.32990658283233643</real>
+				<real>0.396078431372549</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.99956375360488892</real>
+				<real>0.91764705882352937</real>
 				<key>Red Component</key>
-				<real>0.98891681432723999</real>
+				<real>0.97254901960784312</real>
 			</dict>
 			<key>Match Background Color (Light)</key>
 			<dict>
@@ -1112,7 +1120,7 @@ The script should do this: \(ai.prompt)</string>
 			<key>Minimum Contrast</key>
 			<real>0.0</real>
 			<key>Minimum Contrast (Dark)</key>
-			<real>0.0</real>
+			<real>0.24683035714285706</real>
 			<key>Minimum Contrast (Light)</key>
 			<real>0.0</real>
 			<key>Mouse Reporting</key>
@@ -1128,12 +1136,16 @@ The script should do this: \(ai.prompt)</string>
 			<key>Normal Font</key>
 			<string>FiraCodeNF-Ret 18</string>
 			<key>Only The Default BG Color Uses Transparency</key>
+			<true/>
+			<key>Open Password Manager Automatically</key>
 			<false/>
 			<key>Option Key Sends</key>
 			<integer>0</integer>
 			<key>Place Prompt at First Column</key>
 			<true/>
 			<key>Prompt Before Closing 2</key>
+			<false/>
+			<key>Reduce Flicker</key>
 			<false/>
 			<key>Right Option Key Sends</key>
 			<integer>0</integer>
@@ -1161,13 +1173,13 @@ The script should do this: \(ai.prompt)</string>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.8666666666666667</real>
+				<real>0.0</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.8666666666666667</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.8666666666666667</real>
+				<real>0.0</real>
 			</dict>
 			<key>Selected Text Color (Light)</key>
 			<dict>
@@ -1200,13 +1212,13 @@ The script should do this: \(ai.prompt)</string>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.26666666666666666</real>
+				<real>0.83137254901960789</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.20000000000000001</real>
+				<real>0.42352941176470588</real>
 				<key>Red Component</key>
-				<real>0.20000000000000001</real>
+				<real>1</real>
 			</dict>
 			<key>Selection Color (Light)</key>
 			<dict>
@@ -1283,13 +1295,13 @@ The script should do this: \(ai.prompt)</string>
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.36188477277755737</real>
+									<real>0.47115927934646606</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.6190110445022583</real>
+									<real>0.73312842845916748</real>
 									<key>Red Component</key>
-									<real>0.94479721784591675</real>
+									<real>0.95820099115371704</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1332,13 +1344,13 @@ The script should do this: \(ai.prompt)</string>
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.80280900001525879</real>
+									<real>0.82371062040328979</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.89009791612625122</real>
+									<real>0.92835825681686401</real>
 									<key>Red Component</key>
-									<real>0.49933195114135742</real>
+									<real>0.49675112962722778</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1381,13 +1393,13 @@ The script should do this: \(ai.prompt)</string>
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.8570597767829895</real>
+									<real>0.97355276346206665</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.61875796318054199</real>
+									<real>0.58065038919448853</real>
 									<key>Red Component</key>
-									<real>0.94132596254348755</real>
+									<real>0.74206656217575073</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -1416,44 +1428,6 @@ The script should do this: \(ai.prompt)</string>
 							</dict>
 						</dict>
 					</dict>
-					<dict>
-						<key>class</key>
-						<string>iTermStatusBarBatteryComponent</string>
-						<key>configuration</key>
-						<dict>
-							<key>knobs</key>
-							<dict>
-								<key>ShowPercentage</key>
-								<integer>1</integer>
-								<key>ShowTime</key>
-								<integer>1</integer>
-								<key>base: priority</key>
-								<real>5</real>
-								<key>shared text color</key>
-								<dict>
-									<key>Alpha Component</key>
-									<real>1</real>
-									<key>Blue Component</key>
-									<real>0.87597435712814331</real>
-									<key>Color Space</key>
-									<string>P3</string>
-									<key>Green Component</key>
-									<real>0.63727152347564697</real>
-									<key>Red Component</key>
-									<real>0.28880918025970459</real>
-								</dict>
-							</dict>
-							<key>layout advanced configuration dictionary value</key>
-							<dict>
-								<key>algorithm</key>
-								<integer>0</integer>
-								<key>auto-rainbow style</key>
-								<integer>0</integer>
-								<key>remove empty components</key>
-								<false/>
-							</dict>
-						</dict>
-					</dict>
 				</array>
 			</dict>
 			<key>Sync Title</key>
@@ -1464,6 +1438,8 @@ The script should do this: \(ai.prompt)</string>
 			<string>xterm-256color</string>
 			<key>Thin Strokes</key>
 			<integer>4</integer>
+			<key>Title Components</key>
+			<integer>513</integer>
 			<key>Transparency</key>
 			<real>0.25247391875633229</real>
 			<key>Unicode Normalization</key>
@@ -1520,6 +1496,8 @@ The script should do this: \(ai.prompt)</string>
 			<string>/Users/sergiosantiago</string>
 		</dict>
 	</array>
+	<key>OpenBookmark</key>
+	<false/>
 	<key>PerPaneBackgroundImage</key>
 	<true/>
 	<key>PointerActions</key>
@@ -1579,6 +1557,8 @@ The script should do this: \(ai.prompt)</string>
 	<integer>0</integer>
 	<key>TabsHaveCloseButton</key>
 	<true/>
+	<key>TerminalMargin</key>
+	<integer>5</integer>
 	<key>UseBorder</key>
 	<false/>
 	<key>VisualIndicatorForEsc</key>
