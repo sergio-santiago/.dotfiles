@@ -23,9 +23,9 @@ This repository contains my personal macOS development environment configuration
   SSH-based commit signing (1Password agent) with VSCode as commit editor.
 
 
-- 🌈 **Color theme**  
-  - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax highlighting, pager, and selection colors.  
-  - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next prompt.  
+- 🌈 **Color theme**
+  - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax highlighting, pager, and selection colors.
+  - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next prompt.
   - All colors are optimized for a pure black background and high contrast.
 
 
@@ -73,38 +73,45 @@ ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
 
 ### 🐟 Fish Shell Setup
 
-1. Install `fish` and set it as your default shell:
+1. Install iTerm2 (recommended terminal for macOS) — choose **one**:
+   - **From official website:** [https://iterm2.com](https://iterm2.com)
+   - **Using Homebrew:**
+     ```bash
+     brew install --cask iterm2
+     ```
+     
+2. Install `fish` and set it as your default shell:
 
    ```bash
    brew install fish
    chsh -s /opt/homebrew/bin/fish
    ```
 
-2. Install starship prompt:
+3. Install starship prompt:
 
    ```bash
    brew install starship
    ```
 
-3. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font):
+4. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font):
 
    ```bash
    brew install --cask font-fira-code-nerd-font
    ```
 
-4. Install `fnm` for Node.js version management with fish:
+5. Install `fnm` for Node.js version management with fish:
 
    ```bash
    brew install fnm
    ```
 
-5. For colorful banner output and separator:
+6. For colorful banner output and separator:
 
    ```bash
    brew install lolcat
    ```
 
-6. Install tools used in aliases:
+7. Install tools used in aliases:
 
    ```bash
    brew install lsd bat btop tree
@@ -119,7 +126,7 @@ ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
 > - Aliases are automatically loaded from `conf.d/aliases.fish`
 > - Syntax, pager, and selection colors are automatically loaded from `conf.d/colors_theme.fish`
 
-### 🧩 Disable Starship in WebStorm Terminal
+### 🧩 Disable Starship in JetBrains IDEs Terminal
 
 If custom Starship config renders incorrectly in the integrated terminal of JetBrains IDEs,
 you can disable it by overriding the config path:
