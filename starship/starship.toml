@@ -1,10 +1,12 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-╭─[](red)\
+╭─[](sapphire)\
+[](bg:sapphire fg:crust)\
 $os\
+${custom.pretty_name}\
 $username\
-[](bg:peach fg:red)\
+[](bg:peach fg:sapphire)\
 $directory\
 [](bg:yellow fg:peach)\
 $git_branch\
@@ -19,9 +21,9 @@ $java\
 $kotlin\
 $haskell\
 $python\
-[](fg:green bg:sapphire)\
+[](fg:green bg:red)\
 $conda\
-[](fg:sapphire bg:lavender)\
+[](fg:red bg:lavender)\
 $time\
 [](fg:lavender)\
 $cmd_duration\
@@ -29,11 +31,11 @@ $line_break\
 │
 ╰──$character"""
 
-palette = 'sergio_custom_dark'
+palette = 'sergio_dark_rainbow'
 
 [os]
-disabled = false
-style = "bg:red fg:crust"
+disabled = true
+style = "bg:sapphire fg:crust"
 
 [os.symbols]
 Windows = ""
@@ -57,10 +59,16 @@ Redhat = "󱄛"
 RedHatEnterprise = "󱄛"
 
 [username]
+disabled = true
 show_always = true
-style_user = "bg:red fg:crust"
-style_root = "bg:red fg:crust"
+style_user = "bg:sapphire fg:crust"
+style_root = "bg:sapphire fg:crust"
 format = '[ $user ]($style)'
+
+[custom.pretty_name]
+command = "id -F | awk '{print $1}'"
+when = "true"
+format = "[ $output ](bg:sapphire fg:crust)"
 
 [directory]
 style = "bg:peach fg:crust"
@@ -138,7 +146,7 @@ format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
 
 [conda]
 symbol = "  "
-style = "fg:crust bg:sapphire"
+style = "fg:crust bg:red"
 format = '[$symbol$environment ]($style)'
 ignore_base = false
 
@@ -280,7 +288,7 @@ base = "#24273a"
 mantle = "#1e2030"
 crust = "#181926"
 
-[palettes.sergio_custom_dark]
+[palettes.sergio_dark_rainbow]
 rosewater = "#ffb1a7"
 flamingo = "#ff8fa1"
 pink = "#ff6cd4"
