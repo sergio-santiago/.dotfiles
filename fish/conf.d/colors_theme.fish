@@ -39,4 +39,3 @@ set -U fish_pager_color_progress 'black' --background=#68d5ff
 
 # ─── Additional Styling ────────────────────────────────────────────────────────
 set -U fish_color_user '#ff8fa1'                     # Flamingo for usernames (keeps warm accent)
-set -U fish_complete_path true                       # Include executables from $PATH in completions
