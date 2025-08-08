@@ -3,65 +3,71 @@
 This repository contains my personal macOS development environment configuration, with a focus on:
 
 - 🐟 **Fish shell**  
-  Clean and minimal setup with custom functions and a visually enhanced Starship prompt
+  Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the terminal palette.
+
 
 - 🎨 **Custom banner**  
-  Multi-line ASCII welcome message with fallback support and optional rainbow effect (`lolcat`)
+  Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).  
+  **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
+
 
 - 🧾 **Aliases**  
-  Well-structured and documented with practical usage examples
+  Well-structured and documented with practical usage examples, autoloaded from `conf.d/aliases.fish`.
+
 
 - 🔐 **SSH**  
-  Split configuration for public and private hosts, with secure key management via 1Password SSH agent
+  Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
+
 
 - 🧠 **Git**  
-  Clean and secure setup using SSH-based commit signing, with VSCode as the default commit editor
+  SSH-based commit signing (1Password agent) with VSCode as commit editor.
+
 
 - 🌈 **Color theme**  
-  Truecolor-friendly palette (pastel + rainbow inspired), optimized for dark terminal environments
+  - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax highlighting, pager, and selection colors.  
+  - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next prompt.  
+  - All colors are optimized for a pure black background and high contrast.
+
 
 - 💾 **iTerm2 backup**  
-  Full export of iTerm2 preferences, including a custom color scheme and fonts, easily restorable
+  Full export of preferences (profiles, colors, fonts), easily restorable.
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
-## 🔧 Setup & Usage Guide
-
-This section explains how to restore the configuration, link files safely, and manage sensitive parts like SSH hosts.
-
 ---
+
+## 🔧 Setup & Usage Guide
 
 ### 🚀 Restore on a new machine
 
-1. Clone this repository:
+```bash
+git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
+```
 
-   ```bash
-   git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
-   ```
+**Symlink configs:**
 
-2. Create symlinks to your real config files:
+```bash
+# SSH
+mkdir -p ~/.ssh
+ln -sf ~/.dotfiles/ssh/config ~/.ssh/config
 
-   ```bash
-   # SSH
-   mkdir -p ~/.ssh
-   ln -sf ~/.dotfiles/ssh/config ~/.ssh/config
+# Fish
+mkdir -p ~/.config/fish/conf.d ~/.config/fish/functions
+ln -sf ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
+ln -sf ~/.dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
+ln -sf ~/.dotfiles/fish/conf.d/colors_theme.fish ~/.config/fish/conf.d/colors_theme.fish
+ln -sf ~/.dotfiles/fish/conf.d/rainbow_separator.fish ~/.config/fish/conf.d/rainbow_separator.fish
+ln -sf ~/.dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
+ln -sf ~/.dotfiles/fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
 
-   # Fish
-   mkdir -p ~/.config/fish/conf.d ~/.config/fish/functions
-   ln -sf ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
-   ln -sf ~/.dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
-   ln -sf ~/.dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
-   ln -sf ~/.dotfiles/fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
+# Starship
+ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
-   # Starship
-   ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
+# Git
+ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
+```
 
-   # Git
-   ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
-   ```
-
-   > ⚠️ **Warning:** This will overwrite existing files. Back up any current config before linking.
-   > For example, if you have ~/.ssh/config already, symlinking will replace it.
+> ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
 
 ---
 
@@ -80,10 +86,10 @@ This section explains how to restore the configuration, link files safely, and m
    brew install starship
    ```
 
-3. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font) and use it in your terminal:
+3. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font):
 
    ```bash
-   fisher install oh-my-fish/theme-bobthefish
+   brew install --cask font-fira-code-nerd-font
    ```
 
 4. Install `fnm` for Node.js version management with fish:
@@ -92,7 +98,7 @@ This section explains how to restore the configuration, link files safely, and m
    brew install fnm
    ```
 
-5. Optional: for colorful banner output:
+5. For colorful banner output and separator:
 
    ```bash
    brew install lolcat
@@ -107,9 +113,11 @@ This section explains how to restore the configuration, link files safely, and m
 > `config.fish` already contains:
 >
 > - `fnm env | source` to initialize fnm
+> - `BANNER_MODE` (full | compact | auto) for banner control
 > - `starship init fish | source` to initialize starship
 > - `banner_sergio` function for custom banner
 > - Aliases are automatically loaded from `conf.d/aliases.fish`
+> - Syntax, pager, and selection colors are automatically loaded from `conf.d/colors_theme.fish`
 
 ### 🧩 Disable Starship in WebStorm Terminal
 
@@ -170,26 +178,8 @@ To preserve the full appearance and behavior of iTerm2 environment (profiles, co
 4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
 5. Restart iTerm2 to apply all changes
 
----
-
 #### 💾 Notes
 
-- This includes current default profile with custom color palette and font
+- This includes current default profile with custom color palette (matching `sergio_dark_rainbow` and Fish theme) and font config
 - Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
-- Backup this file again if you change iTerm2 preferences in the future
----
-
-### 📦 Notes
-
-- Aliases are defined in `fish/conf.d/aliases.fish`, with descriptions and usage examples
-- Banner logic is in `fish/functions/banner_sergio.fish`, adapts to terminal width
-- Git config includes SSH key signing via 1Password and VSCode as the default editor for commits
-- `~/.ssh/config` includes both public and private SSH configs via `Include`
-
----
-
-### 🧪 Safety Notes
-
-- Symlinks may overwrite files silently (`ln -sf`)
-- Always inspect your real config before linking
-- Sensitive files like `config.private`, keys or secrets are excluded via `.gitignore`
+- Back up this file again if you change iTerm2 preferences in the future
