@@ -14,16 +14,6 @@ The script should do this: \(ai.prompt)</string>
 	<string>http://localhost:11434/v1/completions</string>
 	<key>AitermUseLegacyAPI</key>
 	<true/>
-	<key>AppleAntiAliasingThreshold</key>
-	<integer>1</integer>
-	<key>ApplePressAndHoldEnabled</key>
-	<false/>
-	<key>AppleScrollAnimationEnabled</key>
-	<integer>0</integer>
-	<key>AppleSmoothFixedFontsSizeThreshold</key>
-	<integer>1</integer>
-	<key>AppleWindowTabbingMode</key>
-	<string>manual</string>
 	<key>ClickToSelectCommand</key>
 	<false/>
 	<key>Default Bookmark Guid</key>
@@ -1212,13 +1202,13 @@ The script should do this: \(ai.prompt)</string>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>1</real>
+				<real>0.8137589693069458</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.65490196078431373</real>
+				<real>0.45918488502502441</real>
 				<key>Red Component</key>
-				<real>0.77647058823529413</real>
+				<real>0.93047189712524414</real>
 			</dict>
 			<key>Selection Color (Light)</key>
 			<dict>
