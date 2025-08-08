@@ -2,6 +2,7 @@
 # This file is included from ~/.ssh/config (via symlink)
 
 # Route all SSH connections through 1Password's agent
+# Should be enabled 1Password Settings: Developer → Enable "Use the SSH Agent"
 Host *
   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
