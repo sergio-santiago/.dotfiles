@@ -25,8 +25,8 @@ $python\
 $conda\
 [](fg:red bg:lavender)\
 $time\
-[](fg:lavender)\
 $cmd_duration\
+[](fg:lavender)\
 $line_break\
 │
 ╰──$character"""
@@ -152,7 +152,7 @@ ignore_base = false
 
 [time]
 disabled = false
-time_format = "%R"
+time_format = "%H:%M:%S"
 style = "bg:lavender"
 format = '[[  $time ](fg:crust bg:lavender)]($style)'
 
@@ -169,9 +169,10 @@ vimcmd_replace_symbol = '[❮](bold fg:lavender)'
 vimcmd_visual_symbol = '[❮](bold fg:yellow)'
 
 [cmd_duration]
+min_time = 100
 show_milliseconds = true
-format = " in $duration "
-style = "bg:lavender"
+format = '[[󰇝  Completed in $duration ](fg:crust bg:lavender)]($style)'
+style = "fg:crust bg:lavender"
 disabled = false
 show_notifications = true
 min_time_to_notify = 45000
