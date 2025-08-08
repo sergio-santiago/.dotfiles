@@ -1,13 +1,15 @@
 # ~/.config/fish/config.fish
 
+# Aliases are defined in conf.d/aliases.fish
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ✅ Environment setup
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Ensure Homebrew environment variables are available
+# Load Homebrew environment variables
 eval (/opt/homebrew/bin/brew shellenv)
 
-# Initialize fnm (Fast Node Manager)
+# Initialize FNM (Fast Node Manager)
 fnm env | source
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -15,22 +17,12 @@ fnm env | source
 # ─────────────────────────────────────────────────────────────────────────────
 
 if status is-interactive
-    starship init fish | source # Enable Starship prompt
-    banner_sergio # Custom welcome banner
+    set -gx BANNER_MODE auto  # Banner mode: (full | compact | auto)
+    starship init fish | source  # Starship prompt
+    banner_sergio  # Custom welcome banner
     # fish_greeting runs automatically on shell startup
-
-    # Aliases are defined in conf.d/aliases.fish
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🔐 SSH configuration
+# 🔐 SSH is managed via .dotfiles/ssh configuration and 1Password SSH Agent
 # ─────────────────────────────────────────────────────────────────────────────
-
-# If you're using 1Password SSH agent, do NOT start ssh-agent or use ssh-add manually.
-# Make sure the following is configured instead:
-#
-#   ~/.ssh/config:
-#   Host *
-#     IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-#
-# And in 1Password settings: Developer → Enable "Use the SSH Agent"
