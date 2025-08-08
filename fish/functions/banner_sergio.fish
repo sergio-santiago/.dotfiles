@@ -2,6 +2,9 @@ function banner_sergio
     set cols (tput cols)
     set min_width 130
 
+    # Control mode: "full" | "compact" | "auto"
+    set banner_mode (set -q BANNER_MODE; and echo $BANNER_MODE; or echo "auto")
+
     # Full-width ASCII banner text
     set full_banner_text "
             ____         ╔════════════════════════════════════════════════════════════════════════════════════╗         ____         
@@ -25,13 +28,21 @@ function banner_sergio
 
     # Compact fallback banner
     set compact_banner_text "
-╔════════════════════════════════════════╗
-║         Welcome to Terminal!          ║
-╚════════════════════════════════════════╝
+╔═══════════════════════════════════╗
+║      Welcome to Terminal!        ║
+╚═══════════════════════════════════╝
     "
 
-    if test "$cols" -ge "$min_width"
-        # Show big banner
+    switch $banner_mode
+        case full
+            set show_full true
+        case compact
+            set show_full false
+        case auto
+            set show_full (test "$cols" -ge "$min_width"; and echo true; or echo false)
+    end
+
+    if test "$show_full" = "true"
         if type -q lolcat
             echo "$full_banner_text" | lolcat -t
         else
@@ -40,7 +51,6 @@ function banner_sergio
             set_color normal
         end
     else
-        # Show compact fallback banner
         if type -q lolcat
             echo "$compact_banner_text" | lolcat -t
         else
