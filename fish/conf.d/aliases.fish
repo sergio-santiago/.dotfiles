@@ -63,6 +63,7 @@ alias v="view"   # short alias
 # Default editor for CLI programs
 set -gx EDITOR micro
 alias edit="micro"
+alias e="micro"
 
 # Visual Studio Code as visual editor (blocks until closed)
 set -gx VISUAL "code --wait"
