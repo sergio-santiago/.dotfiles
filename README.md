@@ -2,35 +2,32 @@
 
 This repository contains my personal macOS development environment configuration, with a focus on:
 
-- 🐟 **Fish shell**  
-  Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the terminal palette.
+- 🐟 **Fish shell**
+    - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
+      terminal palette.
 
-
-- 🎨 **Custom banner**  
-  Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).  
-  **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
-
-
-- 🧾 **Aliases**  
-  Well-structured and documented with practical usage examples, autoloaded from `conf.d/aliases.fish`.
-
-
-- 🔐 **SSH**  
-  Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
-
-
-- 🧠 **Git**  
-  SSH-based commit signing (1Password agent) with VSCode as commit editor.
-
-
+- 🎨 **Custom banner**
+    - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
+    - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
+- 🧾 **Aliases**
+    - Well-structured and documented with practical usage examples, autoloaded from `conf.d/aliases.fish`.
+- 🔐 **SSH**
+    - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
+- 🧠 **Git**
+    - SSH-based commit signing (1Password agent) with `micro` as commit editor.
+- ✏️ **Micro editor**
+    - Lightweight terminal-based editor with custom settings and a matching `sergio-dark-rainbow` color scheme for a
+      consistent look with Fish and Starship.
+    - Custom theme with true color, icon-based statusline, consistent syntax highlighting, 4-space indentation... and
+      more.
 - 🌈 **Color theme**
-  - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax highlighting, pager, and selection colors.
-  - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next prompt.
-  - All colors are optimized for a pure black background and high contrast.
-
-
-- 💾 **iTerm2 backup**  
-  Full export of preferences (profiles, colors, fonts), easily restorable.
+    - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax
+      highlighting, pager, and selection colors.
+    - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
+      prompt.
+    - All colors are optimized for a pure black background and high contrast.
+- 💾 **iTerm2 backup**
+    - Full export of preferences (profiles, colors, fonts), easily restorable.
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
@@ -65,6 +62,11 @@ ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
 # Git
 ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
+
+# Micro
+mkdir -p ~/.config/micro/colorschemes
+ln -sf ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
+ln -sf ~/.dotfiles/micro/colorschemes/sergio-dark-rainbow.micro ~/.config/micro/colorschemes/sergio-dark-rainbow.micro
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
@@ -74,12 +76,12 @@ ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
 ### 🐟 Fish Shell Setup
 
 1. Install iTerm2 (recommended terminal for macOS) — choose **one**:
-   - **From official website:** [https://iterm2.com](https://iterm2.com)
-   - **Using Homebrew:**
-     ```bash
-     brew install --cask iterm2
-     ```
-     
+    - **From official website:** [https://iterm2.com](https://iterm2.com)
+    - **Using Homebrew:**
+      ```bash
+      brew install --cask iterm2
+      ```
+
 2. Install `fish` and set it as your default shell:
 
    ```bash
@@ -99,19 +101,24 @@ ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
    brew install --cask font-fira-code-nerd-font
    ```
 
-5. Install `fnm` for Node.js version management with fish:
+5. Install Micro editor:
+   ```bash
+   brew install micro
+   ```
+
+6. Install `fnm` for Node.js version management with fish:
 
    ```bash
    brew install fnm
    ```
 
-6. For colorful banner output and separator:
+7. For colorful banner output and separator:
 
    ```bash
    brew install lolcat
    ```
 
-7. Install tools used in aliases:
+8. Install tools used in aliases:
 
    ```bash
    brew install lsd bat btop tree
@@ -137,6 +144,7 @@ you can disable it by overriding the config path:
    ```bash
    env STARSHIP_CONFIG=/dev/null /opt/homebrew/bin/fish
     ```
+
 This launches fish with an empty Starship config, disabling the prompt in WebStorm
 without affecting your normal terminal.
 
@@ -166,7 +174,8 @@ To keep personal hosts out of version control:
 
 ### 💻 iTerm2 Configuration (Theme, Colors & Profiles)
 
-To preserve the full appearance and behavior of iTerm2 environment (profiles, color schemes, font, etc.), the app preferences are exported and tracked here:
+To preserve the full appearance and behavior of iTerm2 environment (profiles, color schemes, font, etc.), the app
+preferences are exported and tracked here:
 
 ```bash
 ~/.dotfiles/iterm/com.googlecode.iterm2.plist
@@ -187,6 +196,7 @@ To preserve the full appearance and behavior of iTerm2 environment (profiles, co
 
 #### 💾 Notes
 
-- This includes current default profile with custom color palette (matching `sergio_dark_rainbow` and Fish theme) and font config
+- This includes current default profile with custom color palette (matching `sergio_dark_rainbow` and Fish theme) and
+  font config
 - Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
 - Back up this file again if you change iTerm2 preferences in the future
