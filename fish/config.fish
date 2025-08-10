@@ -1,15 +1,24 @@
 # ~/.config/fish/config.fish
-
-# Aliases are defined in conf.d/aliases.fish
+# ==============================================================================
+# 📜 Main Fish configuration file
+# ------------------------------------------------------------------------------
+# This file contains the main Fish shell setup, environment variables, and
+# initialization logic.
+# Aliases and additional functions are defined in:
+#   ~/.config/fish/conf.d/aliases.fish
+# ==============================================================================
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ✅ Environment setup
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Load Homebrew environment variables
+# This ensures that tools installed via Homebrew are added to PATH and other
+# environment variables are properly configured.
 eval (/opt/homebrew/bin/brew shellenv)
 
 # Initialize FNM (Fast Node Manager)
+# Loads Node.js version manager into the shell.
 fnm env | source
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -17,12 +26,23 @@ fnm env | source
 # ─────────────────────────────────────────────────────────────────────────────
 
 if status is-interactive
-    set -gx BANNER_MODE auto  # Banner mode: (full | compact | auto)
-    starship init fish | source  # Starship prompt
-    banner_sergio  # Custom welcome banner
-    # fish_greeting runs automatically on shell startup
+    # Banner display mode: "full", "compact", or "auto" depending on terminal size
+    set -gx BANNER_MODE auto
+
+    # Initialize Starship prompt (fast, highly customizable)
+    starship init fish | source
+
+    # Initialize Zoxide (smart directory jumper)
+    zoxide init fish | source
+
+    # Display custom multi-line banner
+    banner_sergio
+
+    # fish_greeting runs automatically on shell startup (see fish/functions/)
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🔐 SSH is managed via .dotfiles/ssh configuration and 1Password SSH Agent
+# 🔐 SSH configuration
 # ─────────────────────────────────────────────────────────────────────────────
+# SSH keys and configuration are managed via:
+#   ~/.dotfiles/ssh + 1Password SSH Agent
