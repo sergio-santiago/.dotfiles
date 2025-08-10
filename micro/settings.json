@@ -1,0 +1,19 @@
+{
+  "colorcolumn": 100,
+  "colorscheme": "sergio-dark-rainbow",
+  "diffgutter": true,
+  "fakecursor": true,
+  "hlsearch": true,
+  "hltaberrors": true,
+  "hltrailingws": true,
+  "matchbracestyle": "highlight",
+  "mkparents": true,
+  "rmtrailingws": true,
+  "savecursor": true,
+  "scrollbar": true,
+  "scrollbarchar": "󰮾",
+  "statusformatl": "   $(filename)$(modified)  L$(line):C$(col)  󰆙 $(lines)  󰖎$(percentage)   $(opt:filetype)   $(opt:encoding)  $(opt:fileformat)󱞱 |-",
+  "statusformatr": "-| ^Q 󰩈  ^S   ^E   ^F 󰮗  ^Z 󰕍  ^Y 󰑏  ^G 󰘥 ",
+  "truecolor": "on",
+  "tabstospaces": true
+}
