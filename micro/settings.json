@@ -13,7 +13,7 @@
   "scrollbar": true,
   "scrollbarchar": "󰮾",
   "statusformatl": "   $(filename)$(modified)  L$(line):C$(col)  󰆙 $(lines)  󰖎$(percentage)   $(opt:filetype)   $(opt:encoding)  $(opt:fileformat)󱞱 |-",
-  "statusformatr": "-| ^Q 󰩈  ^S   ^E   ^F 󰮗  ^Z 󰕍  ^Y 󰑏  ^G 󰘥 ",
+  "statusformatr": "-| ^Q 󰩈  ^S   ^G 󰘥  󰘵 G   ",
   "truecolor": "on",
   "tabstospaces": true
 }
