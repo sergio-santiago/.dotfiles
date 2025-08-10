@@ -49,13 +49,10 @@ mkdir -p ~/.ssh
 ln -sf ~/.dotfiles/ssh/config ~/.ssh/config
 
 # Fish
-mkdir -p ~/.config/fish/conf.d ~/.config/fish/functions
-ln -sf ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
-ln -sf ~/.dotfiles/fish/conf.d/aliases.fish ~/.config/fish/conf.d/aliases.fish
-ln -sf ~/.dotfiles/fish/conf.d/colors_theme.fish ~/.config/fish/conf.d/colors_theme.fish
-ln -sf ~/.dotfiles/fish/conf.d/rainbow_separator.fish ~/.config/fish/conf.d/rainbow_separator.fish
-ln -sf ~/.dotfiles/fish/functions/banner_sergio.fish ~/.config/fish/functions/banner_sergio.fish
-ln -sf ~/.dotfiles/fish/functions/fish_greeting.fish ~/.config/fish/functions/fish_greeting.fish
+mkdir -p ~/.config/fish
+ln -sfn ~/.dotfiles/fish/conf.d ~/.config/fish/conf.d
+ln -sfn ~/.dotfiles/fish/functions ~/.config/fish/functions
+ln -sfn ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
 
 # Starship
 ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
@@ -121,7 +118,7 @@ ln -sf ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/m
 8. Install tools used in aliases:
 
    ```bash
-   brew install lsd bat btop tree
+   brew install bat btop eza fd fzf zoxide
    ```
 
 > `config.fish` already contains:
