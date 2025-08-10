@@ -174,7 +174,7 @@ show_milliseconds = true
 format = '[[󰇝  Completed in $duration ](fg:crust bg:lavender)]($style)'
 style = "fg:crust bg:lavender"
 disabled = false
-show_notifications = true
+show_notifications = false
 min_time_to_notify = 45000
 
 [palettes.catppuccin_mocha]
@@ -293,7 +293,7 @@ crust = "#181926"
 rosewater = "#ffb1a7"
 flamingo = "#ff8fa1"
 pink = "#ff6cd4"
-mauve = "#c592ff"
+mauve = "#cca5ff"
 red = "#ff4d4d"
 maroon = "#ff6f76"
 peach = "#ffb86c"
