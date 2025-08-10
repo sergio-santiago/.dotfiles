@@ -31,7 +31,7 @@ $line_break\
 │
 ╰──$character"""
 
-palette = 'sergio_dark_rainbow'
+palette = 'linked_data_dark_rainbow'
 
 [os]
 disabled = true
@@ -289,7 +289,7 @@ base = "#24273a"
 mantle = "#1e2030"
 crust = "#181926"
 
-[palettes.sergio_dark_rainbow]
+[palettes.linked_data_dark_rainbow]
 rosewater = "#ffb1a7"
 flamingo = "#ff8fa1"
 pink = "#ff6cd4"
