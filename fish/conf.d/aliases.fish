@@ -1,30 +1,103 @@
 # ~/.config/fish/conf.d/aliases.fish
-# Custom CLI aliases for improved terminal productivity
+# ==============================================================================
+# 🛠 Custom CLI aliases and functions for improved terminal productivity.
+# Designed for Fish shell, with enhanced file navigation, listing, editing,
+# and system utilities.
+# ==============================================================================
 
-# ── 🧭 Navigation ─────────────────────────────────────────────
-alias ..="cd .."               # Go up one directory
-alias ...="cd ../.."           # Go up two directories
-alias cdp="cd ~/Projects"      # Jump to personal projects directory
+# ─────────────────────────────────────────────────────────────────────────────
+# 🧭 Navigation
+# ─────────────────────────────────────────────────────────────────────────────
+# Jump to personal projects directory
+alias zp="z ~/Projects"
 
-# ── ⚙️  Development tools ──────────────────────────────────────
-alias m="make"                 # Shorter make command
-alias nvm="fnm"                # Use fnm as a drop-in replacement for nvm
+# ─────────────────────────────────────────────────────────────────────────────
+# 📁 Listing (eza)
+# ─────────────────────────────────────────────────────────────────────────────
+# Compact listing (dirs first, group names, icons)
+function __list
+    eza --group --icons=auto --group-directories-first $argv
+end
+alias list="__list"
+alias l="__list"  # short alias
 
-# ── 🧰 Git & VCS ───────────────────────────────────────────────
-alias git-graph="git log --all --oneline --decorate --graph"  # Visual git history
-alias gpatch="pbpaste | git apply"                            # Apply a git patch from clipboard
+# Compact listing + hidden files
+function __list_all
+    eza -a --group --icons=auto --group-directories-first $argv
+end
+alias list-all="__list_all"
+alias la="__list_all"  # short alias
 
-# ── 📁 Filesystem & Listing ───────────────────────────────────
-alias l="lsd -lah"             # List files with details and colors (using lsd)
-alias tree="tree -a"           # Show full tree including hidden files
-alias btree="tree -C -a -F"    # Colored tree with hidden files and file suffixes
-alias cat="bat --paging=never" # Fancy cat with syntax highlighting
+# Detailed listing (permissions, size, owner, group, full date, git status)
+function __list_long
+    eza -lah --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+end
+alias list-long="__list_long"
+alias ll="__list_long"  # short alias
 
-# ── 📋 Clipboard (macOS) ───────────────────────────────────────
-alias copy="pbcopy"            # Copy stdin to clipboard (macOS), e.g. `cat file.txt | copy`
-alias paste="pbpaste"          # Paste clipboard content to stdout (macOS), e.g. `paste > file.txt`
+# Compact tree view (use `-L<N>` to set depth)
+function __list_tree
+    eza -a --tree --group --icons=auto --git --group-directories-first $argv
+end
+alias list-tree="__list_tree"
+alias tree="__list_tree"  # short alias
 
-# ── 📊 System ──────────────────────────────────────────────────
-alias top="btop"               # Modern system monitor (better top)
+# Detailed tree view (permissions, size, owner, group, git status; use `-L<N>` to set depth)
+function __list_tree_long
+    eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+end
+alias list-tree-long="__list_tree_long"
+alias treelong="__list_tree_long"  # short alias
 
-# All aliases are auto-loaded at shell startup via conf.d
+# ─────────────────────────────────────────────────────────────────────────────
+# 📄 File viewing (bat)
+# ─────────────────────────────────────────────────────────────────────────────
+# Pretty output with syntax highlighting, full style, and custom theme
+alias view="bat --paging=never --style=full --theme=OneHalfDark"
+alias v="view"   # short alias
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ✏️ Editor
+# ─────────────────────────────────────────────────────────────────────────────
+# Default editor for CLI programs
+set -gx EDITOR micro
+alias edit="micro"
+
+# Visual Studio Code as visual editor (blocks until closed)
+set -gx VISUAL "code --wait"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 📋 Clipboard
+# ─────────────────────────────────────────────────────────────────────────────
+# Copy stdin to clipboard (e.g. `cat file.txt | copy`)
+alias copy="pbcopy"
+
+# Paste clipboard content to stdout (e.g. `paste > file.txt`)
+alias paste="pbpaste"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚙️ Development tools
+# ─────────────────────────────────────────────────────────────────────────────
+# Shorter make command
+alias m="make"
+
+# Use FNM as a drop-in replacement for nvm
+alias nvm="fnm"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🧰 Git & VCS
+# ─────────────────────────────────────────────────────────────────────────────
+# Visual git history graph
+alias git-graph="git log --all --oneline --decorate --graph"
+alias gg="git-graph"  # short alias
+
+# Apply a git patch from clipboard
+alias git-patch="pbpaste | git apply"
+alias gp="git-patch"  # short alias
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 📊 System
+# ─────────────────────────────────────────────────────────────────────────────
+# Modern system monitor (better top)
+alias monitor="btop"
