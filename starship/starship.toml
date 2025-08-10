@@ -1,5 +1,12 @@
+# ~/.config/starship.toml
+# Starship prompt configuration with a "linked-data-dark-rainbow" palette.
+# Modern two-line prompt with powerline segments, icons, and contextual info.
+
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# ── Prompt Layout ────────────────────────────────────────────
+# Powerline-styled top line with OS/user, path, Git, languages, envs, and time.
+# Bottom line shows prompt symbol (character) for command entry.
 format = """
 ╭─[](sapphire)\
 [](bg:sapphire fg:crust)\
@@ -31,8 +38,10 @@ $line_break\
 │
 ╰──$character"""
 
+# Selected color palette
 palette = 'linked_data_dark_rainbow'
 
+# ── OS Module ─────────────────────────────────────────────────
 [os]
 disabled = true
 style = "bg:sapphire fg:crust"
@@ -58,6 +67,7 @@ Debian = "󰣚"
 Redhat = "󱄛"
 RedHatEnterprise = "󱄛"
 
+# ── Username ─────────────────────────────────────────────────
 [username]
 disabled = true
 show_always = true
@@ -65,18 +75,20 @@ style_user = "bg:sapphire fg:crust"
 style_root = "bg:sapphire fg:crust"
 format = '[ $user ]($style)'
 
+# ── Custom: Pretty Name ───────────────────────────────────────
 [custom.pretty_name]
-command = "id -F | awk '{print $1}'"
+command = "id -F | awk '{print $1}'" # First name from the full system username
 when = "true"
 format = "[ $output ](bg:sapphire fg:crust)"
 
+# ── Directory ────────────────────────────────────────────────
 [directory]
 style = "bg:peach fg:crust"
 format = "[ $path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
-[directory.substitutions]
+[directory.substitutions] # Replaces folder names with icons
 "Desktop" = " "
 "Documents" = "󰈙 "
 "Downloads" = " "
@@ -85,6 +97,7 @@ truncation_symbol = "…/"
 "Developer" = "󰲋 "
 "Projects" = "󰲋 "
 
+# ── Git ──────────────────────────────────────────────────────
 [git_branch]
 symbol = ""
 style = "bg:yellow"
@@ -94,6 +107,7 @@ format = '[[ $symbol $branch ](fg:crust bg:yellow)]($style)'
 style = "bg:yellow"
 format = '[[($all_status$ahead_behind )](fg:crust bg:yellow)]($style)'
 
+# ── Languages / Runtimes ─────────────────────────────────────
 [nodejs]
 symbol = ""
 style = "bg:green"
@@ -144,18 +158,21 @@ symbol = ""
 style = "bg:sapphire"
 format = '[[ $symbol( $context) ](fg:crust bg:sapphire)]($style)'
 
+# ── Conda Environment ────────────────────────────────────────
 [conda]
 symbol = "  "
 style = "fg:crust bg:red"
 format = '[$symbol$environment ]($style)'
 ignore_base = false
 
+# ── Time ─────────────────────────────────────────────────────
 [time]
 disabled = false
 time_format = "%H:%M:%S"
 style = "bg:lavender"
 format = '[[  $time ](fg:crust bg:lavender)]($style)'
 
+# ── Prompt Symbols ───────────────────────────────────────────
 [line_break]
 disabled = false
 
@@ -168,15 +185,18 @@ vimcmd_replace_one_symbol = '[❮](bold fg:lavender)'
 vimcmd_replace_symbol = '[❮](bold fg:lavender)'
 vimcmd_visual_symbol = '[❮](bold fg:yellow)'
 
+# ── Command Duration ─────────────────────────────────────────
 [cmd_duration]
-min_time = 100
+min_time = 100 # Show if the command took ≥ 100 ms
 show_milliseconds = true
 format = '[[󰇝  Completed in $duration ](fg:crust bg:lavender)]($style)'
 style = "fg:crust bg:lavender"
 disabled = false
 show_notifications = false
-min_time_to_notify = 45000
+min_time_to_notify = 45000 # Notify if ≥ 45s
 
+# ── Color Palettes ───────────────────────────────────────────
+# Includes multiple palettes for flexibility, the main is "linked_data_dark_rainbow"
 [palettes.catppuccin_mocha]
 rosewater = "#f5e0dc"
 flamingo = "#f2cdcd"
@@ -290,6 +310,7 @@ mantle = "#1e2030"
 crust = "#181926"
 
 [palettes.linked_data_dark_rainbow]
+# Custom rainbow palette optimized for dark backgrounds
 rosewater = "#ffb1a7"
 flamingo = "#ff8fa1"
 pink = "#ff6cd4"
