@@ -13,4 +13,4 @@
 	gpgsign = true
 
 [core]
-	editor = code --wait
+	editor = micro
