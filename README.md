@@ -16,12 +16,12 @@ This repository contains my personal macOS development environment configuration
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
 - ✏️ **Micro editor**
-    - Lightweight terminal-based editor with custom settings and a matching `sergio-dark-rainbow` color scheme for a
-      consistent look with Fish and Starship.
+    - Lightweight terminal-based editor with custom settings and a matching `linked-data-dark-rainbow` color scheme for
+      a consistent look with Fish and Starship.
     - Custom theme with true color, icon-based statusline, consistent syntax highlighting, 4-space indentation... and
       more.
 - 🌈 **Color theme**
-    - Custom `sergio_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax
+    - Custom `linked_data_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax
       highlighting, pager, and selection colors.
     - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
       prompt.
@@ -66,7 +66,7 @@ ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
 # Micro
 mkdir -p ~/.config/micro/colorschemes
 ln -sf ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
-ln -sf ~/.dotfiles/micro/colorschemes/sergio-dark-rainbow.micro ~/.config/micro/colorschemes/sergio-dark-rainbow.micro
+ln -sf ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/micro/colorschemes/linked-data-dark-rainbow.micro
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
@@ -196,7 +196,7 @@ preferences are exported and tracked here:
 
 #### 💾 Notes
 
-- This includes current default profile with custom color palette (matching `sergio_dark_rainbow` and Fish theme) and
-  font config
+- This includes current default profile with custom color palette (matching `linked_data_dark_rainbow` and Fish theme)
+  and font config
 - Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
 - Back up this file again if you change iTerm2 preferences in the future
