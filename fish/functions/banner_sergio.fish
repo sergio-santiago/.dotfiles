@@ -1,8 +1,23 @@
-function banner_sergio
-    set cols (tput cols)
-    set min_width 130
+# ~/.config/fish/functions/banner_sergio.fish
+# Custom ASCII banner for Fish shell startup.
+# Displays either a large decorative ASCII art banner ("full" mode)
+# or a minimal compact version, depending on terminal width or user setting.
+# Supports colorized output via `lolcat` if installed; falls back to cyan text otherwise.
+#
+# Behavior:
+#   - Mode is controlled by $BANNER_MODE environment variable:
+#       full    → always show the full-width ASCII banner
+#       compact → always show the compact banner
+#       auto    → choose based on terminal width (default)
+#   - Terminal width threshold: 130 columns for full banner.
+#   - `lolcat` adds rainbow animation; without it, prints in bright cyan.
 
-    # Control mode: "full" | "compact" | "auto"
+function banner_sergio
+    # Get current terminal width (columns)
+    set cols (tput cols)
+    set min_width 130  # Minimum columns required for full banner in auto mode
+
+    # Determine mode from env var (full | compact | auto), default: auto
     set banner_mode (set -q BANNER_MODE; and echo $BANNER_MODE; or echo "auto")
 
     # Full-width ASCII banner text
@@ -26,13 +41,14 @@ function banner_sergio
                                                ╚════════════════════════════════════════╝
     "
 
-    # Compact fallback banner
+    # Compact fallback banner (shown when terminal is narrow or in compact mode)
     set compact_banner_text "
 ╔═══════════════════════════════════╗
 ║      Welcome to Terminal!        ║
 ╚═══════════════════════════════════╝
     "
 
+    # Decide which banner to show based on mode and terminal width
     switch $banner_mode
         case full
             set show_full true
@@ -42,6 +58,7 @@ function banner_sergio
             set show_full (test "$cols" -ge "$min_width"; and echo true; or echo false)
     end
 
+    # Print the chosen banner with colors if possible
     if test "$show_full" = "true"
         if type -q lolcat
             echo "$full_banner_text" | lolcat -t
