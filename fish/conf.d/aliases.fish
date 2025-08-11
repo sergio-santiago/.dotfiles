@@ -58,7 +58,7 @@ alias treelong="__list_tree_long"  # short alias
 # Pretty output with syntax highlighting, full style, and custom theme
 function _view --wraps bat --description 'bat viewer with terminal width wrap'
     set -l cols $COLUMNS; or set -l cols 120
-    command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 --color=always $argv
+    command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 $argv
 end
 alias view="_view"
 alias v="_view"   # short alias
