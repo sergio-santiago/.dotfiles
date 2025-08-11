@@ -38,7 +38,7 @@ alias ll="__list_long"  # short alias
 # Compact tree view (use `-L<N>` to set depth)
 function __list_tree
     # Note: If you want to ignore folders like .git or node_modules, add:
-    #   --ignore-glob='.git|node_modules'
+    #   -I='.git|node_modules'
     eza -a --tree --group --icons=auto --git --group-directories-first $argv
 end
 alias list-tree="__list_tree"
@@ -46,7 +46,7 @@ alias tree="__list_tree"  # short alias
 
 # Detailed tree view (permissions, size, owner, group, git status; use `-L<N>` to set depth)
 function __list_tree_long
-    # Example to ignore: --ignore-glob='.git|node_modules'
+    # Example to ignore: -I='.git|node_modules'
     eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
 end
 alias list-tree-long="__list_tree_long"
