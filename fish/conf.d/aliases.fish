@@ -37,6 +37,8 @@ alias ll="__list_long"  # short alias
 
 # Compact tree view (use `-L<N>` to set depth)
 function __list_tree
+    # Note: If you want to ignore folders like .git or node_modules, add:
+    #   --ignore-glob='.git|node_modules'
     eza -a --tree --group --icons=auto --git --group-directories-first $argv
 end
 alias list-tree="__list_tree"
@@ -44,6 +46,7 @@ alias tree="__list_tree"  # short alias
 
 # Detailed tree view (permissions, size, owner, group, git status; use `-L<N>` to set depth)
 function __list_tree_long
+    # Example to ignore: --ignore-glob='.git|node_modules'
     eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
 end
 alias list-tree-long="__list_tree_long"
@@ -53,9 +56,12 @@ alias treelong="__list_tree_long"  # short alias
 # 📄 File viewing (bat)
 # ─────────────────────────────────────────────────────────────────────────────
 # Pretty output with syntax highlighting, full style, and custom theme
-alias view="bat --paging=never --style=full --theme=OneHalfDark"
-alias v="view"   # short alias
-
+function _view --wraps bat --description 'bat viewer with terminal width wrap'
+    set -l cols $COLUMNS; or set -l cols 120
+    command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 --color=always $argv
+end
+alias view="_view"
+alias v="_view"   # short alias
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ✏️ Editor
