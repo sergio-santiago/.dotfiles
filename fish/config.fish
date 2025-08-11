@@ -19,7 +19,7 @@ eval (/opt/homebrew/bin/brew shellenv)
 
 # Initialize FNM (Fast Node Manager)
 # Loads Node.js version manager into the shell.
-fnm env | source
+fnm env --use-on-cd --shell fish | source
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ✅ Interactive shell configuration
