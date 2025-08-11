@@ -46,24 +46,29 @@ git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 ```bash
 # SSH
 mkdir -p ~/.ssh
-ln -sf ~/.dotfiles/ssh/config ~/.ssh/config
+ln -sfh ~/.dotfiles/ssh/config ~/.ssh/config
 
 # Fish
 mkdir -p ~/.config/fish
-ln -sfn ~/.dotfiles/fish/conf.d ~/.config/fish/conf.d
-ln -sfn ~/.dotfiles/fish/functions ~/.config/fish/functions
-ln -sfn ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
+ln -sfh ~/.dotfiles/fish/conf.d ~/.config/fish/conf.d
+ln -sfh ~/.dotfiles/fish/functions ~/.config/fish/functions
+ln -sfh ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
 
 # Starship
-ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
+ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
 # Git
-ln -sf ~/.dotfiles/git/gitconfig ~/.gitconfig
+ln -sfh ~/.dotfiles/git/gitconfig ~/.gitconfig
 
 # Micro
 mkdir -p ~/.config/micro/colorschemes
-ln -sf ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
-ln -sf ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/micro/colorschemes/linked-data-dark-rainbow.micro
+ln -sfh ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
+ln -sfh ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/micro/colorschemes/linked-data-dark-rainbow.micro
+
+# Bat
+mkdir -p ~/.config/bat
+ln -sfh ~/.dotfiles/bat/themes ~/.config/bat/themes
+bat cache --build
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
