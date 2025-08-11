@@ -9,7 +9,7 @@
 # =====================================================================
 
 # ── 📦 Global style settings ─────────────────────────────────────────
-set -gx FZF_DEFAULT_OPTS '--height=80% --layout=reverse --border --ansi'
+set -gx FZF_DEFAULT_OPTS '--height=80% --layout=reverse --border=rounded --ansi --color=dark,fg:252,bg:0,fg+:15,bg+:235,hl:117,hl+:117,info:86,prompt:211,pointer:211,marker:84,spinner:216,header:183'
 # Ensure truecolor support for preview color accuracy
 set -q COLORTERM; or set -gx COLORTERM truecolor
 
@@ -35,7 +35,7 @@ function __fzf_apply_responsive_opts
     end
 
     # Ctrl+T → File picker with bat preview
-    set -gx FZF_CTRL_T_OPTS "--preview=bat\ --style=plain\ --color=always\ --line-range=:200\ {} \
+    set -gx FZF_CTRL_T_OPTS "--preview=bat\ --style=plain\ --color=always\ --wrap=auto\ --tabs=4\ --terminal-width=\$FZF_PREVIEW_COLUMNS\ --line-range=:200\ {} \
         --preview-window=$pos \
         --bind=ctrl-/:toggle-preview,ctrl-y:preview-half-page-down,ctrl-u:preview-half-page-up"
 
@@ -50,3 +50,6 @@ __fzf_apply_responsive_opts
 function __fzf_react_to_resize --on-variable COLUMNS
     __fzf_apply_responsive_opts
 end
+
+# zoxide interactive inherits same theme (no preview)
+set -gx _ZO_FZF_OPTS $FZF_DEFAULT_OPTS
