@@ -155,7 +155,7 @@ you can disable it by overriding the config path:
    env STARSHIP_CONFIG=/dev/null /opt/homebrew/bin/fish
     ```
 
-This launches fish with an empty Starship config, disabling the prompt in WebStorm
+This launches fish with an empty Starship config, disabling the prompt in JetBrains IDE
 without affecting your normal terminal.
 
 ---
