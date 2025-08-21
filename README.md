@@ -33,49 +33,17 @@ This repository contains my personal macOS development environment configuration
 
 ---
 
-## 🔧 Setup & Usage Guide
+## 🔧 Setup & Usage Guide (Restore on a new machine)
 
-### 🚀 Restore on a new machine
+### 🧬 Clone repository
 
 ```bash
 git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 ```
 
-**Symlink configs:**
-
-```bash
-# SSH
-mkdir -p ~/.ssh
-ln -sfh ~/.dotfiles/ssh/config ~/.ssh/config
-
-# Fish
-mkdir -p ~/.config/fish
-ln -sfh ~/.dotfiles/fish/conf.d ~/.config/fish/conf.d
-ln -sfh ~/.dotfiles/fish/functions ~/.config/fish/functions
-ln -sfh ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
-
-# Starship
-ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
-
-# Git
-ln -sfh ~/.dotfiles/git/gitconfig ~/.gitconfig
-
-# Micro
-mkdir -p ~/.config/micro/colorschemes
-ln -sfh ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
-ln -sfh ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/micro/colorschemes/linked-data-dark-rainbow.micro
-
-# Bat
-mkdir -p ~/.config/bat
-ln -sfh ~/.dotfiles/bat/themes ~/.config/bat/themes
-bat cache --build
-```
-
-> ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
-
 ---
 
-### 🐟 Fish Shell Setup
+### 📦 Install dependencies
 
 1. Install iTerm2 (recommended terminal for macOS) — choose **one**:
     - **From official website:** [https://iterm2.com](https://iterm2.com)
@@ -120,20 +88,57 @@ bat cache --build
    brew install lolcat
    ```
 
-8. Install tools used in aliases:
+8. For allows you to set up rules that decide which browser/profile is opened for every url:
+
+   ```bash
+   brew install --cask finicky
+   ```
+
+9. Install other tools used in aliases and configs:
 
    ```bash
    brew install bat btop eza fd fzf zoxide
    ```
 
-> `config.fish` already contains:
->
-> - `fnm env | source` to initialize fnm
-> - `BANNER_MODE` (full | compact | auto) for banner control
-> - `starship init fish | source` to initialize starship
-> - `banner_sergio` function for custom banner
-> - Aliases are automatically loaded from `conf.d/aliases.fish`
-> - Syntax, pager, and selection colors are automatically loaded from `conf.d/colors_theme.fish`
+---
+
+### 🔗 Symlink configs
+
+```bash
+# SSH
+mkdir -p ~/.ssh
+ln -sfh ~/.dotfiles/ssh/config ~/.ssh/config
+
+# Fish
+mkdir -p ~/.config/fish
+ln -sfh ~/.dotfiles/fish/conf.d ~/.config/fish/conf.d
+ln -sfh ~/.dotfiles/fish/functions ~/.config/fish/functions
+ln -sfh ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
+
+# Starship
+ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
+
+# Git
+ln -sfh ~/.dotfiles/git/gitconfig ~/.gitconfig
+
+# Micro
+mkdir -p ~/.config/micro/colorschemes
+ln -sfh ~/.dotfiles/micro/settings.json ~/.config/micro/settings.json
+ln -sfh ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/micro/colorschemes/linked-data-dark-rainbow.micro
+
+# Bat
+mkdir -p ~/.config/bat
+ln -sfh ~/.dotfiles/bat/themes ~/.config/bat/themes
+bat cache --build
+
+# Finicky
+mkdir -p ~/.config/finicky
+ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
+```
+
+> ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
+
+---
 
 ### 🧩 Disable Starship in JetBrains IDEs Terminal
 
@@ -202,3 +207,12 @@ preferences are exported and tracked here:
   and font config
 - Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
 - Back up this file again if you change iTerm2 preferences in the future
+
+> `config.fish` contains:
+>
+> - `fnm env | source` to initialize fnm
+> - `BANNER_MODE` (full | compact | auto) for banner control
+> - `starship init fish | source` to initialize starship
+> - `banner_sergio` function for custom banner
+> - Aliases are automatically loaded from `conf.d/aliases.fish`
+> - Syntax, pager, and selection colors are automatically loaded from `conf.d/colors_theme.fish`
