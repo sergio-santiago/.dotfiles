@@ -26,6 +26,9 @@ This repository contains my personal macOS development environment configuration
     - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for a pure black background and high contrast.
+- 🔗 **Finicky**
+    - Smart browser profile routing. Sets Chrome as the default browser and opens Google Meet links
+      automatically in the **Secture** profile.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 
