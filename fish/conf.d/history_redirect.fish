@@ -13,7 +13,7 @@
 #
 # Notes:
 #   - Safe to source multiple times (idempotent).
-#   - Use `LESSHISTFILE="-"` or `PYTHONHISTFILE="/dev/null"` if you prefer
+#   - Use `LESSHISTFILE="-"` or `PYTHON_HISTORY="/dev/null"` if you prefer
 #     disabling history completely.
 # ==============================================================================
 
@@ -21,4 +21,4 @@
 set -x LESSHISTFILE "$HOME/.cache/lesshst"
 
 # python REPL history
-set -x PYTHONHISTFILE "$HOME/.cache/python_history"
+set -x PYTHON_HISTORY "$HOME/.cache/python_history"
