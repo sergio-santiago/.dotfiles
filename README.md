@@ -50,12 +50,12 @@ git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 
 Your development environment is fully reproducible with [Homebrew](https://brew.sh) and a `Brewfile`.
 
-#### 1. 🖥️ Install iTerm2 (terminal emulator for macOS)
+### 1. 🖥️ Install iTerm2 (terminal emulator for macOS)
 
 - **Recommended**: download from the official website → [https://iterm2.com](https://iterm2.com)  
   👉 In this setup, iTerm2 is installed **manually** to benefit from its built-in auto-updates.
 
-#### 2. ⚙️ Install all tools with Brewfile
+### 2. ⚙️ Install all tools with Brewfile
 
 Run the following command to install CLI tools and apps:
 
@@ -65,7 +65,7 @@ brew bundle --file ~/.dotfiles/Brewfile
 
 This will install:
 
-### 🛠️ CLI tools
+#### 🛠️ CLI tools
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
 - **eza** — improved `ls` with colors and icons
@@ -80,7 +80,7 @@ This will install:
 - **zoxide** — smarter `cd` command with jump history
 - **pyenv** — manage multiple Python versions
 
-### 💻 Apps (casks)
+#### 💻 Apps (casks)
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **Hammerspoon** — macOS automation tool with Lua scripting
