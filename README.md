@@ -46,62 +46,46 @@ git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 
 ---
 
-### 📦 Install dependencies
+### 📦 Install Dependencies
 
-1. Install iTerm2 (recommended terminal for macOS) — choose **one**:
-    - **From official website:** [https://iterm2.com](https://iterm2.com)
-    - **Using Homebrew:**
-      ```bash
-      brew install --cask iterm2
-      ```
+Your development environment is fully reproducible with [Homebrew](https://brew.sh) and a `Brewfile`.
 
-2. Install `fish` and set it as your default shell:
+#### 1. 🖥️ Install iTerm2 (terminal emulator for macOS)
 
-   ```bash
-   brew install fish
-   chsh -s /opt/homebrew/bin/fish
-   ```
+- **Recommended**: download from the official website → [https://iterm2.com](https://iterm2.com)  
+  👉 In this setup, iTerm2 is installed **manually** to benefit from its built-in auto-updates.
 
-3. Install starship prompt:
+#### 2. ⚙️ Install all tools with Brewfile
 
-   ```bash
-   brew install starship
-   ```
+Run the following command to install CLI tools and apps:
 
-4. Install Nerd Font for prompt icons (e.g., Fira Code Nerd Font):
+```bash
+brew bundle --file ~/.dotfiles/Brewfile
+```
 
-   ```bash
-   brew install --cask font-fira-code-nerd-font
-   ```
+This will install:
 
-5. Install Micro editor:
-   ```bash
-   brew install micro
-   ```
+### 🛠️ CLI tools
+- **bat** — `cat` clone with syntax highlighting
+- **btop** — modern system resource monitor
+- **eza** — improved `ls` with colors and icons
+- **fd** — fast and user-friendly alternative to `find`
+- **fish** — friendly interactive shell
+- **fnm** — fast Node.js version manager
+- **fzf** — fuzzy finder for the terminal
+- **gemini-cli** — Google Gemini AI CLI
+- **lolcat** — rainbow coloring for terminal output
+- **micro** — lightweight terminal text editor
+- **starship** — fast and customizable prompt
+- **zoxide** — smarter `cd` command with jump history
+- **pyenv** — manage multiple Python versions
 
-6. Install `fnm` for Node.js version management with fish:
+### 💻 Apps (casks)
+- **Finicky** — control which browser/profile opens links
+- **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
+- **Hammerspoon** — macOS automation tool with Lua scripting
 
-   ```bash
-   brew install fnm
-   ```
-
-7. For colorful banner output and separator:
-
-   ```bash
-   brew install lolcat
-   ```
-
-8. For allows you to set up rules that decide which browser/profile is opened for every url:
-
-   ```bash
-   brew install --cask finicky
-   ```
-
-9. Install other tools used in aliases and configs:
-
-   ```bash
-   brew install bat btop eza fd fzf zoxide
-   ```
+> ℹ️ Homebrew automatically handles low-level dependencies (e.g. openssl, icu4c, etc.), so the Brewfile only contains the tools and apps you explicitly install.
 
 ---
 
