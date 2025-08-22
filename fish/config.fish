@@ -27,16 +27,30 @@ fnm env --use-on-cd --shell fish | source
 
 if status is-interactive
     # Banner display mode: "full", "compact", or "auto" depending on terminal size
-    set -gx BANNER_MODE auto
+    set -gx BANNER_MODE compact
 
     # Initialize Starship prompt (fast, highly customizable)
-    starship init fish | source
+    if type -q starship
+        starship init fish | source
+    end
 
     # Initialize Zoxide (smart directory jumper)
-    zoxide init fish | source
+    if type -q zoxide
+        zoxide init fish | source
+    end
+
+    # Ensure custom bat theme is always available (rebuild cache if missing)
+    if type -q bat
+        set -l themes (bat --list-themes 2>/dev/null)
+        if not string match -q "*linked-data-dark-rainbow*" "$themes"
+            bat cache --build >/dev/null 2>&1
+        end
+    end
 
     # Display custom multi-line banner
-    banner_sergio
+    if functions -q banner_sergio
+        banner_sergio
+    end
 
     # fish_greeting runs automatically on shell startup (see fish/functions/)
 end
