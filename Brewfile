@@ -17,3 +17,4 @@ brew "zoxide"                   # smarter cd command with jump history
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
 cask "hammerspoon"              # macOS automation tool with Lua scripting
+cask "iterm2"                   # terminal emulator for macOS

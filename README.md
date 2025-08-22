@@ -5,7 +5,6 @@ This repository contains my personal macOS development environment configuration
 - 🐟 **Fish shell**
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
-
 - 🎨 **Custom banner**
     - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
     - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
@@ -21,14 +20,17 @@ This repository contains my personal macOS development environment configuration
     - Custom theme with true color, icon-based statusline, consistent syntax highlighting, 4-space indentation... and
       more.
 - 🌈 **Color theme**
-    - Custom `linked_data_dark_rainbow` Starship palette + matching Fish `colors_theme.fish` for consistent syntax
-      highlighting, pager, and selection colors.
+    - Custom `linked_data_dark_rainbow` theme for consistent syntax highlighting, pager, and selection colors.
+      Implemented across:
+        - Starship (`palettes.linked_data_dark_rainbow` palette)
+        - Fish (`fish_colors_linked_data_dark_rainbow.fish`)
+        - Bat (`linked-data-dark-rainbow.tmTheme`)
     - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
       prompt.
-    - All colors are optimized for a pure black background and high contrast.
+    - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
 - 🔗 **Finicky**
     - Smart browser profile routing. Sets Chrome as the default browser and opens Google Meet links
-      automatically in the **Secture** profile.
+      automatically in the **Secture** _(work)_ profile.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 
@@ -46,17 +48,9 @@ git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 
 ---
 
-### 📦 Install Dependencies
+### 📦 Install dependencies with Brewfile
 
-Your development environment is fully reproducible with [Homebrew](https://brew.sh) and a `Brewfile`.
-
-#### 1. 🖥️ Install iTerm2 (terminal emulator for macOS)
-
-- **Recommended**: download from the official website → [https://iterm2.com](https://iterm2.com)  
-  👉 In this setup, iTerm2 is installed **manually** to benefit from its built-in auto-updates.
-
-#### 2. ⚙️ Install all tools with Brewfile
-
+Development environment is reproducible with [Homebrew](https://brew.sh) and a `Brewfile`.  
 Run the following command to install CLI tools and apps:
 
 ```bash
@@ -65,7 +59,7 @@ brew bundle --file ~/.dotfiles/Brewfile
 
 This will install:
 
-🛠️ CLI tools
+#### 🛠️ CLI tools
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
 - **eza** — improved `ls` with colors and icons
@@ -80,12 +74,11 @@ This will install:
 - **zoxide** — smarter `cd` command with jump history
 - **pyenv** — manage multiple Python versions
 
-💻 Apps (casks)
+#### 💻 Apps (casks)
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **Hammerspoon** — macOS automation tool with Lua scripting
-
-> ℹ️ Homebrew automatically handles low-level dependencies (e.g. openssl, icu4c, etc.), so the Brewfile only contains the tools and apps you explicitly install.
+- **iTerm2** — terminal emulator for macOS
 
 ---
 
@@ -187,19 +180,3 @@ preferences are exported and tracked here:
 
 4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
 5. Restart iTerm2 to apply all changes
-
-#### 💾 Notes
-
-- This includes current default profile with custom color palette (matching `linked_data_dark_rainbow` and Fish theme)
-  and font config
-- Changes to iTerm2 will not be saved unless done manually or with **"When Quitting"** selected
-- Back up this file again if you change iTerm2 preferences in the future
-
-> `config.fish` contains:
->
-> - `fnm env | source` to initialize fnm
-> - `BANNER_MODE` (full | compact | auto) for banner control
-> - `starship init fish | source` to initialize starship
-> - `banner_sergio` function for custom banner
-> - Aliases are automatically loaded from `conf.d/aliases.fish`
-> - Syntax, pager, and selection colors are automatically loaded from `conf.d/colors_theme.fish`
