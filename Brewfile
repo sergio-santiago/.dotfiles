@@ -1,6 +1,3 @@
-# --- Taps ---
-tap "homebrew/cask-fonts"       # fonts (Nerd Fonts, etc.)
-
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "btop"                     # modern system resource monitor
