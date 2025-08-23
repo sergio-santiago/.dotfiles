@@ -1,19 +1,22 @@
-# ~/.config/fish/conf.d/03-pyenv.fish
+# ~/.config/fish/conf.d/01-pyenv.fish
 # ==============================================================================
-# 🐍 Pyenv initialization (minimal Homebrew setup)
+# 🐍 Pyenv initialization
 # ------------------------------------------------------------------------------
-# Sets up pyenv for managing multiple Python versions. Ensures shims are
-# initialized only in interactive shells where pyenv is available.
+# Purpose:
+#   - Set up pyenv for managing multiple Python versions.
+#   - Initialize shims in interactive shells if pyenv is available.
 #
 # Load scope:
-#   - Interactive shells only (guarded by `status --is-interactive`).
+#   - Interactive shells only.
 #
 # Dependencies:
-#   - pyenv (installed via Homebrew)
+#   - pyenv (installed via Homebrew or other package manager).
 #
 # Notes:
 #   - PYENV_ROOT defaults to ~/.pyenv
-#   - Shims are not loaded if pyenv is not found in PATH
+#   - If pyenv is not in PATH, initialization is skipped.
+#   - Keep this early in load order (before Python-related tools).
 # ==============================================================================
+
 set -gx PYENV_ROOT $HOME/.pyenv
 type -q pyenv; and status --is-interactive; and pyenv init - | source

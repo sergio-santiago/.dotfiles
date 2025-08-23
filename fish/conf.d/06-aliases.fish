@@ -1,110 +1,119 @@
-# ~/.config/fish/conf.d/04-aliases.fish
+# ~/.config/fish/conf.d/06-aliases.fish
 # ==============================================================================
-# 🛠 Custom CLI aliases and functions for improved terminal productivity.
-# Designed for Fish shell, with enhanced file navigation, listing, editing,
-# and system utilities.
+# 🛠 Custom CLI aliases and helper functions
+# ------------------------------------------------------------------------------
+# Purpose:
+#   - Improve terminal productivity with navigation, listing, editing,
+#     clipboard, dev tools, Git, and system shortcuts.
+#
+# Load scope:
+#   - Interactive shells only.
+#
+# Notes:
+#   - Guarded with `type -q` to avoid errors if tools are missing.
+#   - Prefer small functions when options are complex.
 # ==============================================================================
+
+status --is-interactive; or exit
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 🧭 Navigation
 # ─────────────────────────────────────────────────────────────────────────────
-# Jump to personal projects directory
 alias zp="z ~/Projects"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 📁 Listing (eza)
 # ─────────────────────────────────────────────────────────────────────────────
-# Compact listing (dirs first, group names, icons)
-function __list
-    eza --group --icons=auto --group-directories-first $argv
-end
-alias list="__list"
-alias l="__list"  # short alias
+if type -q eza
+    function __list
+        eza --group --icons=auto --group-directories-first $argv
+    end
+    alias list="__list"
+    alias l="__list"
 
-# Compact listing + hidden files
-function __list_all
-    eza -a --group --icons=auto --group-directories-first $argv
-end
-alias list-all="__list_all"
-alias la="__list_all"  # short alias
+    function __list_all
+        eza -a --group --icons=auto --group-directories-first $argv
+    end
+    alias list-all="__list_all"
+    alias la="__list_all"
 
-# Detailed listing (permissions, size, owner, group, full date, git status)
-function __list_long
-    eza -lah --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
-end
-alias list-long="__list_long"
-alias ll="__list_long"  # short alias
+    function __list_long
+        eza -lah --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+    end
+    alias list-long="__list_long"
+    alias ll="__list_long"
 
-# Compact tree view (use `-L<N>` to set depth)
-function __list_tree
-    # Note: If you want to ignore folders like .git or node_modules, add:
-    #   -I='.git|node_modules'
-    eza -a --tree --group --icons=auto --git --group-directories-first $argv
-end
-alias list-tree="__list_tree"
-alias tree="__list_tree"  # short alias
+    function __list_tree
+        # Add exclusions with: -I='.git|node_modules'
+        eza -a --tree --group --icons=auto --git --group-directories-first $argv
+    end
+    alias list-tree="__list_tree"
+    alias tree="__list_tree"
 
-# Detailed tree view (permissions, size, owner, group, git status; use `-L<N>` to set depth)
-function __list_tree_long
-    # Example to ignore: -I='.git|node_modules'
-    eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+    function __list_tree_long
+        eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+    end
+    alias list-tree-long="__list_tree_long"
+    alias treelong="__list_tree_long"
 end
-alias list-tree-long="__list_tree_long"
-alias treelong="__list_tree_long"  # short alias
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 📄 File viewing (bat)
 # ─────────────────────────────────────────────────────────────────────────────
-# Pretty output with syntax highlighting, full style, and custom theme
-function _view --wraps bat --description 'bat viewer with terminal width wrap'
-    set -l cols $COLUMNS; or set -l cols 120
-    command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 $argv
+if type -q bat
+    function _view --wraps bat --description 'bat viewer with terminal width wrap'
+        set -l cols $COLUMNS; or set -l cols 120
+        command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 $argv
+    end
+    alias view="_view"
+    alias v="_view"
 end
-alias view="_view"
-alias v="_view"   # short alias
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ✏️ Editor
+# ✏️ Editors
 # ─────────────────────────────────────────────────────────────────────────────
-# Default editor for CLI programs
-set -gx EDITOR micro
-alias edit="micro"
-alias e="micro"
+if type -q micro
+    set -gx EDITOR micro
+    alias edit="micro"
+    alias e="micro"
+end
 
-# Visual Studio Code as visual editor (blocks until closed)
-set -gx VISUAL "code --wait"
+if type -q code
+    set -gx VISUAL "code --wait"
+end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 📋 Clipboard
 # ─────────────────────────────────────────────────────────────────────────────
-# Copy stdin to clipboard (e.g. `cat file.txt | copy`)
-alias copy="pbcopy"
-
-# Paste clipboard content to stdout (e.g. `paste > file.txt`)
-alias paste="pbpaste"
+if type -q pbcopy
+    alias copy="pbcopy"
+end
+if type -q pbpaste
+    alias paste="pbpaste"
+end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ⚙️ Development tools
 # ─────────────────────────────────────────────────────────────────────────────
-# Shorter make command
 alias m="make"
-
-# Use FNM as a drop-in replacement for nvm
-alias nvm="fnm"
+if type -q fnm
+    alias nvm="fnm"
+end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 🧰 Git & VCS
 # ─────────────────────────────────────────────────────────────────────────────
-# Visual git history graph
-alias git-graph="git log --all --oneline --decorate --graph"
-alias gg="git-graph"  # short alias
+if type -q git
+    alias git-graph="git log --all --oneline --decorate --graph"
+    alias gg="git-graph"
 
-# Apply a git patch from clipboard
-alias git-patch="pbpaste | git apply"
-alias gp="git-patch"  # short alias
+    alias git-patch="pbpaste | git apply"
+    alias gp="git-patch"
+end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 📊 System
 # ─────────────────────────────────────────────────────────────────────────────
-# Modern system monitor (better top)
-alias monitor="btop"
+if type -q btop
+    alias monitor="btop"
+end
