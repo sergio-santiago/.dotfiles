@@ -9,7 +9,7 @@ This repository contains my personal macOS development environment configuration
     - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
     - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
 - 🧾 **Aliases**
-    - Well-structured and documented with practical usage examples, autoloaded from `conf.d/aliases.fish`.
+    - Well-structured and documented with practical usage examples, autoloaded from `conf.d/06-aliases.fish`.
 - 🔐 **SSH**
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🧠 **Git**
