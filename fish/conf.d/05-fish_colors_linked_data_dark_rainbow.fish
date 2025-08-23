@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/fish_colors_linked_data_dark_rainbow.fish
+# ~/.config/fish/conf.d/05-fish_colors_linked_data_dark_rainbow.fish
 
 # ─── General Syntax Highlighting ───────────────────────────────────────────────
 set -U fish_color_autosuggestion '#737994'          # Dim gray-blue for autosuggestions (subtle hint)
