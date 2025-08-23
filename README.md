@@ -99,7 +99,8 @@ ln -sfh ~/.dotfiles/fish/config.fish ~/.config/fish/config.fish
 ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
 # Git
-ln -sfh ~/.dotfiles/git/gitconfig ~/.gitconfig
+mkdir -p ~/.config/git
+ln -sfh ~/.dotfiles/git/config ~/.config/git/config
 
 # Micro
 mkdir -p ~/.config/micro/colorschemes
