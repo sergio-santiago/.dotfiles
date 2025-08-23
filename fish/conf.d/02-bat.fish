@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/20-bat.fish
+# ~/.config/fish/conf.d/02-bat.fish
 # =====================================================================
 # 📄 bat configuration
 # ---------------------------------------------------------------------
@@ -9,6 +9,3 @@
 
 # Default theme for bat
 set -gx BAT_THEME linked-data-dark-rainbow
-
-# (Optional) if you see paging issues, uncomment:
-# set -gx BAT_PAGER 'less -RF'

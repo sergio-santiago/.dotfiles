@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/pyenv.fish
+# ~/.config/fish/conf.d/03-pyenv.fish
 # ==============================================================================
 # 🐍 Pyenv initialization (minimal Homebrew setup)
 # ------------------------------------------------------------------------------

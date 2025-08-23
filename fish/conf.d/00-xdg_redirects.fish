@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/xdg_redirects.fish
+# ~/.config/fish/conf.d/00-xdg_redirects.fish
 # ==============================================================================
 # 🧭 XDG redirects for cleaner $HOME
 # ------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/aliases.fish
+# ~/.config/fish/conf.d/04-aliases.fish
 # ==============================================================================
 # 🛠 Custom CLI aliases and functions for improved terminal productivity.
 # Designed for Fish shell, with enhanced file navigation, listing, editing,
