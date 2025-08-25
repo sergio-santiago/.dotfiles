@@ -75,6 +75,7 @@ This will install:
 - **pyenv** — manage multiple Python versions
 
 #### 💻 Apps (casks)
+- **Docker Desktop** — container engine and UI
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **Hammerspoon** — macOS automation tool with Lua scripting

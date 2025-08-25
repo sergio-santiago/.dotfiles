@@ -14,6 +14,7 @@ brew "starship"                 # fast and customizable prompt
 brew "zoxide"                   # smarter cd command with jump history
 
 # --- Casks ---
+cask "docker-desktop"           # container engine and UI
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
 cask "hammerspoon"              # macOS automation tool with Lua scripting
