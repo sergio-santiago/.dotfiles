@@ -104,7 +104,13 @@ end
 # 🧰 Git & VCS
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q git
-    alias git-graph="git log --all --oneline --decorate --graph"
+    alias git-graph="git log \
+      --all \
+      --graph \
+      --decorate \
+      --abbrev-commit \
+      --date=relative \
+      --pretty=format:'%C(auto)%h%C(reset) %C(yellow)%d%C(reset)%n  %s%n  %C(green)(%cr)%C(reset) %C(bold blue)<%an>%C(reset)%n'"
     alias gg="git-graph"
 
     alias git-patch="pbpaste | git apply"
