@@ -1,6 +1,7 @@
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "btop"                     # modern system resource monitor
+brew "codex"                    # agentic coding CLI
 brew "eza"                      # improved ls with icons and colors
 brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
