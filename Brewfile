@@ -1,3 +1,6 @@
+# --- Taps ---
+tap "domt4/autoupdate"          # keep Homebrew itself and formulae up to date
+
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "btop"                     # modern system resource monitor
