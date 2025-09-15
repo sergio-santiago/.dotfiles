@@ -59,6 +59,9 @@ brew bundle --file ~/.dotfiles/Brewfile
 
 This will install:
 
+#### 🔖 Taps
+- **domt4/autoupdate** — keep Homebrew itself and formulae up to date
+
 #### 🛠️ CLI tools
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
@@ -80,6 +83,10 @@ This will install:
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **Hammerspoon** — macOS automation tool with Lua scripting
 - **iTerm2** — terminal emulator for macOS
+
+> 🔄️ You can enable automatic updates for Homebrew itself, formulas, and casks with:  
+> `brew autoupdate start 86400 --upgrade --cleanup --immediate --ac-only`  
+> (runs daily, cleans old versions, starts at every system login, only on AC power)
 
 ---
 
