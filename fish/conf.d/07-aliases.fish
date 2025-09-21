@@ -104,16 +104,21 @@ end
 # 🧰 Git & VCS
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q git
-    alias git-graph="git log \
-      --all \
-      --graph \
-      --decorate \
-      --abbrev-commit \
-      --date=relative \
-      --pretty=format:'%C(auto)%h%C(reset) %C(yellow)%d%C(reset)%n  %s%n  %C(green)(%cr)%C(reset) %C(bold blue)<%an>%C(reset)%n'"
+    function git-graph --description "Pretty git log with graph and decorations"
+        git log \
+            --all \
+            --graph \
+            --decorate \
+            --abbrev-commit \
+            --date=relative \
+            --decorate-refs-exclude='refs/remotes/*/HEAD' \
+            --pretty=format:'%C(auto)%h%C(reset) %C(magenta)%d%C(reset)%n  %s%n  %C(green)(%cr)%C(reset) %C(bold blue)<%an>%C(reset)%n'
+    end
     alias gg="git-graph"
 
-    alias git-patch="pbpaste | git apply"
+    function git-patch --description "Apply patch from clipboard via pbpaste"
+        pbpaste | git apply $argv
+    end
     alias gp="git-patch"
 end
 
@@ -122,4 +127,14 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q btop
     alias monitor="btop"
+end
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🍺 Homebrew maintenance
+# ─────────────────────────────────────────────────────────────────────────────
+if type -q brew
+    function brew-maintenance --description 'Update, upgrade, cleanup, autoremove and check Homebrew'
+        brew update && brew upgrade && brew cleanup && brew autoremove && brew doctor
+    end
+    alias bm="brew-maintenance"
 end
