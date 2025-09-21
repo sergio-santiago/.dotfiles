@@ -6,12 +6,30 @@
 	<string>Return commands suitable for copy/pasting into \(shell) on \(uname). Do NOT include commentary NOR Markdown triple-backtick code blocks as your whole response will be copied into my terminal automatically.
 
 The script should do this: \(ai.prompt)</string>
+	<key>AIFeatureFunctionCalling</key>
+	<true/>
+	<key>AIFeatureHostedCodeInterpeter</key>
+	<true/>
+	<key>AIFeatureHostedFileSearch</key>
+	<true/>
+	<key>AIFeatureHostedWebSearch</key>
+	<true/>
+	<key>AIFeatureStreamingResponses</key>
+	<true/>
+	<key>AITermAPI</key>
+	<integer>2</integer>
+	<key>AIVectorStore</key>
+	<integer>1</integer>
+	<key>AIVendor</key>
+	<integer>2</integer>
 	<key>AiMaxTokens</key>
-	<integer>8192</integer>
+	<integer>1000000</integer>
 	<key>AiModel</key>
-	<string>llama3</string>
+	<string>gpt-4.1</string>
+	<key>AiResponseMaxTokens</key>
+	<integer>32768</integer>
 	<key>AitermURL</key>
-	<string>http://localhost:11434/v1/completions</string>
+	<string>https://api.openai.com/v1/responses</string>
 	<key>AitermUseLegacyAPI</key>
 	<true/>
 	<key>AllowClipboardAccess</key>
@@ -19,6 +37,8 @@ The script should do this: \(ai.prompt)</string>
 	<key>ClickToSelectCommand</key>
 	<false/>
 	<key>Default Bookmark Guid</key>
+	<string>D4873B2B-CCD5-4C37-AF18-188ED1097441</string>
+	<key>Default Browser Profile Guid</key>
 	<string>D4873B2B-CCD5-4C37-AF18-188ED1097441</string>
 	<key>DimBackgroundWindows</key>
 	<false/>
@@ -44,12 +64,16 @@ The script should do this: \(ai.prompt)</string>
 	<false/>
 	<key>HotkeyMigratedFromSingleToMulti</key>
 	<true/>
+	<key>NeverBlockSystemShutdown</key>
+	<true/>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
 			<key>ASCII Anti Aliased</key>
 			<true/>
 			<key>ASCII Ligatures</key>
+			<true/>
+			<key>Allow Title Setting</key>
 			<true/>
 			<key>Ambiguous Double Width</key>
 			<false/>
@@ -1015,7 +1039,7 @@ The script should do this: \(ai.prompt)</string>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
 			<key>Icon</key>
-			<integer>0</integer>
+			<integer>1</integer>
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Initial Use Transparency</key>
@@ -1679,10 +1703,14 @@ The script should do this: \(ai.prompt)</string>
 	<integer>5</integer>
 	<key>UseBorder</key>
 	<false/>
+	<key>UseRecommendedAIModel</key>
+	<true/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>
 	<key>WindowNumber</key>
 	<true/>
+	<key>com.apple.WebPrivacy.ResourceMonitorURLsVersion</key>
+	<string>qrsAAAGXnXBrwGxMO6s=</string>
 	<key>findMode_iTerm</key>
 	<integer>0</integer>
 	<key>kCPFavoritesUserDefaultsKey</key>
