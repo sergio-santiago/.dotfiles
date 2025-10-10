@@ -1,5 +1,6 @@
 # --- Taps ---
 tap "domt4/autoupdate"          # keep Homebrew itself and formulae up to date
+tap "sst/tap"                   # custom tap (provides 'opencode' CLI)
 
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
@@ -10,10 +11,13 @@ brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
 brew "fnm"                      # fast Node.js version manager
 brew "fzf"                      # fuzzy finder for the terminal
+brew "gh"                       # GitHub CLI tool
 brew "gemini-cli"               # Google Gemini AI CLI
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
+brew "node"                     # JavaScript runtime
 brew "pyenv"                    # manage multiple Python versions
+brew "sst/tap/opencode"         # lightweight open-source Claude-compatible CLI
 brew "starship"                 # fast and customizable prompt
 brew "zoxide"                   # smarter cd command with jump history
 
