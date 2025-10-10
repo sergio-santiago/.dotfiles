@@ -31,7 +31,6 @@ set -euo pipefail
 readonly COLOR_SAPPHIRE='\033[38;2;104;213;255m'    # Folder name
 readonly COLOR_YELLOW='\033[38;2;255;236;153m'      # Git branch/status
 readonly COLOR_GREEN='\033[38;2;61;252;110m'        # Model name
-readonly COLOR_GRAY='\033[38;2;108;112;134m'        # Separators
 readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Special states (rebase, merge, etc)
 readonly COLOR_RESET='\033[0m'
 
@@ -45,7 +44,6 @@ readonly ICON_GIT_MERGING=""                       # Merging state icon
 readonly ICON_GIT_CHERRY=""                        # Cherry-pick state icon
 readonly ICON_GIT_DETACHED="󰃻"                      # Detached HEAD icon
 readonly ICON_AI="󰧑"                                # AI/Model icon
-readonly ICON_SEPARATOR=""                         # Separator icon
 readonly ICON_STAGED="✓"                            # Staged files (checkmark)
 readonly ICON_MODIFIED="~"                          # Modified files (tilde)
 readonly ICON_UNTRACKED="+"                         # Untracked files (plus)
@@ -169,14 +167,14 @@ get_git_info() {
     # -------------------------------------------------------------------------
     # Branch detection and special states
     # -------------------------------------------------------------------------
-    local branch branch_color branch_icon
+    local branch branch_icon git_color
     branch=$(git branch --show-current 2>/dev/null || echo "")
-    branch_color="${COLOR_YELLOW}"
+    git_color="${COLOR_YELLOW}"
     branch_icon="${ICON_GIT_BRANCH}"
 
     # Handle detached HEAD, rebase, merge states with special coloring
     if [[ -z "$branch" ]]; then
-        branch_color="${COLOR_ORANGE}"
+        git_color="${COLOR_ORANGE}"
         branch_icon=""  # Special states include their own icon
 
         if [[ -d "${git_dir}/rebase-merge" ]] || [[ -d "${git_dir}/rebase-apply" ]]; then
@@ -244,12 +242,12 @@ get_git_info() {
     [[ $behind -gt 0 ]] && status_parts="${status_parts} ${ICON_BEHIND}${behind}"
     [[ $stash_count -gt 0 ]] && status_parts="${status_parts} ${ICON_STASH}${stash_count}"
 
-    # Return branch with color indicator, icon, and status
-    echo "${branch_color}|${branch_icon}${branch}${status_parts}"
+    # Return git info with color and content
+    echo "${git_color}:${branch_icon}${branch}${status_parts}"
 }
 
 ################################################################################
-# Format and print the complete status line
+# Format and print the complete status line (3 lines)
 ################################################################################
 format_statusline() {
     local folder_name="$1"
@@ -257,19 +255,21 @@ format_statusline() {
     local git_info="$3"
     local model_name="$4"
 
-    # Section 1: Folder name with language icon (or generic folder icon if no language detected)
+    # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
-    printf "${COLOR_SAPPHIRE}${display_icon} %s${COLOR_RESET}" "$folder_name"
+    printf "${COLOR_SAPPHIRE}${display_icon} %s${COLOR_RESET}\n" "$folder_name"
 
-    # Section 2: Git information (if in a git repository)
+    # Line 2: Git information
     if [[ -n "$git_info" ]]; then
-        local git_color="${git_info%%|*}"
-        local git_content="${git_info#*|}"
-        printf " ${COLOR_GRAY}${ICON_SEPARATOR}${COLOR_RESET} ${git_color}%s${COLOR_RESET}" "$git_content"
+        local git_color="${git_info%%:*}"
+        local git_content="${git_info#*:}"
+        printf "${git_color}%s${COLOR_RESET}\n" "$git_content"
+    else
+        printf "\n"
     fi
 
-    # Section 3: AI model name (always shown)
-    printf " ${COLOR_GRAY}${ICON_SEPARATOR}${COLOR_RESET} ${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET}" "$model_name"
+    # Line 3: AI model name
+    printf "${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET}" "$model_name"
 }
 
 ################################################################################
