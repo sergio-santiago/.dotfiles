@@ -17,15 +17,16 @@
 # 📂 conf.d load order reference
 # ─────────────────────────────────────────────────────────────────────────────
 # 00-xdg_redirects.fish                         # XDG base dirs first (env vars redirection)
-# 01-homebrew.fish                              # Homebrew environment
-# 02-pyenv.fish                                 # Python runtime (pyenv)
-# 03-fnm.fish                                   # Node runtime (fnm)
-# 04-fzf.fish                                   # Fuzzy finder
-# 05-bat.fish                                   # bat (cat replacement) config
-# 06-zoxide.fish                                # zoxide (smarter cd)
-# 07-aliases.fish                               # shell aliases
-# 08-fish_colors_linked_data_dark_rainbow.fish  # theme colors
-# 09-starship.fish                              # Starship prompt
+# 01-local-bin.fish                             # Local user binaries PATH (~/.local/bin)
+# 02-homebrew.fish                              # Homebrew environment
+# 03-pyenv.fish                                 # Python runtime (pyenv)
+# 04-fnm.fish                                   # Node runtime (fnm)
+# 05-fzf.fish                                   # Fuzzy finder
+# 06-bat.fish                                   # bat (cat replacement) config
+# 07-zoxide.fish                                # zoxide (smarter cd)
+# 08-aliases.fish                               # shell aliases
+# 09-theme.fish                                 # theme colors (linked-data-dark-rainbow)
+# 10-starship.fish                              # Starship prompt
 # 98-rainbow_separator.fish                     # rainbow separator (cosmetic, near the end)
 # 99-banner.fish                                # custom banner (cosmetic, always last)
 #

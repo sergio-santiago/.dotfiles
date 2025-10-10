@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/08-fish_colors_linked_data_dark_rainbow.fish
+# ~/.config/fish/conf.d/09-theme.fish
 # ==============================================================================
 # 🌈 Fish syntax highlighting & pager colors
 # ------------------------------------------------------------------------------
