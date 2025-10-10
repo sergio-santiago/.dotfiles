@@ -9,7 +9,6 @@
   "matchbracestyle": "highlight",
   "hltaberrors": true,
   "hltrailingws": true,
-  "fakecursor": true,
   "savecursor": true,
   "mkparents": true,
   "tabstospaces": true,
