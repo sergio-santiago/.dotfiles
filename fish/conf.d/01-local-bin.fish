@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/00.5-local-bin.fish
+# ~/.config/fish/conf.d/01-local-bin.fish
 # ==============================================================================
 # 📦 Local user binaries PATH
 # ------------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 #   - Global (applies to both interactive and non-interactive shells).
 #
 # Load order:
-#   - Early (00.5-) so user binaries are available before other tools initialize.
+#   - Early (01-) so user binaries are available before other tools initialize.
 #
 # Notes:
 #   - Uses fish_add_path which is idempotent and handles duplicates.
