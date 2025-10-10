@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/07-aliases.fish
+# ~/.config/fish/conf.d/08-aliases.fish
 # ==============================================================================
 # 🛠 Custom CLI aliases and helper functions
 # ------------------------------------------------------------------------------
@@ -15,11 +15,6 @@
 # ==============================================================================
 
 status --is-interactive; or exit
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 🧭 Navigation
-# ─────────────────────────────────────────────────────────────────────────────
-alias zp="z ~/Projects"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 📁 Listing (eza)
@@ -130,11 +125,34 @@ if type -q btop
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 🍺 Homebrew maintenance
+# 🍺 Homebrew
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q brew
     function brew-maintenance --description 'Update, upgrade, cleanup, autoremove and check Homebrew'
         brew update && brew upgrade && brew cleanup && brew autoremove && brew doctor
     end
     alias bm="brew-maintenance"
+
+    function brew-installed --description 'List formulas, casks, and taps installed manually'
+        printf "== 🍃 Formulae (manual) ==\n"
+        brew leaves
+        printf "\n== 📦 Casks ==\n"
+        brew list --casks
+        printf "\n== 🔗 Taps ==\n"
+        brew tap
+    end
+    alias bi="brew-installed"
 end
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🤖 AI tools
+# ─────────────────────────────────────────────────────────────────────────────
+# set -l claude_path "$HOME/.claude/local/claude"
+# if test -x $claude_path
+#     alias claude=$claude_path
+# end
+# set -l claude_path "$HOME/.claude/local/claude"
+# if test -x $claude_path
+#     alias claude=$claude_path
+# end
+# alias claude="~/.claude/local/claude"
