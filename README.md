@@ -9,7 +9,7 @@ This repository contains my personal macOS development environment configuration
     - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
     - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
 - 🧾 **Aliases**
-    - Well-structured and documented with practical usage examples, autoloaded from `conf.d/06-aliases.fish`.
+    - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
 - 🔐 **SSH**
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🧠 **Git**
@@ -23,7 +23,7 @@ This repository contains my personal macOS development environment configuration
     - Custom `linked_data_dark_rainbow` theme for consistent syntax highlighting, pager, and selection colors.
       Implemented across:
         - Starship (`palettes.linked_data_dark_rainbow` palette)
-        - Fish (`fish_colors_linked_data_dark_rainbow.fish`)
+        - Fish (`09-theme.fish`)
         - Bat (`linked-data-dark-rainbow.tmTheme`)
     - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
       prompt.
@@ -61,28 +61,35 @@ This will install:
 
 #### 🔖 Taps
 - **domt4/autoupdate** — keep Homebrew itself and formulae up to date
+- **sst/tap** — custom tap (provides `opencode` CLI)
 
 #### 🛠️ CLI tools
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
+- **codex** — agentic coding CLI
 - **eza** — improved `ls` with colors and icons
 - **fd** — fast and user-friendly alternative to `find`
 - **fish** — friendly interactive shell
 - **fnm** — fast Node.js version manager
 - **fzf** — fuzzy finder for the terminal
 - **gemini-cli** — Google Gemini AI CLI
+- **gh** — GitHub CLI tool
 - **lolcat** — rainbow coloring for terminal output
 - **micro** — lightweight terminal text editor
+- **node** — JavaScript runtime
+- **opencode** — lightweight open-source Claude-compatible CLI
+- **pyenv** — manage multiple Python versions
 - **starship** — fast and customizable prompt
 - **zoxide** — smarter `cd` command with jump history
-- **pyenv** — manage multiple Python versions
 
 #### 💻 Apps (casks)
 - **Docker Desktop** — container engine and UI
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **Hammerspoon** — macOS automation tool with Lua scripting
+- **IINA** — modern video player for macOS
 - **iTerm2** — terminal emulator for macOS
+- **Ice** — menu bar manager for macOS
 
 > 🔄️ You can enable automatic updates for Homebrew itself, formulas, and casks with:  
 > `brew autoupdate start 86400 --upgrade --cleanup --immediate --ac-only`  
@@ -123,6 +130,11 @@ bat cache --build
 # Finicky
 mkdir -p ~/.config/finicky
 ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
+
+# Claude Code
+mkdir -p ~/.claude
+ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
+ln -sfh ~/.dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
