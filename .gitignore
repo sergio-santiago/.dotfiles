@@ -40,3 +40,6 @@ npm-debug.log*
 *.code-workspace
 *.sublime-*
 *.iml
+
+# Claude Code local settings (repo-specific)
+.claude/
