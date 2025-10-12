@@ -2,11 +2,28 @@
 # Starship prompt configuration with a "linked-data-dark-rainbow" palette.
 # Modern three-line prompt with powerline segments, icons, and contextual info.
 
+# ══════════════════════════════════════════════════════════════════════════════
+# META-CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
+# Schema validation and global theme configuration
+
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# ── Prompt Layout ────────────────────────────────────────────
-# Powerline-styled top line with username, path, Git, languages, and time.
-# Bottom line shows prompt symbol (character) for command entry.
+# Selected color palette (defined at the end of this file)
+palette = 'linked_data_dark_rainbow'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PROMPT FORMAT
+# ══════════════════════════════════════════════════════════════════════════════
+# Three-line visual structure:
+#
+# Line 1 (top bar): User → Directory → Git → Languages → System → Time
+#                   [blue]  [green]  [yellow] [orange]   [cyan]   [purple]
+#
+# Line 2: Visual separator "│"
+#
+# Line 3 (bottom): Command input symbol "╰──󰫈=󰇜󱗿󱃲󰛡"
+
 format = """
 ╭─[](blue)\
 [](bg:blue fg:black)\
@@ -38,33 +55,41 @@ $line_break\
 │
 ╰──$character"""
 
-# Selected color palette
-palette = 'linked_data_dark_rainbow'
+# ══════════════════════════════════════════════════════════════════════════════
+# BASE PROMPT COMPONENTS
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ── Custom: Pretty Name ───────────────────────────────────────
-[custom.pretty_name]
-command = "id -F | awk '{print $1}'" # First name from the full system username
-when = "test $(uname) = Darwin"
-style = "bg:blue fg:black"
-format = "[ $output ]($style)"
+# ── Line Break ─────────────────────────────────────────────────────────────────
+# Line breaks between prompt segments
+[line_break]
+disabled = false
 
-# ── Custom: Docker Running Containers ─────────────────────────
-[custom.docker_running]
-command = "docker ps -q 2>/dev/null | wc -l | tr -d ' '"
-when = "command -v docker >/dev/null"
-symbol = " "
-style = "fg:black bg:cyan"
-format = "[ $symbol$output ]($style)"
+# ── Character (Prompt Symbol) ──────────────────────────────────────────────────
+# Input symbol that changes based on command status and vim mode
+[character]
+disabled = false
+success_symbol = '[󰫈=󰇜󱗿󱃲󰛡](bold fg:green)'        # Successful command
+error_symbol = '[󰫈=󰇜󰫊](bold fg:red)'              # Command with error
+vimcmd_symbol = '[❮](bold fg:green)'              # Vim normal mode
+vimcmd_replace_one_symbol = '[❮](bold fg:purple)' # Replace one character
+vimcmd_replace_symbol = '[❮](bold fg:purple)'     # Vim replace mode
+vimcmd_visual_symbol = '[❮](bold fg:yellow)'      # Vim visual mode
 
-# ── Directory ────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# NAVIGATION AND DIRECTORY
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Directory ──────────────────────────────────────────────────────────────────
+# Shows current directory with intelligent truncation
 [directory]
 style = "bg:green fg:black"
 format = "[ $path ]($style)"
-truncation_length = 3
-truncation_symbol = "…/"
-truncate_to_repo = true
+truncation_length = 3           # Shows maximum 3 depth levels
+truncation_symbol = "…/"        # Symbol when truncated
+truncate_to_repo = true         # Truncates from git repo root
 
-[directory.substitutions] # Replaces folder names with icons
+# Folder name substitutions with icons
+[directory.substitutions]
 "Applications" = "󰀻 "
 "Desktop" = " "
 "Documents" = "󰈙 "
@@ -75,83 +100,97 @@ truncate_to_repo = true
 "Pictures" = " "
 "Projects" = "󰲋 "
 
-# ── Git ──────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# VERSION CONTROL (GIT)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Git Branch ─────────────────────────────────────────────────────────────────
+# Shows current git branch with icon
 [git_branch]
 symbol = ""
 style = "fg:black bg:yellow"
 format = '[ $symbol $branch ]($style)'
 
+# ── Git Status ─────────────────────────────────────────────────────────────────
+# Shows repository status (changes, untracked files, etc.)
 [git_status]
 style = "fg:black bg:yellow"
 format = '[($all_status$ahead_behind )]($style)'
 
-# ── Languages / Runtimes ─────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# LANGUAGES AND RUNTIMES
+# ══════════════════════════════════════════════════════════════════════════════
+# Automatically detect project language and display version
+
+# ── C ──────────────────────────────────────────────────────────────────────────
 [c]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Go ─────────────────────────────────────────────────────────────────────────
 [golang]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Haskell ────────────────────────────────────────────────────────────────────
 [haskell]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Java ───────────────────────────────────────────────────────────────────────
 [java]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Kotlin ─────────────────────────────────────────────────────────────────────
 [kotlin]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Node.js ────────────────────────────────────────────────────────────────────
 [nodejs]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── PHP ────────────────────────────────────────────────────────────────────────
 [php]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
+# ── Python ─────────────────────────────────────────────────────────────────────
+# Includes virtual environment detection
 [python]
 symbol = ""
 style = "fg:black bg:orange"
-format = '[ $symbol( $version)(\(#$virtualenv\)) ]($style)'
+format = '[ $symbol( $version)(\($virtualenv\)) ]($style)'
 
+# ── Rust ───────────────────────────────────────────────────────────────────────
 [rust]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Time ─────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# TIME AND DURATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Time ───────────────────────────────────────────────────────────────────────
+# Shows current time in 24-hour format
 [time]
 disabled = false
 time_format = "%H:%M"
 style = "fg:black bg:purple"
 format = '[  $time ]($style)'
 
-# ── Prompt Symbols ───────────────────────────────────────────
-[line_break]
-disabled = false
-
-[character]
-disabled = false
-success_symbol = '[󰫈=󰇜󱗿󱃲󰛡](bold fg:green)'
-error_symbol = '[󰫈=󰇜󰫊](bold fg:red)'
-vimcmd_symbol = '[❮](bold fg:green)'
-vimcmd_replace_one_symbol = '[❮](bold fg:purple)'
-vimcmd_replace_symbol = '[❮](bold fg:purple)'
-vimcmd_visual_symbol = '[❮](bold fg:yellow)'
-
-# ── Command Duration ─────────────────────────────────────────
+# ── Command Duration ───────────────────────────────────────────────────────────
+# Shows how long the last command took to execute
 [cmd_duration]
 min_time = 1000 # Show if the command took ≥ 1 second
 show_milliseconds = false
@@ -159,17 +198,44 @@ format = '[󰇝  $duration ]($style)'
 style = "fg:black bg:purple"
 disabled = false
 show_notifications = false
-min_time_to_notify = 30000 # Notify if ≥ 30 seconds
+min_time_to_notify = 30000 # Notify if took ≥ 30 seconds
 
-# ── Color Palettes ───────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# CUSTOM MODULES
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Custom: Pretty Name ────────────────────────────────────────────────────────
+# Extracts first name from system user (macOS only)
+[custom.pretty_name]
+command = "id -F | awk '{print $1}'"  # Gets the full name and extracts first
+when = "test $(uname) = Darwin"       # macOS only
+style = "bg:blue fg:black"
+format = "[ $output ]($style)"
+
+# ── Custom: Docker Running Containers ──────────────────────────────────────────
+# Counts and displays how many Docker containers are running
+# Only shows when at least one container is active
+[custom.docker_running]
+command = "docker ps -q 2>/dev/null | wc -l | tr -d ' '"
+when = "[ $(docker ps -q 2>/dev/null | wc -l | tr -d ' ') -gt 0 ]"  # Only show when containers running
+symbol = " "
+style = "fg:black bg:cyan"
+format = "[ $symbol$output ]($style)"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COLOR PALETTES
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Linked Data Dark Rainbow ───────────────────────────────────────────────────
 # Custom palette optimized for dark backgrounds
+# Inspired by vibrant "rainbow" color schemes with high contrast
 [palettes.linked_data_dark_rainbow]
-black = "#000000"
-white = "#ffffff"
-red = "#ff4d4d"
-orange = "#ffb86c"
-yellow = "#ffec99"
-green = "#44f373"
-cyan = "#7fffd4"
-blue = "#68d5ff"
-purple = "#c6a7ff"
+black = "#000000"   # Pure black for text over bright colors
+white = "#ffffff"   # Pure white for separators
+red = "#ff4d4d"     # Bright red for errors
+orange = "#ffb86c"  # Warm orange for languages/runtimes
+yellow = "#ffec99"  # Soft yellow for git
+green = "#44f373"   # Neon green for directory and success
+cyan = "#7fffd4"    # Aqua cyan for system context
+blue = "#68d5ff"    # Sky blue for user
+purple = "#c6a7ff"  # Pastel purple for time/duration
