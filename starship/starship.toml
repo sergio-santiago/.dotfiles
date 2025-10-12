@@ -165,11 +165,10 @@ style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
 # ── Python ─────────────────────────────────────────────────────────────────────
-# Includes virtual environment detection
 [python]
 symbol = ""
 style = "fg:black bg:orange"
-format = '[ $symbol( $version)(\($virtualenv\)) ]($style)'
+format = '[ $symbol( $version) ]($style)'
 
 # ── Rust ───────────────────────────────────────────────────────────────────────
 [rust]
