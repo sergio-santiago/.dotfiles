@@ -35,9 +35,11 @@ This repository contains my personal macOS development environment configuration
         - Bat (`linked-data-dark-rainbow.tmTheme`)
         - Micro editor (`linked-data-dark-rainbow.micro`)
         - FZF (`05-fzf.fish` with synchronized color palette)
+        - iTerm2 (ANSI colors + UI elements)
     - Includes a custom rainbow separator (`98-rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
+    - **📋 Full color palette documentation:** See [COLORS.md](COLORS.md) for the complete 27-color palette with hex/RGB values and semantic usage across all tools.
 - 🔗 **Finicky**
     - Smart browser profile routing. Sets Chrome as the default browser and opens Google Meet links
       automatically in the **Secture** _(work)_ profile.
