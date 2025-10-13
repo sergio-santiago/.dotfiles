@@ -84,7 +84,7 @@
     <dict>
       <key>name</key><string>String</string>
       <key>scope</key><string>string, punctuation.definition.string</string>
-      <key>settings</key><dict><key>foreground</key><string>#68D5FF</string></dict>
+      <key>settings</key><dict><key>foreground</key><string>#0066FF</string></dict> <!-- deep blue -->
     </dict>
 
     <!-- YAML / keys -->
