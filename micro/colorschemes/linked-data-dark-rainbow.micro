@@ -27,7 +27,7 @@ color-link identifier              "#68d5ff"          # Blue/sapphire for genera
 color-link identifier.class        "#cca5ff"          # Mauve for class/type names
 color-link identifier.var          "#90e8ff"          # Sky for variables/properties
 color-link constant                "#68d5ff"          # Blue/sapphire for constants and keys
-color-link constant.string         "#68d5ff"          # Blue/sapphire for strings
+color-link constant.string         "#0066ff"          # Deep blue for string literals
 color-link constant.number         "#ffb86c"          # Orange for numeric literals
 color-link symbol                  "#ff6cd4"          # Pink for symbols/operators
 color-link symbol.tag              "#cca5ff"          # Mauve for tags

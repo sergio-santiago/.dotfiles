@@ -28,8 +28,7 @@ format = """
 ╭─[](blue)\
 [](bg:blue fg:black)\
 ${custom.pretty_name}\
-[](bg:white fg:blue)\
-[](bg:green fg:white)\
+[](bg:green fg:blue)\
 $directory\
 [](bg:yellow fg:green)\
 $git_branch\
@@ -44,8 +43,7 @@ $nodejs\
 $php\
 $python\
 $rust\
-[](fg:orange bg:red)\
-[](fg:red bg:cyan)\
+[](fg:orange bg:cyan)\
 ${custom.docker_running}\
 [](fg:cyan bg:purple)\
 $time\
@@ -235,6 +233,6 @@ red = "#ff4d4d"     # Bright red for errors
 orange = "#ffb86c"  # Warm orange for languages/runtimes
 yellow = "#ffec99"  # Soft yellow for git
 green = "#44f373"   # Neon green for directory and success
-cyan = "#7fffd4"    # Aqua cyan for system context
+cyan = "#7fffd4"    # Aqua cyan for docker
 blue = "#68d5ff"    # Sky blue for user
 purple = "#c6a7ff"  # Pastel purple for time/duration
