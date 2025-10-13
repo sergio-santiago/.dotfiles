@@ -5,12 +5,19 @@ This repository contains my personal macOS development environment configuration
 - 🐟 **Fish shell**
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
+    - Modular configuration with 15 numbered conf.d files (00-99) for controlled load order.
+    - Custom functions: `fish_greeting`, `banner_sergio`, `fish_user_key_bindings`.
 - 🎨 **Custom banner**
     - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
     - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
 - 🧾 **Aliases**
     - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
     - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `z` (zoxide), `tree` (eza --tree)...
+- 🎯 **FZF (Fuzzy Finder)**
+    - Comprehensive configuration with `fd` integration for fast file/directory search.
+    - Responsive preview windows with `bat` (files) and `eza` (directories).
+    - Colors synchronized with the `linked_data_dark_rainbow` palette.
+    - Custom keybindings and 80% height layout with rounded borders.
 - 🔐 **SSH**
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🧠 **Git**
@@ -23,10 +30,12 @@ This repository contains my personal macOS development environment configuration
 - 🌈 **Color theme**
     - Custom `linked_data_dark_rainbow` theme for consistent syntax highlighting, pager, and selection colors.
       Implemented across:
-        - Starship (`palettes.linked_data_dark_rainbow` palette)
+        - Starship (`palettes.linked_data_dark_rainbow` palette, three-line prompt with powerline segments)
         - Fish (`09-theme.fish`)
         - Bat (`linked-data-dark-rainbow.tmTheme`)
-    - Includes a custom rainbow separator (`rainbow_separator.fish`) to visually divide command output from the next
+        - Micro editor (`linked-data-dark-rainbow.micro`)
+        - FZF (`05-fzf.fish` with synchronized color palette)
+    - Includes a custom rainbow separator (`98-rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
 - 🔗 **Finicky**
@@ -34,6 +43,9 @@ This repository contains my personal macOS development environment configuration
       automatically in the **Secture** _(work)_ profile.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
+- 🤖 **Claude Code**
+    - Custom statusline configuration with comprehensive git, system, and environment info.
+    - Settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
@@ -90,7 +102,7 @@ This will install:
 - **Hammerspoon** — macOS automation tool with Lua scripting
 - **IINA** — modern video player for macOS
 - **iTerm2** — terminal emulator for macOS
-- **Ice** — menu bar manager for macOS
+- **Ice (jordanbaird-ice)** — menu bar manager for macOS
 
 > 🔄️ You can enable automatic updates for Homebrew itself, formulas, and casks with:  
 > `brew autoupdate start 86400 --upgrade --cleanup --immediate --ac-only`  
@@ -135,10 +147,36 @@ ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
 # Claude Code
 mkdir -p ~/.claude
 ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
-ln -sfh ~/.dotfiles/claude/statusline-command.sh ~/.claude/statusline-command.sh
+ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
+
+---
+
+### 🐟 Fish Shell Configuration Structure
+
+The Fish shell configuration is fully modular and follows a numbered loading order:
+
+#### conf.d/ files (autoloaded in order):
+- `00-xdg_redirects.fish` — XDG base directories
+- `01-local-bin.fish` — Local user binaries PATH
+- `02-homebrew.fish` — Homebrew environment
+- `03-pyenv.fish` — Python version management
+- `04-fnm.fish` — Node.js version management
+- `05-fzf.fish` — Fuzzy finder with fd, bat, eza integration
+- `06-bat.fish` — Bat (cat replacement) configuration
+- `07-zoxide.fish` — Smart directory jumper
+- `08-aliases.fish` — Command aliases and helper functions
+- `09-theme.fish` — linked_data_dark_rainbow color theme
+- `10-starship.fish` — Starship prompt initialization
+- `98-rainbow_separator.fish` — Rainbow command separator
+- `99-banner.fish` — Custom welcome banner (last)
+
+#### functions/ directory:
+- `fish_greeting.fish` — Custom greeting message
+- `banner_sergio.fish` — ASCII art banner generator
+- `fish_user_key_bindings.fish` — Custom key bindings
 
 ---
 
