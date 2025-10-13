@@ -9,12 +9,12 @@
     <dict><key>settings</key><dict>
       <key>background</key><string>#000000</string>
       <key>foreground</key><string>#FFFFFF</string>
-      <key>caret</key><string>#C6A7FF</string>        <!-- lavender -->
-      <key>invisibles</key><string>#737994</string>   <!-- neutral-lo -->
-      <key>lineHighlight</key><string>#24273A</string>
-      <key>selection</key><string>#C6A7FF33</string>  <!-- translucent lavender -->
+      <key>caret</key><string>#C6A7FF</string>        <!-- purple/lavender -->
+      <key>invisibles</key><string>#737994</string>   <!-- neutral-low -->
+      <key>lineHighlight</key><string>#24273A</string> <!-- ui-dark -->
+      <key>selection</key><string>#C6A7FF33</string>  <!-- translucent purple -->
       <key>gutter</key><string>#000000</string>
-      <key>gutterForeground</key><string>#7DA6FF</string> <!-- blue line numbers -->
+      <key>gutterForeground</key><string>#68D5FF</string> <!-- blue line numbers -->
     </dict></dict>
 
     <!-- Comments -->
@@ -63,7 +63,7 @@
     <dict>
       <key>name</key><string>Variable</string>
       <key>scope</key><string>variable, variable.other.object, variable.other.property, meta.object-literal.key</string>
-      <key>settings</key><dict><key>foreground</key><string>#7DA6FF</string></dict>
+      <key>settings</key><dict><key>foreground</key><string>#90E8FF</string></dict> <!-- sky -->
     </dict>
 
     <!-- Constants / enums -->
@@ -77,7 +77,7 @@
     <dict>
       <key>name</key><string>Number</string>
       <key>scope</key><string>constant.numeric</string>
-      <key>settings</key><dict><key>foreground</key><string>#7DA6FF</string></dict>
+      <key>settings</key><dict><key>foreground</key><string>#FFB86C</string></dict> <!-- orange -->
     </dict>
 
     <!-- Strings -->
@@ -137,13 +137,13 @@
     <!-- Diff -->
     <dict><key>name</key><string>Diff Added</string>
       <key>scope</key><string>markup.inserted, meta.diff.header.to-file</string>
-      <key>settings</key><dict><key>foreground</key><string>#3DFC6E</string></dict></dict>
+      <key>settings</key><dict><key>foreground</key><string>#44F373</string></dict></dict> <!-- green -->
     <dict><key>name</key><string>Diff Modified</string>
       <key>scope</key><string>markup.changed</string>
-      <key>settings</key><dict><key>foreground</key><string>#FFB86C</string></dict></dict>
+      <key>settings</key><dict><key>foreground</key><string>#FFB86C</string></dict></dict> <!-- orange -->
     <dict><key>name</key><string>Diff Deleted</string>
       <key>scope</key><string>markup.deleted, meta.diff.header.from-file</string>
-      <key>settings</key><dict><key>foreground</key><string>#FF4D4D</string></dict></dict>
+      <key>settings</key><dict><key>foreground</key><string>#FF4D4D</string></dict></dict> <!-- red -->
 
     <!-- Invalid / errors -->
     <dict>

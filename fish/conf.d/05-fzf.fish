@@ -19,7 +19,11 @@ status --is-interactive; or exit
 type -q fzf; or exit
 
 # ── 📦 Global style settings ─────────────────────────────────────────
-set -gx FZF_DEFAULT_OPTS '--height=80% --layout=reverse --border=rounded --ansi --color=dark,fg:252,bg:0,fg+:15,bg+:235,hl:117,hl+:117,info:86,prompt:211,pointer:211,marker:84,spinner:216,header:183'
+# Colors synchronized with Linked Data Dark Rainbow palette (COLORS.md)
+# fg:231(white) bg:16(black) fg+:231(white) bg+:59(ui-dark)
+# hl:117(blue) hl+:122(cyan) info:183(purple) prompt:212(pink)
+# pointer:212(pink) marker:84(green) spinner:222(orange) header:183(mauve)
+set -gx FZF_DEFAULT_OPTS '--height=80% --layout=reverse --border=rounded --ansi --color=dark,fg:231,bg:16,fg+:231,bg+:59,hl:117,hl+:122,info:183,prompt:212,pointer:212,marker:84,spinner:222,header:183'
 set -q COLORTERM; or set -gx COLORTERM truecolor
 
 # ── 🔍 Default search sources (fd with fallback) ─────────────────────
@@ -76,5 +80,6 @@ function __fzf_react_to_resize --on-variable COLUMNS
     __fzf_apply_responsive_opts
 end
 
-# zoxide's interactive mode can inherit the same theme (no preview).
+# ── 🎨 Zoxide integration ─────────────────────────────────────────────
+# zoxide's interactive mode inherits the same synchronized color theme
 set -gx _ZO_FZF_OPTS $FZF_DEFAULT_OPTS

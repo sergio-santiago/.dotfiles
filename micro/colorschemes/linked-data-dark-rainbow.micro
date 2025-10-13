@@ -22,23 +22,23 @@ color-link default                 "#ffffff"          # Primary text (white)
 color-link cursor-line             "#24273a"
 
 # ── Syntax (consistent with terminal palette) ───────────────────────
-color-link comment                 "#a6adc8"          # Bluish-gray for comments
-color-link identifier              "#68d5ff"          # Sapphire for general identifiers
+color-link comment                 "#a6adc8"          # Comment gray
+color-link identifier              "#68d5ff"          # Blue/sapphire for general identifiers
 color-link identifier.class        "#cca5ff"          # Mauve for class/type names
-color-link identifier.var          "#7da6ff"          # Blue for variables/properties
-color-link constant                "#68d5ff"          # Sapphire for constants and keys
-color-link constant.string         "#68d5ff"          # Sapphire for strings (e.g., JSON keys/values)
-color-link constant.number         "#7da6ff"          # Blue for numeric literals
+color-link identifier.var          "#90e8ff"          # Sky for variables/properties
+color-link constant                "#68d5ff"          # Blue/sapphire for constants and keys
+color-link constant.string         "#68d5ff"          # Blue/sapphire for strings
+color-link constant.number         "#ffb86c"          # Orange for numeric literals
 color-link symbol                  "#ff6cd4"          # Pink for symbols/operators
 color-link symbol.tag              "#cca5ff"          # Mauve for tags
-color-link type                    "italic #c6a7ff"   # Lavender for type names (italicized)
+color-link type                    "italic #c6a7ff"   # Purple/lavender for type names (italicized)
 color-link type.keyword            "#ff4d4d"          # Red for language keywords
-color-link statement               "#cca5ff"          # Mauve for control statements (if, return, etc.)
+color-link statement               "#cca5ff"          # Mauve for control statements
 color-link preproc                 "#4af0d1"          # Teal for preprocessor/attributes
 color-link special                 "#ff6cd4"          # Pink for special tokens
 color-link underlined              "#90e8ff"          # Sky for underlined text
 color-link error                   "bold #ff4d4d"     # Bold red for errors
-color-link todo                    "bold #ffec99"     # Bold yellow for TODO/FIXME annotations
+color-link todo                    "bold #ffec99"     # Bold yellow for TODO/FIXME
 
 # ── UI ──────────────────────────────────────────────────────────────
 # Option A (solid background, recommended for translucent terminals):
@@ -49,8 +49,8 @@ color-link tabbar                  "#c6a7ff,#24273a"  # Lavender foreground, dar
 # color-link statusline              "#c6a7ff,"
 # color-link tabbar                  "#c6a7ff,"
 
-color-link line-number             "#7da6ff"          # Blue for gutter line numbers
-color-link current-line-number     "#ff6cd4"          # Pink for active line number
+color-link line-number             "#68d5ff"          # Blue for gutter line numbers
+color-link current-line-number     "#44f373"          # Green for active line number
 color-link indent-char             "#90e8ff"          # Sky for indent guides
 color-link color-column            "#24273a"          # Dark guide for fixed column width (80/100)
 
@@ -58,11 +58,11 @@ color-link color-column            "#24273a"          # Dark guide for fixed col
 color-link selection               "#000000,#c6a7ff"  # Black text on lavender background
 
 # ── Diff / diagnostics ──────────────────────────────────────────────
-color-link diff-added              "#3dfc6e"          # Green for added lines
-color-link diff-modified           "#ffb86c"          # Peach for modified lines
+color-link diff-added              "#44f373"          # Green for added lines
+color-link diff-modified           "#ffb86c"          # Orange/peach for modified lines
 color-link diff-deleted            "#ff4d4d"          # Red for deleted lines
 color-link gutter-error            "#ff4d4d"          # Red markers in gutter for errors
-color-link gutter-warning          "#ffb86c"          # Peach markers in gutter for warnings
+color-link gutter-warning          "#ffb86c"          # Orange markers in gutter for warnings
 
 # ── Whitespace ──────────────────────────────────────────────────────
 color-link trailingws              "#ff8fa1"          # Flamingo for trailing whitespace
