@@ -13,6 +13,7 @@ brew "fnm"                      # fast Node.js version manager
 brew "fzf"                      # fuzzy finder for the terminal
 brew "gh"                       # GitHub CLI tool
 brew "gemini-cli"               # Google Gemini AI CLI
+brew "jq"                       # JSON processor
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
 brew "node"                     # JavaScript runtime

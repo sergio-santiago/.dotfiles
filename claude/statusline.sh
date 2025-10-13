@@ -28,17 +28,10 @@ set -euo pipefail
 ################################################################################
 # Color definitions (RGB format) - Linked Data Dark Rainbow palette
 ################################################################################
-readonly COLOR_BLACK='\033[38;2;0;0;0m'             # Pure black
-readonly COLOR_WHITE='\033[38;2;255;255;255m'       # Pure white
-readonly COLOR_RED='\033[38;2;255;77;77m'           # Errors, special states
-readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Warnings, special states (rebase, merge)
-readonly COLOR_YELLOW='\033[38;2;255;236;153m'      # Git branch/status
-readonly COLOR_GREEN='\033[38;2;68;243;115m'        # Model name, success (matches #44f373)
-readonly COLOR_CYAN='\033[38;2;127;255;212m'        # System context
-readonly COLOR_BLUE='\033[38;2;104;213;255m'        # Folder name, functions
-readonly COLOR_PURPLE='\033[38;2;198;167;255m'      # Types, classes
-readonly COLOR_SAPPHIRE='\033[38;2;104;213;255m'    # Alias for blue (folder name)
-readonly COLOR_PINK='\033[38;2;255;108;212m'        # Symbols, operators
+readonly COLOR_BLUE='\033[38;2;104;213;255m'        # Folder name (matches #68d5ff)
+readonly COLOR_YELLOW='\033[38;2;255;236;153m'      # Git branch/status (matches #ffec99)
+readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Git special states: rebase, merge, detached (matches #ffb86c)
+readonly COLOR_GREEN='\033[38;2;68;243;115m'        # Model name (matches #44f373)
 readonly COLOR_RESET='\033[0m'
 
 ################################################################################
@@ -264,7 +257,7 @@ format_statusline() {
 
     # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
-    printf "${COLOR_SAPPHIRE}${display_icon} %s${COLOR_RESET}\n" "$folder_name"
+    printf "${COLOR_BLUE}${display_icon} %s${COLOR_RESET}\n" "$folder_name"
 
     # Line 2: Git information
     if [[ -n "$git_info" ]]; then
