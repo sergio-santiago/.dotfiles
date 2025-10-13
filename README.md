@@ -39,7 +39,7 @@ This repository contains my personal macOS development environment configuration
     - Includes a custom rainbow separator (`98-rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
-    - **📋 Full color palette documentation:** See [COLORS.md](COLORS.md) for the complete 27-color palette with hex/RGB values and semantic usage across all tools.
+    - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 27-color palette with hex/RGB values and semantic usage across all tools.
 - 🔗 **Finicky**
     - Smart browser profile routing. Sets Chrome as the default browser and opens Google Meet links
       automatically in the **Secture** _(work)_ profile.
@@ -48,6 +48,12 @@ This repository contains my personal macOS development environment configuration
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
+- 📊 **btop**
+    - Modern system resource monitor with custom configuration.
+    - Truecolor support, braille graphs, rounded corners, and transparent background.
+    - Fast 100ms refresh rate for real-time monitoring.
+- 🐙 **GitHub CLI (gh)**
+    - GitHub command-line tool configured with SSH protocol.
 
 > These files are meant for personal use and backup. Feel free to explore or adapt.
 
@@ -89,6 +95,7 @@ This will install:
 - **fzf** — fuzzy finder for the terminal
 - **gemini-cli** — Google Gemini AI CLI
 - **gh** — GitHub CLI tool
+- **jq** — JSON processor for command line
 - **lolcat** — rainbow coloring for terminal output
 - **micro** — lightweight terminal text editor
 - **node** — JavaScript runtime
@@ -150,6 +157,14 @@ ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
 mkdir -p ~/.claude
 ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
+
+# btop
+mkdir -p ~/.config/btop
+ln -sfh ~/.dotfiles/btop/btop.conf ~/.config/btop/btop.conf
+
+# GitHub CLI (gh)
+mkdir -p ~/.config/gh
+ln -sfh ~/.dotfiles/gh/config.yml ~/.config/gh/config.yml
 ```
 
 > ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
