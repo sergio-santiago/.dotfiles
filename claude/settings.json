@@ -1,7 +1,7 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "~/.dotfiles/claude/statusline.sh"
+    "command": "~/.claude/statusline.sh"
   },
   "alwaysThinkingEnabled": false
 }
