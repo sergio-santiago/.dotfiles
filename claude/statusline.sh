@@ -26,12 +26,19 @@
 set -euo pipefail
 
 ################################################################################
-# Color definitions (RGB format)
+# Color definitions (RGB format) - Linked Data Dark Rainbow palette
 ################################################################################
-readonly COLOR_SAPPHIRE='\033[38;2;104;213;255m'    # Folder name
+readonly COLOR_BLACK='\033[38;2;0;0;0m'             # Pure black
+readonly COLOR_WHITE='\033[38;2;255;255;255m'       # Pure white
+readonly COLOR_RED='\033[38;2;255;77;77m'           # Errors, special states
+readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Warnings, special states (rebase, merge)
 readonly COLOR_YELLOW='\033[38;2;255;236;153m'      # Git branch/status
-readonly COLOR_GREEN='\033[38;2;61;252;110m'        # Model name
-readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Special states (rebase, merge, etc)
+readonly COLOR_GREEN='\033[38;2;68;243;115m'        # Model name, success (matches #44f373)
+readonly COLOR_CYAN='\033[38;2;127;255;212m'        # System context
+readonly COLOR_BLUE='\033[38;2;104;213;255m'        # Folder name, functions
+readonly COLOR_PURPLE='\033[38;2;198;167;255m'      # Types, classes
+readonly COLOR_SAPPHIRE='\033[38;2;104;213;255m'    # Alias for blue (folder name)
+readonly COLOR_PINK='\033[38;2;255;108;212m'        # Symbols, operators
 readonly COLOR_RESET='\033[0m'
 
 ################################################################################
