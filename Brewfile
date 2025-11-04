@@ -5,7 +5,6 @@ tap "sst/tap"                   # custom tap (provides 'opencode' CLI)
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "btop"                     # system resource monitor
-brew "codex"                    # agentic coding CLI
 brew "eza"                      # improved ls with icons and colors
 brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
@@ -16,17 +15,17 @@ brew "gemini-cli"               # Google Gemini AI CLI
 brew "jq"                       # JSON processor
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
-brew "node"                     # JavaScript runtime
 brew "pyenv"                    # manage multiple Python versions
 brew "sst/tap/opencode"         # lightweight open-source Claude-compatible CLI
 brew "starship"                 # fast and customizable prompt
 brew "zoxide"                   # smarter cd command with jump history
 
 # --- Casks ---
+cask "codex"                    # agentic coding CLI
 cask "docker-desktop"           # container engine and UI
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
 cask "hammerspoon"              # automation tool with Lua scripting
 cask "iina"                     # video player
 cask "iterm2"                   # terminal emulator
-cask "jordanbaird-ice"          # menu bar manager
+cask "jordanbaird-ice@beta"     # menu bar manager
