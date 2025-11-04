@@ -19,3 +19,6 @@
 # ==============================================================================
 
 eval (/opt/homebrew/bin/brew shellenv)
+
+# Hide Homebrew environment hints
+set -Ux HOMEBREW_NO_ENV_HINTS 1
