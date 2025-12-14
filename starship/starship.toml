@@ -12,6 +12,9 @@
 # Selected color palette (defined at the end of this file)
 palette = 'linked_data_dark_rainbow'
 
+# Global command timeout - only affects slow commands, fast ones still display instantly
+command_timeout = 2000  # 2s margin for pyenv and other version managers
+
 # ══════════════════════════════════════════════════════════════════════════════
 # PROMPT FORMAT
 # ══════════════════════════════════════════════════════════════════════════════
