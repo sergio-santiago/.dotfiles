@@ -32,6 +32,8 @@ readonly COLOR_BLUE='\033[38;2;104;213;255m'        # Folder name (matches #68d5
 readonly COLOR_YELLOW='\033[38;2;255;236;153m'      # Git branch/status (matches #ffec99)
 readonly COLOR_ORANGE='\033[38;2;255;184;108m'      # Git special states: rebase, merge, detached (matches #ffb86c)
 readonly COLOR_GREEN='\033[38;2;68;243;115m'        # Model name (matches #44f373)
+readonly COLOR_PURPLE='\033[38;2;189;147;249m'      # Context bar (matches #bd93f9)
+readonly COLOR_DIM='\033[38;2;108;108;108m'         # Dimmed elements
 readonly COLOR_RESET='\033[0m'
 
 ################################################################################
@@ -50,6 +52,9 @@ readonly ICON_UNTRACKED="+"                         # Untracked files (plus)
 readonly ICON_AHEAD="↑"                             # Commits ahead (up arrow)
 readonly ICON_BEHIND="↓"                            # Commits behind (down arrow)
 readonly ICON_STASH="*"                             # Stash count (asterisk)
+readonly ICON_BAR_FILLED='󱑽'                  # Context bar filled segment (Nerd Font)
+readonly ICON_BAR_CURRENT=''                 # Context bar current position (Nerd Font)
+readonly ICON_BAR_EMPTY='󰼮'                   # Context bar empty segment (Nerd Font, dimmed)
 
 ################################################################################
 # Programming language icons (Nerd Fonts)
@@ -247,6 +252,66 @@ get_git_info() {
 }
 
 ################################################################################
+# Context bar gradient colors (green -> yellow -> orange -> red)
+################################################################################
+readonly GRADIENT_COLORS=(
+    '\033[38;2;80;250;123m'    # 1: Green (Dracula green #50fa7b)
+    '\033[38;2;120;248;100m'   # 2: Green-lime
+    '\033[38;2;160;250;85m'    # 3: Lime
+    '\033[38;2;200;252;100m'   # 4: Yellow-lime
+    '\033[38;2;241;250;140m'   # 5: Yellow (Dracula yellow #f1fa8c)
+    '\033[38;2;255;210;100m'   # 6: Yellow-orange
+    '\033[38;2;255;184;108m'   # 7: Orange (Dracula orange #ffb86c)
+    '\033[38;2;255;140;90m'    # 8: Orange-red
+    '\033[38;2;255;100;70m'    # 9: Red-orange
+    '\033[38;2;255;85;85m'     # 10: Red (Dracula red #ff5555)
+)
+
+################################################################################
+# Generate context usage bar with gradient colors
+################################################################################
+generate_context_bar() {
+    local percent="${1:-0}"
+    local bar_length=10
+
+    # Calculate filled segments (round to nearest)
+    local filled=$(( (percent + 5) / 10 ))  # 0-100% maps to 0-10 segments
+    [[ $filled -gt $bar_length ]] && filled=$bar_length
+    [[ $filled -lt 0 ]] && filled=0
+
+    # Build the bar with gradient colors for filled, current marker, dim for empty
+    local bar=""
+    for ((i=0; i<filled; i++)); do
+        bar+="${GRADIENT_COLORS[$i]}${ICON_BAR_FILLED}"
+    done
+    # Current position marker (first empty slot)
+    if [[ $filled -lt $bar_length ]]; then
+        bar+="${GRADIENT_COLORS[$filled]}${ICON_BAR_CURRENT}"
+    fi
+    bar+="${COLOR_DIM}"
+    for ((i=filled+1; i<bar_length; i++)); do
+        bar+="${ICON_BAR_EMPTY}"
+    done
+    bar+="${COLOR_RESET}"
+
+    printf '%b' "$bar"
+}
+
+################################################################################
+# Get color for current context percentage
+################################################################################
+get_percent_color() {
+    local percent="${1:-0}"
+    # Calculate filled segments (same as generate_context_bar)
+    local filled=$(( (percent + 5) / 10 ))
+    [[ $filled -gt 10 ]] && filled=10
+    [[ $filled -lt 1 ]] && filled=1
+    # Use the last filled segment's color (index is filled - 1)
+    local index=$((filled - 1))
+    printf '%b' "${GRADIENT_COLORS[$index]}"
+}
+
+################################################################################
 # Format and print the complete status line (3 lines)
 ################################################################################
 format_statusline() {
@@ -254,6 +319,7 @@ format_statusline() {
     local lang_icon="$2"
     local git_info="$3"
     local model_name="$4"
+    local context_percent="$5"
 
     # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
@@ -268,8 +334,12 @@ format_statusline() {
         printf "\n"
     fi
 
-    # Line 3: AI model name
-    printf "${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET}" "$model_name"
+    # Line 3: AI model name with context bar
+    local context_bar percent_color
+    local percent_int=${context_percent%.*}  # Remove decimal part
+    context_bar=$(generate_context_bar "$percent_int")
+    percent_color=$(get_percent_color "$percent_int")
+    printf "${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET} ${COLOR_DIM}·${COLOR_RESET} %s%d%%${COLOR_RESET} %s" "$model_name" "$percent_color" "$percent_int" "$context_bar"
 }
 
 ################################################################################
@@ -283,11 +353,12 @@ main() {
     local input
     input=$(parse_input)
 
-    # Extract workspace information
-    local json_output model_name current_dir folder_name
-    json_output=$(echo "$input" | jq -r '[.model.display_name // "Claude", .workspace.current_dir // .cwd // "."] | @tsv')
+    # Extract workspace and context information
+    local json_output model_name current_dir folder_name context_percent
+    json_output=$(echo "$input" | jq -r '[.model.display_name // "Claude", .workspace.current_dir // .cwd // ".", .context_window.used_percentage // 0] | @tsv')
     model_name=$(echo "$json_output" | cut -f1)
     current_dir=$(echo "$json_output" | cut -f2)
+    context_percent=$(echo "$json_output" | cut -f3)
     folder_name=$(basename "$current_dir")
 
     # Detect programming language
@@ -299,7 +370,7 @@ main() {
     git_info=$(get_git_info)
 
     # Output formatted status line
-    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name"
+    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent"
 }
 
 # Run main function
