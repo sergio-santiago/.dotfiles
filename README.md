@@ -105,10 +105,8 @@ This will install:
 - **zoxide** — smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
-- **Docker Desktop** — container engine and UI
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
-- **Hammerspoon** — macOS automation tool with Lua scripting
 - **IINA** — modern video player for macOS
 - **iTerm2** — terminal emulator for macOS
 - **Ice (jordanbaird-ice)** — menu bar manager for macOS
