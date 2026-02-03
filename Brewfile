@@ -22,10 +22,8 @@ brew "zoxide"                   # smarter cd command with jump history
 
 # --- Casks ---
 cask "codex"                    # agentic coding CLI
-cask "docker-desktop"           # container engine and UI
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
-cask "hammerspoon"              # automation tool with Lua scripting
 cask "iina"                     # video player
 cask "iterm2"                   # terminal emulator
 cask "jordanbaird-ice@beta"     # menu bar manager
