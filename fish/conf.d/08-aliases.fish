@@ -91,6 +91,9 @@ end
 # ⚙️ Development tools
 # ─────────────────────────────────────────────────────────────────────────────
 alias m="make"
+if type -q claude
+    alias c="claude"
+end
 if type -q fnm
     alias nvm="fnm"
 end
