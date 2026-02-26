@@ -5,7 +5,7 @@ This repository contains my personal macOS development environment configuration
 - 🐟 **Fish shell**
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
-    - Modular configuration with 15 numbered conf.d files (00-99) for controlled load order.
+    - Modular configuration with 13 numbered conf.d files (00-99) for controlled load order.
     - Custom functions: `fish_greeting`, `banner_sergio`, `fish_user_key_bindings`.
 - 🎨 **Custom banner**
     - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
@@ -47,6 +47,7 @@ This repository contains my personal macOS development environment configuration
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
+    - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
@@ -82,18 +83,19 @@ This will install:
 
 #### 🔖 Taps
 - **domt4/autoupdate** — keep Homebrew itself and formulae up to date
+- **hamed-elfayome/claude-usage** — Claude API usage tracking
+- **hashicorp/tap** — HashiCorp tools (provides `terraform`)
 - **sst/tap** — custom tap (provides `opencode` CLI)
 
 #### 🛠️ CLI tools
+- **awscli** — AWS command-line interface
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
-- **codex** — agentic coding CLI
 - **eza** — improved `ls` with colors and icons
 - **fd** — fast and user-friendly alternative to `find`
 - **fish** — friendly interactive shell
 - **fnm** — fast Node.js version manager
 - **fzf** — fuzzy finder for the terminal
-- **gemini-cli** — Google Gemini AI CLI
 - **gh** — GitHub CLI tool
 - **jq** — JSON processor for command line
 - **lolcat** — rainbow coloring for terminal output
@@ -102,9 +104,12 @@ This will install:
 - **opencode** — lightweight open-source Claude-compatible CLI
 - **pyenv** — manage multiple Python versions
 - **starship** — fast and customizable prompt
+- **terraform** — infrastructure as code tool
 - **zoxide** — smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
+- **Claude Usage Tracker** — Claude API usage dashboard
+- **Codex** — agentic coding CLI
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **IINA** — modern video player for macOS

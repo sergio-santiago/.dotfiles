@@ -77,14 +77,19 @@ All 10 core colors. Config: `starship/starship.toml`
 - **pink** = `#ff6cd4`
 
 ### Claude Statusline
-Minimal color set in RGB format. Config: `claude/statusline.sh`
+Color set in RGB format with gradient bar. Config: `claude/statusline.sh`
 
 ```bash
 COLOR_BLUE='\033[38;2;104;213;255m'    # Folder name (matches #68d5ff)
 COLOR_YELLOW='\033[38;2;255;236;153m'  # Git branch (matches #ffec99)
 COLOR_ORANGE='\033[38;2;255;184;108m'  # Git special states (matches #ffb86c)
 COLOR_GREEN='\033[38;2;68;243;115m'    # Model name (matches #44f373)
+COLOR_PURPLE='\033[38;2;189;147;249m'  # Context bar (matches #bd93f9)
+COLOR_DIM='\033[38;2;108;108;108m'     # Dimmed elements
 ```
+
+**Gradient bar colors** (green → yellow → orange → red):
+- `#50FA7B` → `#F1FA8C` → `#FFB86C` → `#FF5555` (10 steps for context/usage bars)
 
 ### Bat Syntax Highlighting
 Core + extended colors. Config: `bat/themes/linked-data-dark-rainbow.tmTheme`
@@ -194,7 +199,7 @@ Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
 
 ### Colors per Tool:
 - ✅ **Starship** (9 colors) - Core palette
-- ✅ **Claude statusline** (4 colors) - Minimal core palette in RGB
+- ✅ **Claude statusline** (6 colors + 10-step gradient) - Core palette in RGB with gradient bars
 - ✅ **Bat theme** (24 colors) - Core + extended + UI + diff
 - ✅ **Micro editor** (35 color definitions) - Most comprehensive
 - ✅ **Fish shell** (25 colors) - Includes shell-specific variants
