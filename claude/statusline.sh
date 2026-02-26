@@ -55,6 +55,8 @@ readonly ICON_STASH="*"                             # Stash count (asterisk)
 readonly ICON_BAR_FILLED='󱑽'                  # Context bar filled segment (Nerd Font)
 readonly ICON_BAR_CURRENT=''                 # Context bar current position (Nerd Font)
 readonly ICON_BAR_EMPTY='󰼮'                   # Context bar empty segment (Nerd Font, dimmed)
+readonly ICON_USAGE_BAR_FILLED='▓'              # Usage bar filled segment (block character)
+readonly ICON_USAGE_BAR_EMPTY='░'               # Usage bar empty segment (block character)
 
 ################################################################################
 # Programming language icons (Nerd Fonts)
@@ -252,6 +254,103 @@ get_git_info() {
 }
 
 ################################################################################
+# Fetch usage/quota data from Anthropic API with cache
+################################################################################
+readonly USAGE_CACHE_FILE="/tmp/claude-usage-cache.json"
+readonly USAGE_CACHE_TTL=15  # seconds
+
+fetch_usage_data() {
+    # Check if cache exists and is fresh
+    if [[ -f "$USAGE_CACHE_FILE" ]]; then
+        local cache_age
+        local cache_mtime
+        cache_mtime=$(stat -f '%m' "$USAGE_CACHE_FILE" 2>/dev/null || echo 0)
+        local now
+        now=$(date +%s)
+        cache_age=$(( now - cache_mtime ))
+
+        if [[ $cache_age -lt $USAGE_CACHE_TTL ]]; then
+            # Cache is fresh, use it
+            cat "$USAGE_CACHE_FILE"
+            return
+        fi
+
+        # Cache is stale — return stale data and refresh in background
+        cat "$USAGE_CACHE_FILE"
+
+        # Launch background refresh (only if not already running)
+        local lock_file="/tmp/claude-usage-refresh.lock"
+        if ! [[ -f "$lock_file" ]] || [[ $(( now - $(stat -f '%m' "$lock_file" 2>/dev/null || echo 0) )) -gt 30 ]]; then
+            _refresh_usage_cache &
+        fi
+        return
+    fi
+
+    # No cache at all — try a synchronous fetch (first run)
+    _refresh_usage_cache "sync"
+    [[ -f "$USAGE_CACHE_FILE" ]] && cat "$USAGE_CACHE_FILE"
+}
+
+_refresh_usage_cache() {
+    local mode="${1:-async}"
+    local lock_file="/tmp/claude-usage-refresh.lock"
+
+    # Create lock file
+    touch "$lock_file" 2>/dev/null
+
+    # Get OAuth token from Keychain
+    local token
+    token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null) || true
+
+    if [[ -z "$token" ]]; then
+        rm -f "$lock_file" 2>/dev/null
+        return
+    fi
+
+    # Fetch from API
+    local response
+    response=$(curl -s --max-time 3 \
+        -H "Authorization: Bearer $token" \
+        -H "Content-Type: application/json" \
+        -H "anthropic-beta: oauth-2025-04-20" \
+        "https://api.anthropic.com/api/oauth/usage" 2>/dev/null) || true
+
+    # Validate response has expected structure
+    if [[ -n "$response" ]] && echo "$response" | jq -e '.five_hour' &>/dev/null; then
+        echo "$response" > "$USAGE_CACHE_FILE"
+    fi
+
+    rm -f "$lock_file" 2>/dev/null
+}
+
+################################################################################
+# Format ISO 8601 timestamp to relative time (e.g., 23m, 1h12m)
+################################################################################
+format_relative_time() {
+    local iso_timestamp="$1"
+
+    # Strip trailing Z or timezone offset for macOS date compatibility
+    local clean_ts="${iso_timestamp%%.*}"  # Remove fractional seconds
+    clean_ts="${clean_ts//T/ }"            # Replace T with space
+
+    local target_epoch now_epoch
+    target_epoch=$(TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$clean_ts" "+%s" 2>/dev/null) || return
+    now_epoch=$(date +%s)
+
+    local diff=$(( target_epoch - now_epoch ))
+    [[ $diff -lt 0 ]] && diff=0
+
+    local hours=$(( diff / 3600 ))
+    local minutes=$(( (diff % 3600) / 60 ))
+
+    if [[ $hours -gt 0 ]]; then
+        printf '%dh%02dm' "$hours" "$minutes"
+    else
+        printf '%dm' "$minutes"
+    fi
+}
+
+################################################################################
 # Context bar gradient colors (green -> yellow -> orange -> red)
 ################################################################################
 readonly GRADIENT_COLORS=(
@@ -298,6 +397,32 @@ generate_context_bar() {
 }
 
 ################################################################################
+# Generate usage bar with block characters and gradient colors
+################################################################################
+generate_usage_bar() {
+    local percent="${1:-0}"
+    local bar_length=10
+
+    # Calculate filled segments (round to nearest)
+    local filled=$(( (percent + 5) / 10 ))
+    [[ $filled -gt $bar_length ]] && filled=$bar_length
+    [[ $filled -lt 0 ]] && filled=0
+
+    # Build the bar with gradient colors for filled, dim for empty
+    local bar=""
+    for ((i=0; i<filled; i++)); do
+        bar+="${GRADIENT_COLORS[$i]}${ICON_USAGE_BAR_FILLED}"
+    done
+    bar+="${COLOR_DIM}"
+    for ((i=filled; i<bar_length; i++)); do
+        bar+="${ICON_USAGE_BAR_EMPTY}"
+    done
+    bar+="${COLOR_RESET}"
+
+    printf '%b' "$bar"
+}
+
+################################################################################
 # Get color for current context percentage
 ################################################################################
 get_percent_color() {
@@ -312,7 +437,7 @@ get_percent_color() {
 }
 
 ################################################################################
-# Format and print the complete status line (3 lines)
+# Format and print the complete status line (3-4 lines)
 ################################################################################
 format_statusline() {
     local folder_name="$1"
@@ -320,6 +445,9 @@ format_statusline() {
     local git_info="$3"
     local model_name="$4"
     local context_percent="$5"
+    local usage_data="$6"
+
+    local separator="${COLOR_DIM}─────────────────────────${COLOR_RESET}"
 
     # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
@@ -334,12 +462,51 @@ format_statusline() {
         printf "\n"
     fi
 
-    # Line 3: AI model name with context bar
+    # Middle separator
+    printf "%b\n" "$separator"
+
+    # Line 3: AI model name (rainbow via lolcat)
+    if command -v lolcat &>/dev/null; then
+        echo "${ICON_AI} ${model_name}" | lolcat -f -p 0.2 -S 90
+    else
+        printf "${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET}\n" "$model_name"
+    fi
+
+    # Line 4: Context bar
     local context_bar percent_color
     local percent_int=${context_percent%.*}  # Remove decimal part
     context_bar=$(generate_context_bar "$percent_int")
     percent_color=$(get_percent_color "$percent_int")
-    printf "${COLOR_GREEN}${ICON_AI} %s${COLOR_RESET} ${COLOR_DIM}·${COLOR_RESET} %s%d%%${COLOR_RESET} %s" "$model_name" "$percent_color" "$percent_int" "$context_bar"
+    printf "%s %d%%${COLOR_RESET} %s" "$percent_color" "$percent_int" "$context_bar"
+
+    # Line 5: Usage quota (only if data available)
+    if [[ -n "$usage_data" ]]; then
+        local five_hour_util five_hour_reset
+        five_hour_util=$(echo "$usage_data" | jq -r '.five_hour.utilization // empty' 2>/dev/null) || true
+        five_hour_reset=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty' 2>/dev/null) || true
+
+        if [[ -n "$five_hour_util" ]]; then
+            local five_int=${five_hour_util%.*}
+            local five_color five_bar reset_time
+            five_color=$(get_percent_color "$five_int")
+            five_bar=$(generate_usage_bar "$five_int")
+
+            printf "\n"
+            # Icon + percentage + bar (all in gradient color)
+            printf "%s󱢵 %d%% %s${COLOR_RESET}" "$five_color" "$five_int" "$five_bar"
+
+            # Reset time (dim)
+            if [[ -n "$five_hour_reset" ]]; then
+                reset_time=$(format_relative_time "$five_hour_reset")
+                if [[ -n "$reset_time" ]]; then
+                    printf " ${COLOR_DIM}· %s${COLOR_RESET}" "$reset_time"
+                fi
+            fi
+        fi
+    fi
+
+    # Bottom separator
+    printf "\n%b" "$separator"
 }
 
 ################################################################################
@@ -369,8 +536,12 @@ main() {
     local git_info
     git_info=$(get_git_info)
 
+    # Fetch usage/quota data (non-blocking with cache)
+    local usage_data
+    usage_data=$(fetch_usage_data 2>/dev/null) || usage_data=""
+
     # Output formatted status line
-    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent"
+    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent" "$usage_data"
 }
 
 # Run main function
