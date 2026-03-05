@@ -223,9 +223,8 @@ get_git_info() {
 
     if [[ -n "$upstream" ]]; then
         local counts
-        counts=$(git rev-list --left-right --count HEAD..."$upstream" 2>/dev/null || echo "0 0")
-        ahead=${counts%% *}
-        behind=${counts##* }
+        counts=$(git rev-list --left-right --count HEAD..."$upstream" 2>/dev/null || echo "0	0")
+        read -r ahead behind <<< "$counts"
         ahead=${ahead:-0}
         behind=${behind:-0}
     fi
@@ -257,7 +256,7 @@ get_git_info() {
 # Fetch usage/quota data from Anthropic API with cache
 ################################################################################
 readonly USAGE_CACHE_FILE="/tmp/claude-usage-cache.json"
-readonly USAGE_CACHE_TTL=15  # seconds
+readonly USAGE_CACHE_TTL=10  # seconds
 
 fetch_usage_data() {
     # Check if cache exists and is fresh
@@ -477,7 +476,7 @@ format_statusline() {
     local percent_int=${context_percent%.*}  # Remove decimal part
     context_bar=$(generate_context_bar "$percent_int")
     percent_color=$(get_percent_color "$percent_int")
-    printf "%s %d%%${COLOR_RESET} %s" "$percent_color" "$percent_int" "$context_bar"
+    printf "%s %d%%${COLOR_RESET} %s" "$percent_color" "$percent_int" "$context_bar"
 
     # Line 5: Usage quota (only if data available)
     if [[ -n "$usage_data" ]]; then
@@ -493,7 +492,7 @@ format_statusline() {
 
             printf "\n"
             # Icon + percentage + bar (all in gradient color)
-            printf "%s󱢵 %d%% %s${COLOR_RESET}" "$five_color" "$five_int" "$five_bar"
+            printf "%s %d%% %s${COLOR_RESET}" "$five_color" "$five_int" "$five_bar"
 
             # Reset time (dim)
             if [[ -n "$five_hour_reset" ]]; then
