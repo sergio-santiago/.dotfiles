@@ -256,7 +256,7 @@ get_git_info() {
 # Fetch usage/quota data from Anthropic API with cache
 ################################################################################
 readonly USAGE_CACHE_FILE="/tmp/claude-usage-cache.json"
-readonly USAGE_CACHE_TTL=10  # seconds
+readonly USAGE_CACHE_TTL=30  # seconds
 
 fetch_usage_data() {
     # Check if cache exists and is fresh
@@ -274,13 +274,10 @@ fetch_usage_data() {
             return
         fi
 
-        # Cache is stale — return stale data and refresh in background
-        cat "$USAGE_CACHE_FILE"
-
-        # Launch background refresh (only if not already running)
-        local lock_file="/tmp/claude-usage-refresh.lock"
-        if ! [[ -f "$lock_file" ]] || [[ $(( now - $(stat -f '%m' "$lock_file" 2>/dev/null || echo 0) )) -gt 30 ]]; then
-            _refresh_usage_cache &
+        # Cache is stale — refresh synchronously (curl has 3s timeout)
+        _refresh_usage_cache "sync"
+        if [[ -f "$USAGE_CACHE_FILE" ]]; then
+            cat "$USAGE_CACHE_FILE"
         fi
         return
     fi
