@@ -114,7 +114,7 @@ This will install:
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
 - **IINA** — modern video player for macOS
 - **iTerm2** — terminal emulator for macOS
-- **Ice (jordanbaird-ice)** — menu bar manager for macOS
+- **Thaw** — menu bar manager for macOS
 
 > 🔄️ You can enable automatic updates for Homebrew itself, formulas, and casks with:  
 > `brew autoupdate start 86400 --upgrade --cleanup --immediate --ac-only`  
