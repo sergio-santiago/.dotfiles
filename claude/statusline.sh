@@ -253,84 +253,52 @@ get_git_info() {
 }
 
 ################################################################################
-# Fetch usage/quota data from Anthropic API with cache
+# Read usage data from Claude Usage Tracker app (no API calls needed)
 ################################################################################
-readonly USAGE_CACHE_FILE="/tmp/claude-usage-cache.json"
-readonly USAGE_CACHE_TTL=30  # seconds
-
 fetch_usage_data() {
-    # Check if cache exists and is fresh
-    if [[ -f "$USAGE_CACHE_FILE" ]]; then
-        local cache_age
-        local cache_mtime
-        cache_mtime=$(stat -f '%m' "$USAGE_CACHE_FILE" 2>/dev/null || echo 0)
-        local now
-        now=$(date +%s)
-        cache_age=$(( now - cache_mtime ))
-
-        if [[ $cache_age -lt $USAGE_CACHE_TTL ]]; then
-            # Cache is fresh, use it
-            cat "$USAGE_CACHE_FILE"
-            return
-        fi
-
-        # Cache is stale — refresh synchronously (curl has 3s timeout)
-        _refresh_usage_cache "sync"
-        if [[ -f "$USAGE_CACHE_FILE" ]]; then
-            cat "$USAGE_CACHE_FILE"
-        fi
+    # Check if Claude Usage Tracker is configured
+    if ! defaults read HamedElfayome.Claude-Usage activeProfileId &>/dev/null; then
+        echo "__NOT_INSTALLED__"
         return
     fi
 
-    # No cache at all — try a synchronous fetch (first run)
-    _refresh_usage_cache "sync"
-    [[ -f "$USAGE_CACHE_FILE" ]] && cat "$USAGE_CACHE_FILE"
-}
+    # Read active profile's cached usage from Claude Usage Tracker defaults
+    local profile_json
+    profile_json=$(python3 -c "
+import subprocess, json, plistlib, sys
+result = subprocess.run(['defaults', 'export', 'HamedElfayome.Claude-Usage', '-'],
+                       capture_output=True)
+if result.returncode != 0:
+    sys.exit(1)
+plist = plistlib.loads(result.stdout)
+profiles = json.loads(plist.get('profiles_v3', b'[]'))
+active_id = plist.get('activeProfileId', '')
+for p in profiles:
+    if p.get('id') == active_id:
+        usage = p.get('claudeUsage', {})
+        if usage:
+            json.dump(usage, sys.stdout)
+        break
+" 2>/dev/null) || true
 
-_refresh_usage_cache() {
-    local mode="${1:-async}"
-    local lock_file="/tmp/claude-usage-refresh.lock"
-
-    # Create lock file
-    touch "$lock_file" 2>/dev/null
-
-    # Get OAuth token from Keychain
-    local token
-    token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null | jq -r '.claudeAiOauth.accessToken // empty' 2>/dev/null) || true
-
-    if [[ -z "$token" ]]; then
-        rm -f "$lock_file" 2>/dev/null
-        return
-    fi
-
-    # Fetch from API
-    local response
-    response=$(curl -s --max-time 3 \
-        -H "Authorization: Bearer $token" \
-        -H "Content-Type: application/json" \
-        -H "anthropic-beta: oauth-2025-04-20" \
-        "https://api.anthropic.com/api/oauth/usage" 2>/dev/null) || true
-
-    # Validate response has expected structure
-    if [[ -n "$response" ]] && echo "$response" | jq -e '.five_hour' &>/dev/null; then
-        echo "$response" > "$USAGE_CACHE_FILE"
-    fi
-
-    rm -f "$lock_file" 2>/dev/null
+    echo "$profile_json"
 }
 
 ################################################################################
-# Format ISO 8601 timestamp to relative time (e.g., 23m, 1h12m)
+# Format Core Data timestamp to relative time (e.g., 23m, 1h12m)
+# Core Data reference date: 2001-01-01 00:00:00 UTC (978307200 unix epoch)
 ################################################################################
+readonly COREDATA_EPOCH_OFFSET=978307200
+
 format_relative_time() {
-    local iso_timestamp="$1"
+    local coredata_timestamp="$1"
 
-    # Strip trailing Z or timezone offset for macOS date compatibility
-    local clean_ts="${iso_timestamp%%.*}"  # Remove fractional seconds
-    clean_ts="${clean_ts//T/ }"            # Replace T with space
+    # Convert Core Data timestamp to unix epoch
+    local target_epoch
+    target_epoch=${coredata_timestamp%.*}
+    target_epoch=$(( target_epoch + COREDATA_EPOCH_OFFSET ))
 
-    local target_epoch now_epoch
-    target_epoch=$(TZ=UTC date -j -f "%Y-%m-%d %H:%M:%S" "$clean_ts" "+%s" 2>/dev/null) || return
+    local now_epoch
     now_epoch=$(date +%s)
 
     local diff=$(( target_epoch - now_epoch ))
@@ -475,25 +443,27 @@ format_statusline() {
     percent_color=$(get_percent_color "$percent_int")
     printf "%s %d%%${COLOR_RESET} %s" "$percent_color" "$percent_int" "$context_bar"
 
-    # Line 5: Usage quota (only if data available)
-    if [[ -n "$usage_data" ]]; then
-        local five_hour_util five_hour_reset
-        five_hour_util=$(echo "$usage_data" | jq -r '.five_hour.utilization // empty' 2>/dev/null) || true
-        five_hour_reset=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty' 2>/dev/null) || true
+    # Line 5: Usage quota from Claude Usage Tracker
+    if [[ "$usage_data" == "__NOT_INSTALLED__" ]]; then
+        printf "\n${COLOR_DIM}Usage quota requires Claude Usage Tracker"
+        printf "\nbrew install claude-usage-tracker${COLOR_RESET}"
+    elif [[ -n "$usage_data" ]]; then
+        local session_pct session_reset
+        session_pct=$(echo "$usage_data" | jq -r '.sessionPercentage // empty' 2>/dev/null) || true
+        session_reset=$(echo "$usage_data" | jq -r '.sessionResetTime // empty' 2>/dev/null) || true
 
-        if [[ -n "$five_hour_util" ]]; then
-            local five_int=${five_hour_util%.*}
-            local five_color five_bar reset_time
-            five_color=$(get_percent_color "$five_int")
-            five_bar=$(generate_usage_bar "$five_int")
+        if [[ -n "$session_pct" ]]; then
+            local session_int=${session_pct%.*}
+            local session_color session_bar reset_time
+            session_color=$(get_percent_color "$session_int")
+            session_bar=$(generate_usage_bar "$session_int")
 
             printf "\n"
-            # Icon + percentage + bar (all in gradient color)
-            printf "%s %d%% %s${COLOR_RESET}" "$five_color" "$five_int" "$five_bar"
+            printf "%s %d%% %s${COLOR_RESET}" "$session_color" "$session_int" "$session_bar"
 
             # Reset time (dim)
-            if [[ -n "$five_hour_reset" ]]; then
-                reset_time=$(format_relative_time "$five_hour_reset")
+            if [[ -n "$session_reset" ]]; then
+                reset_time=$(format_relative_time "$session_reset")
                 if [[ -n "$reset_time" ]]; then
                     printf " ${COLOR_DIM}· %s${COLOR_RESET}" "$reset_time"
                 fi
@@ -532,7 +502,7 @@ main() {
     local git_info
     git_info=$(get_git_info)
 
-    # Fetch usage/quota data (non-blocking with cache)
+    # Read usage data from Claude Usage Tracker
     local usage_data
     usage_data=$(fetch_usage_data 2>/dev/null) || usage_data=""
 
