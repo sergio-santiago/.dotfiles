@@ -31,4 +31,4 @@ cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
 cask "iina"                     # video player
 cask "iterm2"                   # terminal emulator
-cask "jordanbaird-ice@beta"     # menu bar manager
+cask "thaw"                     # menu bar manager
