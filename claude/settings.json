@@ -3,5 +3,7 @@
     "type": "command",
     "command": "~/.claude/statusline.sh"
   },
-  "alwaysThinkingEnabled": false
+  "alwaysThinkingEnabled": false,
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
 }

@@ -411,7 +411,7 @@ format_statusline() {
     local context_percent="$5"
     local usage_data="$6"
 
-    local separator="${COLOR_DIM}─────────────────────────${COLOR_RESET}"
+    local separator="${COLOR_DIM}─────────────────────────󰇝${COLOR_RESET}"
 
     # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
