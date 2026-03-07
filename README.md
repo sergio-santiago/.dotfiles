@@ -5,11 +5,9 @@ This repository contains my personal macOS development environment configuration
 - 🐟 **Fish shell**
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
-    - Modular configuration with 13 numbered conf.d files (00-99) for controlled load order.
-    - Custom functions: `fish_greeting`, `banner_sergio`, `fish_user_key_bindings`.
-- 🎨 **Custom banner**
-    - Multi-line ASCII welcome with compact fallback and optional rainbow effect (`lolcat`).
-    - **Banner mode** is configurable via the `BANNER_MODE` env var: `full` | `compact` | `auto`.
+    - Modular configuration with 12 numbered conf.d files (00-99) for controlled load order.
+    - Custom functions: `fish_greeting`, `fish_user_key_bindings`.
+    - Compact welcome banner with rainbow effect (`lolcat`) and fixed seed for consistent colors.
 - 🧾 **Aliases**
     - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
     - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `z` (zoxide), `tree` (eza --tree)...
@@ -36,7 +34,7 @@ This repository contains my personal macOS development environment configuration
         - Micro editor (`linked-data-dark-rainbow.micro`)
         - FZF (`05-fzf.fish` with synchronized color palette)
         - iTerm2 (ANSI colors + UI elements)
-    - Includes a custom rainbow separator (`98-rainbow_separator.fish`) to visually divide command output from the next
+    - Includes a custom rainbow separator (`99-rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
     - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 27-color palette with hex/RGB values and semantic usage across all tools.
@@ -48,7 +46,7 @@ This repository contains my personal macOS development environment configuration
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
-    - Settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
+    - Global instructions (`CLAUDE.md`) and settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
     - Truecolor support, braille graphs, rounded corners, and transparent background.
@@ -158,6 +156,7 @@ ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
 
 # Claude Code
 mkdir -p ~/.claude
+ln -sfh ~/.dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 
@@ -190,12 +189,10 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 - `08-aliases.fish` — Command aliases and helper functions
 - `09-theme.fish` — linked_data_dark_rainbow color theme
 - `10-starship.fish` — Starship prompt initialization
-- `98-rainbow_separator.fish` — Rainbow command separator
-- `99-banner.fish` — Custom welcome banner (last)
+- `99-rainbow_separator.fish` — Rainbow command separator
 
 #### functions/ directory:
-- `fish_greeting.fish` — Custom greeting message
-- `banner_sergio.fish` — ASCII art banner generator
+- `fish_greeting.fish` — Compact welcome banner with lolcat rainbow
 - `fish_user_key_bindings.fish` — Custom key bindings
 
 ---

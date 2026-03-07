@@ -27,8 +27,7 @@
 # 08-aliases.fish                               # shell aliases
 # 09-theme.fish                                 # theme colors (linked-data-dark-rainbow)
 # 10-starship.fish                              # Starship prompt
-# 98-rainbow_separator.fish                     # rainbow separator (cosmetic, near the end)
-# 99-banner.fish                                # custom banner (cosmetic, always last)
+# 99-rainbow_separator.fish                     # rainbow separator (cosmetic, always last)
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # 🔐 SSH configuration

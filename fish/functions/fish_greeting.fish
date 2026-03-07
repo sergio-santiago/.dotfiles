@@ -1,19 +1,17 @@
 # ~/.config/fish/functions/fish_greeting.fish
-# Custom Fish shell greeting displayed at shell startup.
-# Replaces the default `Welcome to fish` message with a personalized, icon-rich banner.
-# If `lolcat` is available, the greeting is shown with animated rainbow colors;
-# otherwise, it falls back to static bright cyan text.
+# Compact welcome banner with rainbow colors via lolcat.
 
 function fish_greeting
-    set greeting "󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽-
-     Let's code Sergi󰋙    󱞤 󱑽󱑽󱑽-
-󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽 󱊾 󱑽-"
+    set banner "
+󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽-
+    Welcome Sergi󰋙 󱑽-
+󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽󱑽-"
 
     if type -q lolcat
-        echo $greeting | lolcat -t -a -i --speed=60 --seed=1998
+        echo $banner | lolcat -t --seed=22
     else
         set_color brcyan
-        echo $greeting
+        echo $banner
         set_color normal
     end
 end
