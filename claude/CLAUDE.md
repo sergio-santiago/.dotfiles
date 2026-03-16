@@ -1,14 +1,13 @@
 ## Git Commits
 
-- No AI attribution (no footers, no Co-Authored-By)
+- No AI attribution (no footers, no Co-Authored-By, no "Generated with" in PRs)
 - Conventional commits format (feat:, fix:, refactor:, docs:, etc...)
 - Concise description with bullet points of key changes
 
 ## Development Environment
 
-- Always use Docker containers to run commands (php, composer, node, etc.) — nothing is installed locally on the host machine
-- Use `docker compose exec <service> <command>` instead of running binaries directly
-- Check the project's `Makefile` first for common tasks (tests, migrations, fixtures, lint, etc.) before writing commands manually
+- Check the project's `Makefile` first for common tasks (tests, migrations, fixtures, lint, etc.)
+- If the project has `docker-compose.yml`, tools (php, composer, node, etc.) run inside Docker — use `docker compose exec <service> <command>` instead of running binaries directly on the host
 
 ## Before Committing
 
