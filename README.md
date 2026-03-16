@@ -10,7 +10,7 @@ This repository contains my personal macOS development environment configuration
     - Compact welcome banner with rainbow effect (`lolcat`) and fixed seed for consistent colors.
 - 🧾 **Aliases**
     - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
-    - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `z` (zoxide), `tree` (eza --tree)...
+    - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `z` (zoxide), `tree` (eza --tree), `c`/`c-yolo` (claude)...
 - 🎯 **FZF (Fuzzy Finder)**
     - Comprehensive configuration with `fd` integration for fast file/directory search.
     - Responsive preview windows with `bat` (files) and `eza` (directories).
@@ -46,6 +46,7 @@ This repository contains my personal macOS development environment configuration
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
+    - Granular permission rules: read-only git commands auto-allowed, mutations require confirmation.
     - Global instructions (`CLAUDE.md`) and settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.

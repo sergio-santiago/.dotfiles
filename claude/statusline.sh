@@ -19,7 +19,7 @@
 #   Formatted status line with ANSI color codes
 #
 # Example output:
-#    my-project  main ~2 +1  󰧑 Sonnet 4.5
+#    my-project  main !2 +1  󰧑 Sonnet 4.5
 #
 ################################################################################
 
@@ -46,17 +46,22 @@ readonly ICON_GIT_MERGING=""                       # Merging state icon
 readonly ICON_GIT_CHERRY=""                        # Cherry-pick state icon
 readonly ICON_GIT_DETACHED="󰃻"                      # Detached HEAD icon
 readonly ICON_AI="󰧑"                                # AI/Model icon
-readonly ICON_STAGED="✓"                            # Staged files (checkmark)
-readonly ICON_MODIFIED="~"                          # Modified files (tilde)
-readonly ICON_UNTRACKED="+"                         # Untracked files (plus)
-readonly ICON_AHEAD="↑"                             # Commits ahead (up arrow)
-readonly ICON_BEHIND="↓"                            # Commits behind (down arrow)
-readonly ICON_STASH="*"                             # Stash count (asterisk)
+readonly ICON_STAGED="+"                            # Staged files (plus)
+readonly ICON_MODIFIED="!"                          # Modified files (bang)
+readonly ICON_UNTRACKED="?"                         # Untracked files (question)
+readonly ICON_AHEAD="⇡"                             # Commits ahead (up arrow)
+readonly ICON_BEHIND="⇣"                            # Commits behind (down arrow)
+readonly ICON_STASH="$"                             # Stash count (dollar)
 readonly ICON_BAR_FILLED='󱑽'                  # Context bar filled segment (Nerd Font)
 readonly ICON_BAR_CURRENT=''                 # Context bar current position (Nerd Font)
 readonly ICON_BAR_EMPTY='󰼮'                   # Context bar empty segment (Nerd Font, dimmed)
 readonly ICON_USAGE_BAR_FILLED='▓'              # Usage bar filled segment (block character)
 readonly ICON_USAGE_BAR_EMPTY='░'               # Usage bar empty segment (block character)
+readonly ICON_SEPARATOR_LINE='─'                    # Separator line segment
+readonly ICON_SEPARATOR_TOP='╮'                      # Top separator end (rounded corner)
+readonly ICON_SEPARATOR_BOTTOM='╯'                   # Bottom separator end (rounded corner)
+readonly ICON_DOT_SEPARATOR='·'                     # Middle dot separator
+readonly SEPARATOR_WIDTH=25                            # Separator line width
 
 ################################################################################
 # Programming language icons (Nerd Fonts)
@@ -411,7 +416,11 @@ format_statusline() {
     local context_percent="$5"
     local usage_data="$6"
 
-    local separator="${COLOR_DIM}─────────────────────────󰇝${COLOR_RESET}"
+    local sep_line=""
+    local i
+    for ((i=0; i<SEPARATOR_WIDTH; i++)); do sep_line+="${ICON_SEPARATOR_LINE}"; done
+    local separator_top="${COLOR_DIM}${sep_line}${ICON_SEPARATOR_TOP}${COLOR_RESET}"
+    local separator_bottom="${COLOR_DIM}${sep_line}${ICON_SEPARATOR_BOTTOM}${COLOR_RESET}"
 
     # Line 1: Folder name with language icon
     local display_icon="${lang_icon:-$ICON_FOLDER}"
@@ -427,7 +436,7 @@ format_statusline() {
     fi
 
     # Middle separator
-    printf "%b\n" "$separator"
+    printf "%b\n" "$separator_top"
 
     # Line 3: AI model name (rainbow via lolcat)
     if command -v lolcat &>/dev/null; then
@@ -465,14 +474,14 @@ format_statusline() {
             if [[ -n "$session_reset" ]]; then
                 reset_time=$(format_relative_time "$session_reset")
                 if [[ -n "$reset_time" ]]; then
-                    printf " ${COLOR_DIM}· %s${COLOR_RESET}" "$reset_time"
+                    printf " ${COLOR_DIM}${ICON_DOT_SEPARATOR} %s${COLOR_RESET}" "$reset_time"
                 fi
             fi
         fi
     fi
 
     # Bottom separator
-    printf "\n%b" "$separator"
+    printf "\n%b" "$separator_bottom"
 }
 
 ################################################################################
