@@ -1,18 +1,29 @@
 {
+  "language": "spanish",
+
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+
   "permissions": {
+    "defaultMode": "auto",
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:localhost)",
+
       "Bash(docker:*)",
       "Bash(make:*)",
       "Bash(ls:*)",
+
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
+
+      "Bash(gh status:*)",
+      "Bash(gh repo view:*)",
       "Bash(gh run view:*)",
       "Bash(gh run list:*)",
       "Bash(gh run watch:*)",
@@ -23,13 +34,21 @@
       "Bash(gh pr diff:*)",
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
-      "Bash(gh issue status:*)",
-      "Bash(gh repo view:*)",
-      "Bash(gh status:*)"
+      "Bash(gh issue status:*)"
     ],
     "ask": [
       "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git clean:*)",
+
       "Bash(gh api:*)",
+      "Bash(gh repo create:*)",
+      "Bash(gh repo delete:*)",
+      "Bash(gh run cancel:*)",
+      "Bash(gh run rerun:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh pr close:*)",
@@ -40,29 +59,22 @@
       "Bash(gh issue close:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh issue comment:*)",
-      "Bash(gh run cancel:*)",
-      "Bash(gh run rerun:*)",
-      "Bash(gh repo create:*)",
-      "Bash(gh repo delete:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git reset:*)",
-      "Bash(git rebase:*)",
-      "Bash(git clean:*)",
-      "Bash(rm :*)"
-    ],
-    "defaultMode": "auto"
+
+      "Bash(rm:*)"
+    ]
   },
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
   },
-  "language": "spanish",
-  "voiceEnabled": true,
-  "alwaysThinkingEnabled": true,
-  "effortLevel": "xhigh",
-  "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true,
   "tui": "fullscreen",
-  "attribution": { "commit": "", "pr": "" }
+  "voiceEnabled": true,
+
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }
