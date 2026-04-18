@@ -387,7 +387,7 @@ build_diff_cell() {
     local added="$1"
     local deleted="$2"
     if [[ "$added" -eq 0 && "$deleted" -eq 0 ]]; then
-        printf '%s%s%s' "$COLOR_DIM" "$ICON_DOT_SEPARATOR" "$COLOR_RESET"
+        printf '%s+0 -0%s' "$COLOR_DIM" "$COLOR_RESET"
     else
         printf '%s+%d%s %s-%d%s' \
             "$COLOR_GREEN" "$added" "$COLOR_RESET" \
