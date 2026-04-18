@@ -390,7 +390,7 @@ build_diff_cell() {
     local deleted_color="$COLOR_DIM"
     [[ "$added" -gt 0 ]] && added_color="$COLOR_GREEN"
     [[ "$deleted" -gt 0 ]] && deleted_color="$COLOR_RED"
-    printf '%s+%d%s %s󰓢%s %s-%d%s' \
+    printf '%s%d·%s%s󰓢%s%s·%d%s' \
         "$added_color" "$added" "$COLOR_RESET" \
         "$COLOR_DIM" "$COLOR_RESET" \
         "$deleted_color" "$deleted" "$COLOR_RESET"
