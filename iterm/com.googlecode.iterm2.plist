@@ -418,6 +418,8 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>EnableDivisionView</key>
 	<true/>
+	<key>FlashTabBarInFullscreen</key>
+	<false/>
 	<key>FocusFollowsMouse</key>
 	<false/>
 	<key>FocusOnRightOrMiddleClick</key>
@@ -2076,6 +2078,8 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>SeparateStatusBarsPerPane</key>
 	<false/>
+	<key>ShowFullScreenTabBar</key>
+	<true/>
 	<key>ShowNewOutputIndicator</key>
 	<true/>
 	<key>ShowPaneTitles</key>
