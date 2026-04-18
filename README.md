@@ -46,7 +46,8 @@ This repository contains my personal macOS development environment configuration
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
-    - Granular permission rules: read-only git commands auto-allowed, mutations require confirmation.
+    - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
+    - Tuned for Opus 4.7: auto mode, `xhigh` effort, always-on extended thinking, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - Global instructions (`CLAUDE.md`) and settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
@@ -92,6 +93,7 @@ This will install:
 - **btop** — modern system resource monitor
 - **eza** — improved `ls` with colors and icons
 - **fd** — fast and user-friendly alternative to `find`
+- **ffmpeg** — audio/video codec converter and streamer
 - **fish** — friendly interactive shell
 - **fnm** — fast Node.js version manager
 - **fzf** — fuzzy finder for the terminal
@@ -99,8 +101,10 @@ This will install:
 - **jq** — JSON processor for command line
 - **lolcat** — rainbow coloring for terminal output
 - **micro** — lightweight terminal text editor
+- **mole** — deep clean and optimize macOS
 - **node** — JavaScript runtime
 - **opencode** — lightweight open-source Claude-compatible CLI
+- **poppler** — PDF rendering library
 - **pyenv** — manage multiple Python versions
 - **starship** — fast and customizable prompt
 - **terraform** — infrastructure as code tool

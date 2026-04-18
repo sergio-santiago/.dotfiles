@@ -10,6 +10,7 @@ brew "bat"                      # cat clone with syntax highlighting
 brew "btop"                     # system resource monitor
 brew "eza"                      # improved ls with icons and colors
 brew "fd"                       # fast and user-friendly find
+brew "ffmpeg"                   # audio/video codec converter and streamer
 brew "fish"                     # friendly interactive shell
 brew "fnm"                      # fast Node.js version manager
 brew "fzf"                      # fuzzy finder for the terminal
@@ -17,7 +18,9 @@ brew "gh"                       # GitHub CLI tool
 brew "jq"                       # JSON processor
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
+brew "mole"                     # deep clean and optimize macOS
 brew "node"                     # JavaScript runtime
+brew "poppler"                  # PDF rendering library
 brew "pyenv"                    # manage multiple Python versions
 brew "sst/tap/opencode"         # lightweight open-source Claude-compatible CLI
 brew "starship"                 # fast and customizable prompt
