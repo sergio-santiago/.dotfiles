@@ -92,8 +92,8 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 alias m="make"
 if type -q claude
-    alias c="claude --effort max"
-    alias c-yolo="claude --effort max --dangerously-skip-permissions"
+    alias c="claude"
+    alias c-yolo="claude --dangerously-skip-permissions"
 end
 if type -q fnm
     alias nvm="fnm"
