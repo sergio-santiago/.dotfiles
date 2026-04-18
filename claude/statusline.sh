@@ -386,13 +386,13 @@ get_percent_color() {
 build_diff_cell() {
     local added="$1"
     local deleted="$2"
-    if [[ "$added" -eq 0 && "$deleted" -eq 0 ]]; then
-        printf '%s+0 -0%s' "$COLOR_DIM" "$COLOR_RESET"
-    else
-        printf '%s+%d%s %s-%d%s' \
-            "$COLOR_GREEN" "$added" "$COLOR_RESET" \
-            "$COLOR_RED" "$deleted" "$COLOR_RESET"
-    fi
+    local added_color="$COLOR_DIM"
+    local deleted_color="$COLOR_DIM"
+    [[ "$added" -gt 0 ]] && added_color="$COLOR_GREEN"
+    [[ "$deleted" -gt 0 ]] && deleted_color="$COLOR_RED"
+    printf '%s+%d%s %s-%d%s' \
+        "$added_color" "$added" "$COLOR_RESET" \
+        "$deleted_color" "$deleted" "$COLOR_RESET"
 }
 
 ################################################################################
