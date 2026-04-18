@@ -71,6 +71,10 @@
   "tui": "fullscreen",
   "voiceEnabled": true,
 
+  "env": {
+    "CLAUDE_CODE_SCROLL_SPEED": "3"
+  },
+
   "attribution": {
     "commit": "",
     "pr": ""
