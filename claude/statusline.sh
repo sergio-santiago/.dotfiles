@@ -390,7 +390,7 @@ build_diff_cell() {
     local deleted_color="$COLOR_DIM"
     [[ "$added" -gt 0 ]] && added_color="$COLOR_GREEN"
     [[ "$deleted" -gt 0 ]] && deleted_color="$COLOR_RED"
-    printf '%s%d·%s%s󰓢%s%s·%d%s' \
+    printf '%s%d+%s%s󰓢%s%s-%d%s' \
         "$added_color" "$added" "$COLOR_RESET" \
         "$COLOR_DIM" "$COLOR_RESET" \
         "$deleted_color" "$deleted" "$COLOR_RESET"
@@ -542,11 +542,13 @@ format_statusline() {
     local left_1
     left_1=$(printf '%s%s %s%s' "$COLOR_BLUE" "$display_icon" "$folder_name" "$COLOR_RESET")
 
-    local left_2=""
+    local left_2
     if [[ -n "$git_info" ]]; then
         local git_color="${git_info%%:*}"
         local git_content="${git_info#*:}"
         left_2=$(printf '%s%s%s' "$git_color" "$git_content" "$COLOR_RESET")
+    else
+        left_2=$(printf '%s%suntracked%s' "$COLOR_DIM" "$ICON_GIT_BRANCH" "$COLOR_RESET")
     fi
 
     local left_3
