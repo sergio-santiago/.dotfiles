@@ -5,22 +5,32 @@
 # Description:
 #   Generates a responsive 2-column boxed statusline showing:
 #     Left column:  folder, git branch+status, diff stats (+added / -deleted)
-#     Right column: AI model, context bar, usage quota bar
+#     Right column: AI model, context bar + zone tag, usage bar + reset time
 #
 #   Column widths auto-fit the longest cell on each side (responsive layout).
 #   The middle │ stays vertically aligned regardless of content length.
 #
 # Input (via stdin):
-#   JSON object matching Claude Code statusLine schema
+#   JSON object matching Claude Code statusLine schema.
+#   Fields consumed (all native, no external trackers):
+#     .model.display_name                        → model name
+#     .workspace.current_dir  (fallback .cwd)    → folder
+#     .context_window.used_percentage            → context bar %
+#     .rate_limits.five_hour.used_percentage     → usage bar %
+#     .rate_limits.five_hour.resets_at           → reset countdown
+#
+# Context zones (thresholds sourced from Claude Code community data):
+#   <20% fresh · 20-50% warm · 50-60% heavy · 60%+ compact!
 #
 # Output:
 #   5-line table with ANSI colors:
-#     ──────────────┬────────────────────────╮
-#      folder        │ 󰧑 Model                 │
-#      branch        │ ctx%  context-bar       │
-#     +N -M          │ use%  usage-bar · reset │
-#     ──────────────┴────────────────────────╯
+#     ──────────────┬───────────────────────────╮
+#      folder        │ 󰧑 Model                    │
+#      branch        │ ctx% context-bar 󰖙 zone   │
+#     N+ 󰓢 -N        │ use% usage-bar 󱎫 reset    │
+#     ──────────────┴───────────────────────────╯
 #
+# External dependencies: jq, python3 (both typically pre-installed on macOS).
 ################################################################################
 
 set -euo pipefail
@@ -32,7 +42,7 @@ readonly COLOR_BLUE=$'\033[38;2;104;213;255m'     # Folder name
 readonly COLOR_YELLOW=$'\033[38;2;255;236;153m'   # Git branch (normal)
 readonly COLOR_ORANGE=$'\033[38;2;255;184;108m'   # Git special states
 readonly COLOR_GREEN=$'\033[38;2;68;243;115m'     # Added lines / fallback model
-readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'
+readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'   # Clock icon
 readonly COLOR_RED=$'\033[38;2;255;85;85m'        # Deleted lines
 readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Borders, placeholders
 readonly COLOR_RESET=$'\033[0m'
@@ -58,7 +68,13 @@ readonly ICON_BAR_CURRENT=''
 readonly ICON_BAR_EMPTY='󰼮'
 readonly ICON_USAGE_BAR_FILLED='▓'
 readonly ICON_USAGE_BAR_EMPTY='░'
-readonly ICON_DOT_SEPARATOR='·'
+readonly ICON_DIFF_ARROWS='󰓢'
+readonly ICON_DIFF_SIGN=''
+readonly ICON_CLOCK='󱎫'
+readonly ICON_ZONE_FRESH='󰜗'
+readonly ICON_ZONE_WARM='󰖙'
+readonly ICON_ZONE_HEAVY='󱗗'
+readonly ICON_ZONE_COMPACT='󰚌'
 
 readonly ICON_SEPARATOR_LINE='─'
 readonly ICON_SEPARATOR_T_TOP='┬'
@@ -97,11 +113,14 @@ readonly GRADIENT_COLORS=(
 )
 
 ################################################################################
-# Verify dependencies
+# Verify dependencies (jq for JSON parsing, python3 for column layout)
 ################################################################################
 check_dependencies() {
-    if ! command -v jq &> /dev/null; then
-        echo "Error: jq is required but not installed" >&2
+    local missing=()
+    command -v jq      &>/dev/null || missing+=("jq")
+    command -v python3 &>/dev/null || missing+=("python3")
+    if (( ${#missing[@]} > 0 )); then
+        echo "Error: missing required dependencies: ${missing[*]}" >&2
         exit 1
     fi
 }
@@ -259,46 +278,10 @@ get_diff_stats() {
 }
 
 ################################################################################
-# Read usage data from Claude Usage Tracker app (no API calls needed)
+# Format Unix epoch timestamp to relative time (e.g. 23m, 1h12m)
 ################################################################################
-fetch_usage_data() {
-    if ! defaults read HamedElfayome.Claude-Usage activeProfileId &>/dev/null; then
-        echo "__NOT_INSTALLED__"
-        return
-    fi
-
-    local profile_json
-    profile_json=$(python3 -c "
-import subprocess, json, plistlib, sys
-result = subprocess.run(['defaults', 'export', 'HamedElfayome.Claude-Usage', '-'],
-                       capture_output=True)
-if result.returncode != 0:
-    sys.exit(1)
-plist = plistlib.loads(result.stdout)
-profiles = json.loads(plist.get('profiles_v3', b'[]'))
-active_id = plist.get('activeProfileId', '')
-for p in profiles:
-    if p.get('id') == active_id:
-        usage = p.get('claudeUsage', {})
-        if usage:
-            json.dump(usage, sys.stdout)
-        break
-" 2>/dev/null) || true
-
-    echo "$profile_json"
-}
-
-################################################################################
-# Format Core Data timestamp to relative time (e.g. 23m, 1h12m)
-# Core Data reference date: 2001-01-01 00:00:00 UTC (978307200 unix epoch)
-################################################################################
-readonly COREDATA_EPOCH_OFFSET=978307200
-
 format_relative_time() {
-    local coredata_timestamp="$1"
-    local target_epoch
-    target_epoch=${coredata_timestamp%.*}
-    target_epoch=$(( target_epoch + COREDATA_EPOCH_OFFSET ))
+    local target_epoch="${1%.*}"
 
     local now_epoch
     now_epoch=$(date +%s)
@@ -321,7 +304,7 @@ format_relative_time() {
 ################################################################################
 generate_context_bar() {
     local percent="${1:-0}"
-    local bar_length=18
+    local bar_length=10
     local filled=$(( (percent * bar_length + 50) / 100 ))
     [[ $filled -gt $bar_length ]] && filled=$bar_length
     [[ $filled -lt 0 ]] && filled=0
@@ -381,7 +364,7 @@ get_percent_color() {
 }
 
 ################################################################################
-# Build the diff stats cell (colored string)
+# Build the diff stats cell: "N+ 󰓢 -N" with + and - sides colored when nonzero
 ################################################################################
 build_diff_cell() {
     local added="$1"
@@ -390,10 +373,10 @@ build_diff_cell() {
     local deleted_color="$COLOR_DIM"
     [[ "$added" -gt 0 ]] && added_color="$COLOR_GREEN"
     [[ "$deleted" -gt 0 ]] && deleted_color="$COLOR_RED"
-    printf '%s%d+%s%s󰓢%s%s-%d%s' \
-        "$added_color" "$added" "$COLOR_RESET" \
-        "$COLOR_DIM" "$COLOR_RESET" \
-        "$deleted_color" "$deleted" "$COLOR_RESET"
+    printf '%s%d+%s%s%s%s%s%s%s-%d%s' \
+        "$added_color" "$added" "$ICON_DIFF_SIGN" "$COLOR_RESET" \
+        "$COLOR_DIM" "$ICON_DIFF_ARROWS" "$COLOR_RESET" \
+        "$deleted_color" "$ICON_DIFF_SIGN" "$deleted" "$COLOR_RESET"
 }
 
 ################################################################################
@@ -488,19 +471,13 @@ PYEOF
 # Build right-column cell #3: usage % + bar + reset time
 ################################################################################
 build_usage_cell() {
-    local usage_data="$1"
+    local session_pct="$1"
+    local session_reset="$2"
 
-    if [[ "$usage_data" == "__NOT_INSTALLED__" ]]; then
-        printf '%sinstall claude-usage-tracker%s' "$COLOR_DIM" "$COLOR_RESET"
+    if [[ -z "$session_pct" ]]; then
+        printf '%sno usage data yet%s' "$COLOR_DIM" "$COLOR_RESET"
         return
     fi
-    [[ -z "$usage_data" ]] && return
-
-    local session_pct session_reset
-    session_pct=$(echo "$usage_data" | jq -r '.sessionPercentage // empty' 2>/dev/null) || true
-    session_reset=$(echo "$usage_data" | jq -r '.sessionResetTime // empty' 2>/dev/null) || true
-
-    [[ -z "$session_pct" ]] && return
 
     local session_int=${session_pct%.*}
     session_int=${session_int:-0}
@@ -509,13 +486,13 @@ build_usage_cell() {
     session_color=$(get_percent_color "$session_int")
     session_bar=$(generate_usage_bar "$session_int")
 
-    printf '%s%d%%%s %s' "$session_color" "$session_int" "$COLOR_RESET" "$session_bar"
+    printf '%s%02d%%%s %s' "$session_color" "$session_int" "$COLOR_RESET" "$session_bar"
 
     if [[ -n "$session_reset" ]]; then
         local reset_time
         reset_time=$(format_relative_time "$session_reset")
         if [[ -n "$reset_time" ]]; then
-            printf ' %s%s %s%s' "$COLOR_DIM" "$ICON_DOT_SEPARATOR" "$reset_time" "$COLOR_RESET"
+            printf ' %s%s %s%s' "$COLOR_PURPLE" "$ICON_CLOCK" "$reset_time" "$COLOR_RESET"
         fi
     fi
 }
@@ -529,8 +506,9 @@ format_statusline() {
     local git_info="$3"
     local model_name="$4"
     local context_percent="$5"
-    local usage_data="$6"
-    local diff_stats="$7"
+    local session_pct="$6"
+    local session_reset="$7"
+    local diff_stats="$8"
 
     local diff_added="${diff_stats%%:*}"
     local diff_deleted="${diff_stats#*:}"
@@ -566,10 +544,18 @@ format_statusline() {
     context_bar=$(generate_context_bar "$percent_int")
     percent_color=$(get_percent_color "$percent_int")
     local right_2
-    right_2=$(printf '%s%d%%%s %s' "$percent_color" "$percent_int" "$COLOR_RESET" "$context_bar")
+    right_2=$(printf '%s%02d%%%s %s' "$percent_color" "$percent_int" "$COLOR_RESET" "$context_bar")
+
+    local zone_icon zone_text zone_color
+    if   (( percent_int < 20 )); then zone_icon="$ICON_ZONE_FRESH";   zone_text="fresh";    zone_color="$COLOR_BLUE"
+    elif (( percent_int < 50 )); then zone_icon="$ICON_ZONE_WARM";    zone_text="warm";     zone_color="$COLOR_YELLOW"
+    elif (( percent_int < 60 )); then zone_icon="$ICON_ZONE_HEAVY";   zone_text="heavy";    zone_color="$COLOR_ORANGE"
+    else                              zone_icon="$ICON_ZONE_COMPACT"; zone_text="compact!"; zone_color="$COLOR_RED"
+    fi
+    right_2+=$(printf ' %s%s %s%s' "$zone_color" "$zone_icon" "$zone_text" "$COLOR_RESET")
 
     local right_3
-    right_3=$(build_usage_cell "$usage_data")
+    right_3=$(build_usage_cell "$session_pct" "$session_reset")
 
     layout_two_columns "$left_1" "$left_2" "$left_3" "$right_1" "$right_2" "$right_3"
 }
@@ -583,11 +569,19 @@ main() {
     local input
     input=$(parse_input)
 
-    local json_output model_name current_dir folder_name context_percent
-    json_output=$(echo "$input" | jq -r '[.model.display_name // "Claude", .workspace.current_dir // .cwd // ".", .context_window.used_percentage // 0] | @tsv')
+    local json_output model_name current_dir folder_name context_percent session_pct session_reset
+    json_output=$(echo "$input" | jq -r '[
+        .model.display_name // "Claude",
+        .workspace.current_dir // .cwd // ".",
+        .context_window.used_percentage // 0,
+        .rate_limits.five_hour.used_percentage // "",
+        .rate_limits.five_hour.resets_at // ""
+    ] | @tsv')
     model_name=$(echo "$json_output" | cut -f1)
     current_dir=$(echo "$json_output" | cut -f2)
     context_percent=$(echo "$json_output" | cut -f3)
+    session_pct=$(echo "$json_output" | cut -f4)
+    session_reset=$(echo "$json_output" | cut -f5)
     folder_name=$(basename "$current_dir")
 
     local lang_icon
@@ -599,10 +593,7 @@ main() {
     local diff_stats
     diff_stats=$(get_diff_stats)
 
-    local usage_data
-    usage_data=$(fetch_usage_data 2>/dev/null) || usage_data=""
-
-    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent" "$usage_data" "$diff_stats"
+    format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent" "$session_pct" "$session_reset" "$diff_stats"
 }
 
 main
