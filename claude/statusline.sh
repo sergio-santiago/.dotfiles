@@ -364,6 +364,19 @@ get_percent_color() {
 }
 
 ################################################################################
+# Format a 2-digit percentage. If value < 10, the leading "0" is dimmed.
+################################################################################
+format_percent() {
+    local value="$1"
+    local color="$2"
+    if (( value < 10 )); then
+        printf '%s0%s%d%%%s' "$COLOR_DIM" "$color" "$value" "$COLOR_RESET"
+    else
+        printf '%s%d%%%s' "$color" "$value" "$COLOR_RESET"
+    fi
+}
+
+################################################################################
 # Build the diff stats cell: "N+ 󰓢 -N" with + and - sides colored when nonzero
 ################################################################################
 build_diff_cell() {
@@ -486,7 +499,7 @@ build_usage_cell() {
     session_color=$(get_percent_color "$session_int")
     session_bar=$(generate_usage_bar "$session_int")
 
-    printf '%s%02d%%%s %s' "$session_color" "$session_int" "$COLOR_RESET" "$session_bar"
+    printf '%s %s' "$(format_percent "$session_int" "$session_color")" "$session_bar"
 
     if [[ -n "$session_reset" ]]; then
         local reset_time
@@ -544,7 +557,7 @@ format_statusline() {
     context_bar=$(generate_context_bar "$percent_int")
     percent_color=$(get_percent_color "$percent_int")
     local right_2
-    right_2=$(printf '%s%02d%%%s %s' "$percent_color" "$percent_int" "$COLOR_RESET" "$context_bar")
+    right_2=$(printf '%s %s' "$(format_percent "$percent_int" "$percent_color")" "$context_bar")
 
     local zone_icon zone_text zone_color
     if   (( percent_int < 20 )); then zone_icon="$ICON_ZONE_FRESH";   zone_text="fresh";    zone_color="$COLOR_BLUE"
