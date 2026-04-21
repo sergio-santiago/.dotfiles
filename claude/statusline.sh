@@ -39,12 +39,14 @@ set -euo pipefail
 # Color definitions (real ESC bytes via $'...')
 ################################################################################
 readonly COLOR_BLUE=$'\033[38;2;104;213;255m'     # Folder name
+readonly COLOR_CYAN=$'\033[38;2;127;255;212m'     # Fresh context zone (matches starship docker)
 readonly COLOR_YELLOW=$'\033[38;2;255;236;153m'   # Git branch (normal)
 readonly COLOR_ORANGE=$'\033[38;2;255;184;108m'   # Git special states
 readonly COLOR_GREEN=$'\033[38;2;68;243;115m'     # Added lines / fallback model
 readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'   # Clock icon
 readonly COLOR_RED=$'\033[38;2;255;85;85m'        # Deleted lines
 readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Borders, placeholders
+readonly COLOR_DIM_BRIGHT=$'\033[38;2;170;170;170m' # Diff arrows when changes present
 readonly COLOR_RESET=$'\033[0m'
 
 ################################################################################
@@ -384,11 +386,13 @@ build_diff_cell() {
     local deleted="$2"
     local added_color="$COLOR_DIM"
     local deleted_color="$COLOR_DIM"
+    local arrows_color="$COLOR_DIM"
     [[ "$added" -gt 0 ]] && added_color="$COLOR_GREEN"
     [[ "$deleted" -gt 0 ]] && deleted_color="$COLOR_RED"
+    (( added > 0 || deleted > 0 )) && arrows_color="$COLOR_DIM_BRIGHT"
     printf '%s%d+%s%s%s%s%s%s%s-%d%s' \
         "$added_color" "$added" "$ICON_DIFF_SIGN" "$COLOR_RESET" \
-        "$COLOR_DIM" "$ICON_DIFF_ARROWS" "$COLOR_RESET" \
+        "$arrows_color" "$ICON_DIFF_ARROWS" "$COLOR_RESET" \
         "$deleted_color" "$ICON_DIFF_SIGN" "$deleted" "$COLOR_RESET"
 }
 
@@ -560,7 +564,7 @@ format_statusline() {
     right_2=$(printf '%s %s' "$(format_percent "$percent_int" "$percent_color")" "$context_bar")
 
     local zone_icon zone_text zone_color
-    if   (( percent_int < 20 )); then zone_icon="$ICON_ZONE_FRESH";   zone_text="fresh";    zone_color="$COLOR_BLUE"
+    if   (( percent_int < 20 )); then zone_icon="$ICON_ZONE_FRESH";   zone_text="fresh";    zone_color="$COLOR_CYAN"
     elif (( percent_int < 50 )); then zone_icon="$ICON_ZONE_WARM";    zone_text="warm";     zone_color="$COLOR_YELLOW"
     elif (( percent_int < 60 )); then zone_icon="$ICON_ZONE_HEAVY";   zone_text="heavy";    zone_color="$COLOR_ORANGE"
     else                              zone_icon="$ICON_ZONE_COMPACT"; zone_text="compact!"; zone_color="$COLOR_RED"
