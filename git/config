@@ -19,3 +19,7 @@
 
 [core]
 	editor = micro
+
+# Override identity for Tribbu client repos under ~/Projects/tribbu/
+[includeIf "gitdir:~/Projects/tribbu/"]
+	path = ~/.dotfiles/git/config-tribbu
