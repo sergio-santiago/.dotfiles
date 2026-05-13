@@ -78,6 +78,8 @@ readonly ICON_ZONE_WARM='󰖙'
 readonly ICON_ZONE_HEAVY='󱗗'
 readonly ICON_ZONE_COMPACT='󰚌'
 
+readonly MAX_BRANCH_LENGTH=40
+
 readonly ICON_SEPARATOR_LINE='─'
 readonly ICON_SEPARATOR_T_TOP='┬'
 readonly ICON_SEPARATOR_T_BOTTOM='┴'
@@ -205,6 +207,9 @@ get_git_info() {
 
     local branch branch_icon git_color
     branch=$(git branch --show-current 2>/dev/null || echo "")
+    if (( ${#branch} > MAX_BRANCH_LENGTH )); then
+        branch="${branch:0:MAX_BRANCH_LENGTH-1}…"
+    fi
     git_color="${COLOR_YELLOW}"
     branch_icon="${ICON_GIT_BRANCH}"
 
