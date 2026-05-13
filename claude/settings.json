@@ -1,25 +1,25 @@
 {
-  "language": "spanish",
-  "effortLevel": "xhigh",
-
+  "env": {
+    "CLAUDE_CODE_SCROLL_SPEED": "3"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
-    "defaultMode": "auto",
     "allow": [
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:localhost)",
-
       "Bash(docker:*)",
       "Bash(make:*)",
       "Bash(ls:*)",
-
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
-
       "Bash(gh status:*)",
       "Bash(gh repo view:*)",
       "Bash(gh run view:*)",
@@ -41,7 +41,6 @@
       "Bash(git reset:*)",
       "Bash(git rebase:*)",
       "Bash(git clean:*)",
-
       "Bash(gh api:*)",
       "Bash(gh repo create:*)",
       "Bash(gh repo delete:*)",
@@ -57,26 +56,19 @@
       "Bash(gh issue close:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh issue comment:*)",
-
       "Bash(rm:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "skipAutoPermissionPrompt": true,
-  "skipDangerousModePermissionPrompt": true,
-
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
   },
+  "language": "spanish",
+  "effortLevel": "xhigh",
   "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
   "voiceEnabled": true,
-
-  "env": {
-    "CLAUDE_CODE_SCROLL_SPEED": "3"
-  },
-
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  }
+  "preferredNotifChannel": "iterm2_with_bell"
 }
