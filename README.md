@@ -20,6 +20,9 @@ This repository contains my personal macOS development environment configuration
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
+    - **Directory-based identities** via `includeIf`: a base identity (`@secture.com`) with automatic
+      email overrides for Tribbu (`~/Projects/tribbu/`) and personal (`~/Projects/personal/`) repos,
+      all sharing a single signing key. See [Git identities](#-git-identities-multi-account).
 - ✏️ **Micro editor**
     - Lightweight terminal-based editor with custom settings and a matching `linked-data-dark-rainbow` color scheme for
       a consistent look with Fish and Starship.
@@ -37,17 +40,17 @@ This repository contains my personal macOS development environment configuration
     - Includes a custom rainbow separator (`99-rainbow_separator.fish`) to visually divide command output from the next
       prompt.
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
-    - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 27-color palette with hex/RGB values and semantic usage across all tools.
+    - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 28-color palette with hex/RGB values and semantic usage across all tools.
 - 🔗 **Finicky**
-    - Smart browser profile routing. Sets Chrome as the default browser and opens Google Meet links
-      automatically in the **Secture** _(work)_ profile.
+    - Smart browser routing (config in TypeScript). Sets Chrome as the default browser, opens Google Meet
+      links automatically in the **Tribbu** Chrome profile, and sends Zoom links straight to the native Zoom app.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
-    - Tuned for Opus 4.7: auto mode, `xhigh` effort, always-on extended thinking, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
+    - Tuned for Opus 4.8: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - Global instructions (`CLAUDE.md`) and settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
@@ -60,7 +63,132 @@ This repository contains my personal macOS development environment configuration
 
 ---
 
+## 🗺️ Architecture
+
+### Repository layout & symlink map
+
+Configs live in this repo and are symlinked into their expected locations (`make link`).
+`git/config-personal` and `git/config-tribbu` are **not** symlinked — they are pulled in by
+`git/config` via absolute `includeIf` paths.
+
+```mermaid
+flowchart LR
+    subgraph repo["📦 ~/.dotfiles"]
+        fish["fish/"]
+        starship["starship/starship.toml"]
+        gitc["git/config"]
+        ssh["ssh/config"]
+        micro["micro/"]
+        bat["bat/themes"]
+        claude["claude/"]
+        misc["btop · gh · finicky"]
+    end
+    subgraph home["🏠 $HOME"]
+        cfgfish["~/.config/fish/"]
+        cfgstar["~/.config/starship.toml"]
+        cfggit["~/.config/git/config"]
+        sshcfg["~/.ssh/config"]
+        cfgmisc["~/.config/{micro,bat,btop,gh,finicky}/"]
+        dotclaude["~/.claude/"]
+    end
+    fish --> cfgfish
+    starship --> cfgstar
+    gitc --> cfggit
+    ssh --> sshcfg
+    micro --> cfgmisc
+    bat --> cfgmisc
+    misc --> cfgmisc
+    claude --> dotclaude
+```
+
+### Fish load order (`conf.d/`)
+
+Fragments are sourced in lexical order. Environment first, then version managers and tools,
+then appearance, and finally a cosmetic separator hook.
+
+```mermaid
+flowchart TD
+    subgraph env["⚙️ Environment (00–02)"]
+        x["00 · XDG redirects"] --> b["01 · ~/.local/bin"] --> h["02 · Homebrew"]
+    end
+    subgraph ver["📦 Version managers (03–04)"]
+        py["03 · pyenv"] --> fnm["04 · fnm"]
+    end
+    subgraph tools["🛠️ Interactive tools (05–08)"]
+        fzf["05 · fzf"] --> batf["06 · bat"] --> zo["07 · zoxide"] --> al["08 · aliases"]
+    end
+    subgraph look["🎨 Appearance (09–99)"]
+        th["09 · theme"] --> sh["10 · starship"] --> rb["99 · rainbow separator"]
+    end
+    env --> ver --> tools --> look
+```
+
+### Color theme propagation
+
+`docs/COLORS.md` is the single source of truth for the `linked_data_dark_rainbow` palette,
+replicated by hand into each tool's native format. `make colors-check` lints for drift.
+
+```mermaid
+flowchart LR
+    src["📋 docs/COLORS.md<br/>(source of truth · 28 colors)"]
+    src --> starship["Starship<br/>palette block"]
+    src --> bat["Bat<br/>tmTheme"]
+    src --> micro["Micro<br/>color-link"]
+    src --> fish["Fish<br/>fish_color_*"]
+    src --> fzf["FZF / zoxide<br/>256-color"]
+    src --> claude["Claude<br/>statusline RGB"]
+    src --> iterm["iTerm2<br/>ANSI"]
+```
+
+### Git identity resolution
+
+A commit's author email is chosen by where the repository lives; the name and signing key
+are always inherited from the base identity.
+
+```mermaid
+flowchart TD
+    start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @secture.com<br/>signingkey: ssh-ed25519 …"]
+    base --> q{"repo path?"}
+    q -->|"~/Projects/tribbu/*"| t["config-tribbu<br/>→ @tribbuapp.com"]
+    q -->|"~/Projects/personal/*"| p["config-personal<br/>→ sersanhen@gmail.com"]
+    q -->|"anywhere else"| d["keeps @secture.com"]
+    t --> sign["Sign with 1Password SSH key"]
+    p --> sign
+    d --> sign
+```
+
+---
+
 ## 🔧 Setup & Usage Guide (Restore on a new machine)
+
+### ⚡ Quick start
+
+```bash
+git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+make install          # installs Brewfile packages + symlinks every config
+make default-shell    # set fish as the default login shell
+make doctor           # verify tools, symlinks and environment
+```
+
+Then finish the [manual steps](#-manual-steps-not-automatable) (1Password SSH agent, iTerm2 prefs).
+The sections below explain each piece in detail.
+
+#### Make targets
+
+| Target | What it does |
+|--------|--------------|
+| `make install` | `brew` + `link` — full setup on a new machine |
+| `make brew` | Install all packages/apps from the `Brewfile` |
+| `make link` | Symlink configs into `~/.config`, `~/.claude`, `~/.ssh` (idempotent, backs up existing files) |
+| `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
+| `make doctor` | Verify required tools, symlinks and environment are healthy |
+| `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
+
+> The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
+> file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`.
+
+---
 
 ### 🧬 Clone repository
 
@@ -127,6 +255,31 @@ This will install:
 
 ### 🔗 Symlink configs
 
+The recommended way is the installer, which creates every symlink, backs up anything it would
+overwrite, creates `~/.ssh/config.private`, and rebuilds the bat cache:
+
+```bash
+make link
+```
+
+It wires the repo into `$HOME` like this:
+
+| Source (`~/.dotfiles/…`) | Destination |
+|--------------------------|-------------|
+| `ssh/config` | `~/.ssh/config` |
+| `fish/{conf.d,functions,config.fish}` | `~/.config/fish/…` |
+| `starship/starship.toml` | `~/.config/starship.toml` |
+| `git/config` | `~/.config/git/config` |
+| `micro/{settings.json,colorschemes/…}` | `~/.config/micro/…` |
+| `bat/themes` | `~/.config/bat/themes` |
+| `finicky/finicky.ts` | `~/.config/finicky/finicky.ts` |
+| `btop/btop.conf` | `~/.config/btop/btop.conf` |
+| `gh/config.yml` | `~/.config/gh/config.yml` |
+| `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
+
+<details>
+<summary>Prefer to link manually? (click to expand)</summary>
+
 ```bash
 # SSH
 mkdir -p ~/.ssh
@@ -174,7 +327,59 @@ mkdir -p ~/.config/gh
 ln -sfh ~/.dotfiles/gh/config.yml ~/.config/gh/config.yml
 ```
 
-> ⚠️ **Note:** Symlinks overwrite existing files — backup before linking.
+> ⚠️ **Note:** Manual symlinks overwrite existing files with no backup — `make link` is safer.
+
+</details>
+
+---
+
+### 🐟 Set fish as the default shell
+
+```bash
+make default-shell        # adds fish to /etc/shells and runs chsh
+```
+
+Or manually:
+
+```bash
+echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+chsh -s /opt/homebrew/bin/fish
+```
+
+---
+
+### 🧠 Git identities (multi-account)
+
+`git/config` defines a base identity and overrides only the **email** per directory, while
+`user.name` and the SSH `signingkey` are inherited everywhere (one verified key for all accounts):
+
+| Repo location | Identity file | Email |
+|---------------|---------------|-------|
+| anywhere (default) | `git/config` | `sergio@secture.com` |
+| `~/Projects/tribbu/…` | `git/config-tribbu` | `sergiosantiago@tribbuapp.com` |
+| `~/Projects/personal/…` | `git/config-personal` | `sersanhen@gmail.com` |
+
+The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
+being symlinked. To use them, just clone repos under the matching directory:
+
+```bash
+git -C ~/Projects/tribbu/some-repo config user.email   # → sergiosantiago@tribbuapp.com
+```
+
+GitHub HTTPS credentials are delegated to `gh auth git-credential`, so run `gh auth login` once.
+
+---
+
+### 🪄 Manual steps (not automatable)
+
+A few things can't be symlinked and must be done by hand on a new machine:
+
+1. **Enable the 1Password SSH agent** (required for SSH auth **and** commit signing):
+   1Password → **Settings → Developer → Use the SSH agent**. Commit signing uses
+   `op-ssh-sign`, already configured in `git/config`.
+2. **Load iTerm2 preferences** — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
+3. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
+   `0600` file for you) — see [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
 
 ---
 
@@ -230,7 +435,8 @@ To keep personal hosts out of version control:
    Include ~/.ssh/config.private
    ```
 
-2. You **must create** `~/.ssh/config.private` manually:
+2. `~/.ssh/config.private` holds your private/machine-specific hosts. `make link` creates it
+   automatically as an empty `0600` file; to create it by hand instead:
 
    ```bash
    touch ~/.ssh/config.private
