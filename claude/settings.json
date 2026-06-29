@@ -65,10 +65,11 @@
     "command": "~/.claude/statusline.sh"
   },
   "language": "spanish",
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "preferredNotifChannel": "iterm2_with_bell",
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "preferredNotifChannel": "iterm2_with_bell"
+  "voiceEnabled": true
 }
