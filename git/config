@@ -23,3 +23,13 @@
 # Override identity for Tribbu client repos under ~/Projects/tribbu/
 [includeIf "gitdir:~/Projects/tribbu/"]
 	path = ~/.dotfiles/git/config-tribbu
+
+# Override identity for personal projects under ~/Projects/personal/
+[includeIf "gitdir:~/Projects/personal/"]
+	path = ~/.dotfiles/git/config-personal
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential

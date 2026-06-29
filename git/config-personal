@@ -1,0 +1,4 @@
+# Identity override for personal projects (loaded via includeIf for ~/Projects/personal/).
+# SSH signing key and name are inherited from the main config.
+[user]
+	email = sersanhen@gmail.com
