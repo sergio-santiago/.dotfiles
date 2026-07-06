@@ -64,6 +64,9 @@
     "type": "command",
     "command": "~/.claude/statusline.sh"
   },
+  "enabledPlugins": {
+    "slack@claude-plugins-official": true
+  },
   "language": "spanish",
   "effortLevel": "high",
   "tui": "fullscreen",
