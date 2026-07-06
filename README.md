@@ -63,6 +63,29 @@ This repository contains my personal macOS development environment configuration
 
 ---
 
+## 📑 Table of Contents
+
+- [🗺️ Architecture](#️-architecture)
+    - [📦 Repository layout & symlink map](#repository-layout--symlink-map)
+    - [⚙️ Fish load order](#fish-load-order-confd)
+    - [🎨 Color theme propagation](#color-theme-propagation)
+    - [🧠 Git identity resolution](#git-identity-resolution)
+- [🔧 Setup & Usage Guide](#-setup--usage-guide-restore-on-a-new-machine)
+    - [⚡ Quick start](#-quick-start)
+    - [🧬 Clone repository](#-clone-repository)
+    - [📦 Install dependencies with Brewfile](#-install-dependencies-with-brewfile)
+    - [🔗 Symlink configs](#-symlink-configs)
+    - [🐟 Set fish as the default shell](#-set-fish-as-the-default-shell)
+    - [🧠 Git identities (multi-account)](#-git-identities-multi-account)
+    - [🪄 Manual steps (not automatable)](#-manual-steps-not-automatable)
+    - [🐟 Fish Shell Configuration Structure](#-fish-shell-configuration-structure)
+    - [🧩 Disable Starship in JetBrains IDEs](#-disable-starship-in-jetbrains-ides-terminal)
+    - [🔐 SSH Configuration (Public/Private Split)](#-ssh-configuration-publicprivate-split)
+    - [💻 iTerm2 Configuration (Theme, Colors & Profiles)](#-iterm2-configuration-theme-colors--profiles)
+- [📋 Color palette reference](docs/COLORS.md)
+
+---
+
 ## 🗺️ Architecture
 
 ### Repository layout & symlink map
@@ -150,7 +173,7 @@ flowchart TD
     start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @secture.com<br/>signingkey: ssh-ed25519 …"]
     base --> q{"repo path?"}
     q -->|"~/Projects/tribbu/*"| t["config-tribbu<br/>→ @tribbuapp.com"]
-    q -->|"~/Projects/personal/*"| p["config-personal<br/>→ sersanhen@gmail.com"]
+    q -->|"~/Projects/personal/*"| p["config-personal<br/>→ @gmail.com"]
     q -->|"anywhere else"| d["keeps @secture.com"]
     t --> sign["Sign with 1Password SSH key"]
     p --> sign
@@ -357,7 +380,7 @@ chsh -s /opt/homebrew/bin/fish
 |---------------|---------------|-------|
 | anywhere (default) | `git/config` | `sergio@secture.com` |
 | `~/Projects/tribbu/…` | `git/config-tribbu` | `sergiosantiago@tribbuapp.com` |
-| `~/Projects/personal/…` | `git/config-personal` | `sersanhen@gmail.com` |
+| `~/Projects/personal/…` | `git/config-personal` | `@gmail.com` |
 
 The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
 being symlinked. To use them, just clone repos under the matching directory:
