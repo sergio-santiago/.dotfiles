@@ -28,14 +28,16 @@ prompt="$(printf '%s' "$payload" | jq -r '.prompt // ""' 2>/dev/null)"
 # wav — looks like an external process killing Piper rather than us doing it.
 #
 # A leading `!` and any spaces after it are stripped so the bash-mode form is
-# recognised too, and a subcommand is required so an ordinary sentence starting
-# with "speak" is still treated as a prompt.
+# recognised too. The subcommands are matched whole and not as prefixes: none of
+# them takes an argument, and a prefix glob would swallow an ordinary sentence that
+# merely opens with the word — "speak only in English please" is a prompt, and
+# treating it as a command left the turn with no instruction and nothing silenced.
 bare="${prompt#!}"
 while [[ "$bare" == ' '* ]]; do bare="${bare# }"; done
 case "$bare" in
   /speak | /speak\ * | speak | \
-  speak\ on* | speak\ off* | speak\ summary* | speak\ full* | \
-  speak\ stop* | speak\ test*) exit 0 ;;
+  speak\ on | speak\ off | speak\ summary | speak\ full | \
+  speak\ stop | speak\ test | speak\ help) exit 0 ;;
 esac
 
 # Any other prompt means you are done listening, and that the previous turn is
@@ -51,11 +53,17 @@ speak_is_on || exit 0
 # above): the reply is one line of confirmation, and a block would just repeat it
 # back and offer to read it aloud. The Stop hook independently skips saving them.
 
+# The instruction names where the block belongs because Claude Code generates other
+# text from the same context — the end-of-turn recap most visibly — and that text
+# reaches the screen without passing through MessageDisplay, which fires only on
+# assistant message deltas. A block written there cannot be rendered as an icon and
+# shows as raw tags. Harmless otherwise: the reading comes from the Stop hook's
+# last_assistant_message, so a stray block is never saved and never read.
 cat <<'JSON'
 {
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
-    "additionalContext": "Esta consola puede leer tus respuestas en voz alta. Cierra cada respuesta con un bloque <speak>…</speak> de una o dos frases, escrito para ser oído: sin rutas, sin nombres de fichero, sin comandos, sin markdown y sin emojis. Resume qué has hecho y, si procede, qué falta o qué decisión necesitas. El bloque se añade a tu respuesta normal, no la sustituye."
+    "additionalContext": "Esta consola puede leer tus respuestas en voz alta. Cierra cada respuesta con un bloque <speak>…</speak> de una o dos frases, escrito para ser oído: sin rutas, sin nombres de fichero, sin comandos, sin markdown y sin emojis. Resume qué has hecho y, si procede, qué falta o qué decisión necesitas. El bloque se añade a tu respuesta normal, no la sustituye. Va únicamente al final de tu respuesta al usuario: no lo pongas nunca en un recap, un resumen de sesión, un título ni en ningún otro texto que se genere aparte de la respuesta."
   },
   "suppressOutput": true
 }

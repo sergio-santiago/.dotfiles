@@ -30,6 +30,12 @@ SPOKEN = re.compile(
     r"(?:\A|\n)[ \t]*<speak>(?![\s\S]*\n[ \t]*<speak>)([\s\S]*?)(?:</speak>|\Z)"
 )
 
+# Choosing which block is the summary and stripping blocks out of the full text are
+# different questions, so the lookahead belongs only to the first. Without this,
+# removing "the" block left any earlier one in place and the voice read its tags
+# aloud as words.
+ALL_SPOKEN = re.compile(r"(?:\A|\n)[ \t]*<speak>[\s\S]*?(?:</speak>|\Z)")
+
 # Curly quotes become straight ones instead of being stripped as symbols, or
 # every contraction turns into two words.
 QUOTES = str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"'})
@@ -87,7 +93,7 @@ def readable(text: str) -> str:
 
     Expects fenced code to be gone already (see unfenced).
     """
-    out = SPOKEN.sub(" ", text)                                  # spoken block
+    out = ALL_SPOKEN.sub(" ", text)                              # spoken blocks
     out = re.sub(r"^\s*\|.*\|\s*$", " ", out, flags=re.M)        # tables
     out = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", out)         # links, images
     out = re.sub(r"https?://\S+", "un enlace", out)
@@ -135,6 +141,13 @@ def main() -> int:
         data = json.loads(sys.stdin.read() or "{}")
     except ValueError:
         return 1
+
+    # Valid JSON is not necessarily an object: a bare `null` arrives in practice, and
+    # reaching .get() on it raises before anything is cleaned, so the previous turn's
+    # files survive and the next reading plays a stale reply. Treated as an empty
+    # payload, which falls through to clear() below.
+    if not isinstance(data, dict):
+        data = {}
 
     # Subagents finish their own turns; only the main conversation is narrated,
     # and the main console's files are not theirs to clear — hence the early

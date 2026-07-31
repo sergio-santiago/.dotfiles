@@ -21,6 +21,8 @@
 #   ~/.claude/speak-last/<id>.txt     last reply, cleaned for reading aloud
 #   ~/.claude/speak-last/<id>.summary its <speak> line, when there was one
 #   ~/.claude/speak-last/<id>.admin   this turn was bookkeeping — do not save it
+#   ~/.claude/speak.log               readings launched and anything that failed;
+#                                     trimmed back to 200 lines once past 500
 #
 #   The last-reply files are overwritten every turn, so a console holds at most
 #   one of each and they never accumulate. The mark is written and taken inside a
@@ -48,14 +50,18 @@ SPEAK_DEFAULT_SPEED="1.0"
 SPEAK_DEFAULT_MAX_CHARS="11600"
 
 # On-screen dress for the <speak> block: grey icon, grey italic text, and the
-# commands tucked underneath. Monochrome on purpose — green belongs to the status
-# line, where it carries state.
+# commands at the end of an arrow that descends from the icon's own column, so they
+# read as belonging to the block rather than to the reply above it. Rounded corner
+# because that is the one the status line draws. The head is a filled triangle and
+# the arrow runs into the text with no gap: a plain ─ before a space reads as a hole
+# at terminal font sizes, since the rule is thin and sits at mid-height. Monochrome
+# on purpose — green belongs to the status line, where it carries state.
 #
 # The hint rides inside the block instead of coming from a hook systemMessage,
 # which the TUI prefixes with an unavoidable "Stop says:" and which would put a
 # second speaker icon on screen. One icon, one visual unit, no prefix.
 SPEAK_PRE=$'\033[38;2;170;170;170m󰕾\033[0m \033[38;2;108;108;108m\033[3m'
-SPEAK_POST=$'\033[0m\n  \033[38;2;108;108;108m/speak summary · /speak full\033[0m'
+SPEAK_POST=$'\033[0m\n\033[38;2;108;108;108m╰──▸/speak summary · /speak full\033[0m'
 
 # ── State ───────────────────────────────────────────────────────────────────
 

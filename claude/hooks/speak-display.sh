@@ -10,8 +10,14 @@
 #   MessageDisplay is display-only: the transcript keeps the original text, which
 #   is what the Stop hook reads. Text arrives in `delta` chunks, so each tag is
 #   rewritten independently rather than as a pair — a block split mid-stream
-#   still renders correctly. The opening tag only matches at the start of a line,
-#   so prose mentioning the literal tag is left alone.
+#   still renders correctly. The opening tag only matches at the start of a line, so
+#   prose mentioning it mid-sentence is left alone. The closing tag is not anchored
+#   and is rewritten wherever it appears: a chunk cannot know whether an opening tag
+#   arrived in an earlier one, so anchoring it would drop the hint from real blocks.
+#
+#   One newline on either side of a tag is swallowed along with the surrounding
+#   blanks, so a block whose tags sit on lines of their own still renders as one
+#   unit — icon and first word together — while blank lines inside it survive.
 #
 # Performance:
 #   Fires while text streams, so the common path is one string test and exit.
@@ -43,8 +49,8 @@ jq -c -n \
        { hookSpecificOutput: {
            hookEventName: "MessageDisplay",
            displayContent: ($t
-             | gsub("(?<p>^|\n)<speak>[ \t]*"; .p + $pre)
-             | gsub("[ \t]*</speak>"; $post))
+             | gsub("(?<p>^|\n)<speak>[ \t\n]*"; .p + $pre)
+             | gsub("[ \t\n]*</speak>"; $post))
          } }
      else
        empty

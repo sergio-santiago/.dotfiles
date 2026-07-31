@@ -116,5 +116,6 @@
   "skipWorkflowUsageWarning": true,
   "preferredNotifChannel": "iterm2_with_bell",
   "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "awaySummaryEnabled": false
 }
