@@ -8,7 +8,7 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link unlink default-shell doctor colors-check
+.PHONY: help install brew link unlink default-shell doctor colors-check speak-setup
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -34,3 +34,6 @@ doctor: ## Verify tools, symlinks and environment are healthy
 
 colors-check: ## Lint the linked_data_dark_rainbow palette for drift
 	@bash "$(DOTFILES)/scripts/colors-check.sh"
+
+speak-setup: ## Install Piper + Spanish voices so Claude Code can speak its replies
+	@bash "$(DOTFILES)/scripts/speak-setup.sh"

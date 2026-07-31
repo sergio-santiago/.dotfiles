@@ -34,6 +34,9 @@ __MACOSX/
 node_modules/
 npm-debug.log*
 
+# Python (the repo ships one script; py_compile drops this next to it)
+__pycache__/
+
 # IDEs
 .idea/
 .vscode/

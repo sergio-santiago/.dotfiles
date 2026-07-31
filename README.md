@@ -50,8 +50,11 @@ This repository contains my personal macOS development environment configuration
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
-    - Tuned for Opus 4.8: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
-    - Global instructions (`CLAUDE.md`) and settings tracked in `.dotfiles/claude/` with custom `statusline.sh` script.
+    - Tuned for Opus 5: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
+    - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks, skills and settings all tracked in
+      `.dotfiles/claude/`, with a custom `statusline.sh`.
+    - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS —
+      offline, free, one switch per terminal. See [Spoken Claude Code replies](#-spoken-claude-code-replies).
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
     - Truecolor support, braille graphs, rounded corners, and transparent background.
@@ -82,6 +85,7 @@ This repository contains my personal macOS development environment configuration
     - [🧩 Disable Starship in JetBrains IDEs](#-disable-starship-in-jetbrains-ides-terminal)
     - [🔐 SSH Configuration (Public/Private Split)](#-ssh-configuration-publicprivate-split)
     - [💻 iTerm2 Configuration (Theme, Colors & Profiles)](#-iterm2-configuration-theme-colors--profiles)
+    - [🔊 Spoken Claude Code replies](#-spoken-claude-code-replies)
 - [📋 Color palette reference](docs/COLORS.md)
 
 ---
@@ -105,6 +109,8 @@ flowchart LR
         bat["bat/themes"]
         claude["claude/"]
         misc["btop · gh · finicky"]
+        scripts["scripts/<br/>install · doctor · speak"]
+        docs["docs/COLORS.md"]
     end
     subgraph home["🏠 $HOME"]
         cfgfish["~/.config/fish/"]
@@ -113,6 +119,7 @@ flowchart LR
         sshcfg["~/.ssh/config"]
         cfgmisc["~/.config/{micro,bat,btop,gh,finicky}/"]
         dotclaude["~/.claude/"]
+        localbin["~/.local/bin/"]
     end
     fish --> cfgfish
     starship --> cfgstar
@@ -122,7 +129,14 @@ flowchart LR
     bat --> cfgmisc
     misc --> cfgmisc
     claude --> dotclaude
+    scripts --> localbin
 ```
+
+`scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
+linked except `bin/speak`, which needs to be on your `PATH`: `install.sh` and `doctor.sh` run behind
+`make link` and `make doctor`, `speak-setup.sh` behind `make speak-setup`, and `docs/COLORS.md` is the
+source of truth for the palette. `links.sh` holds the symlink map itself, sourced by both `install.sh`
+and `doctor.sh` so that what gets created and what gets verified cannot drift apart.
 
 ### Fish load order (`conf.d/`)
 
@@ -207,6 +221,7 @@ The sections below explain each piece in detail.
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
+| `make speak-setup` | Install Piper + Spanish voices so Claude Code can speak its replies |
 
 > The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
 > file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`.
@@ -236,15 +251,12 @@ This will install:
 - **domt4/autoupdate** — keep Homebrew itself and formulae up to date
 - **hamed-elfayome/claude-usage** — Claude API usage tracking
 - **hashicorp/tap** — HashiCorp tools (provides `terraform`)
-- **sst/tap** — custom tap (provides `opencode` CLI)
 
 #### 🛠️ CLI tools
-- **awscli** — AWS command-line interface
 - **bat** — `cat` clone with syntax highlighting
 - **btop** — modern system resource monitor
 - **eza** — improved `ls` with colors and icons
 - **fd** — fast and user-friendly alternative to `find`
-- **ffmpeg** — audio/video codec converter and streamer
 - **fish** — friendly interactive shell
 - **fnm** — fast Node.js version manager
 - **fzf** — fuzzy finder for the terminal
@@ -254,7 +266,6 @@ This will install:
 - **micro** — lightweight terminal text editor
 - **mole** — deep clean and optimize macOS
 - **node** — JavaScript runtime
-- **opencode** — lightweight open-source Claude-compatible CLI
 - **poppler** — PDF rendering library
 - **pyenv** — manage multiple Python versions
 - **starship** — fast and customizable prompt
@@ -263,10 +274,9 @@ This will install:
 
 #### 💻 Apps (casks)
 - **Claude Usage Tracker** — Claude API usage dashboard
-- **Codex** — agentic coding CLI
 - **Finicky** — control which browser/profile opens links
 - **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
-- **IINA** — modern video player for macOS
+- **Google Cloud CLI** — `gcloud` command-line interface
 - **iTerm2** — terminal emulator for macOS
 - **Thaw** — menu bar manager for macOS
 
@@ -299,6 +309,9 @@ It wires the repo into `$HOME` like this:
 | `btop/btop.conf` | `~/.config/btop/btop.conf` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
+| `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
+| `claude/{speak-lib.sh,speak-clean.py}` | `~/.claude/…` |
+| `scripts/bin/speak` | `~/.local/bin/speak` |
 
 <details>
 <summary>Prefer to link manually? (click to expand)</summary>
@@ -336,10 +349,17 @@ mkdir -p ~/.config/finicky
 ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
 
 # Claude Code
-mkdir -p ~/.claude
+mkdir -p ~/.claude ~/.local/bin
 ln -sfh ~/.dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
+ln -sfh ~/.dotfiles/claude/rules ~/.claude/rules
+ln -sfh ~/.dotfiles/claude/hooks ~/.claude/hooks
+mkdir -p ~/.claude/skills
+ln -sfh ~/.dotfiles/claude/skills/speak ~/.claude/skills/speak
+ln -sfh ~/.dotfiles/claude/speak-lib.sh ~/.claude/speak-lib.sh
+ln -sfh ~/.dotfiles/claude/speak-clean.py ~/.claude/speak-clean.py
+ln -sfh ~/.dotfiles/scripts/bin/speak ~/.local/bin/speak
 
 # btop
 mkdir -p ~/.config/btop
@@ -403,6 +423,17 @@ A few things can't be symlinked and must be done by hand on a new machine:
 2. **Load iTerm2 preferences** — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
 3. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
    `0600` file for you) — see [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
+4. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
+   `slack@claude-plugins-official`, but the plugin itself is cached under `~/.claude/plugins/` and is
+   not part of this repo. Run `/plugin` in Claude Code to install it, then authenticate.
+5. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
+   through Context7, and that rule *is* symlinked — so without the server a new machine gets an
+   instruction pointing at a tool that isn't there. MCP servers live in `~/.claude.json`, outside the
+   repo: add it with `claude mcp add`.
+6. **Trust the third-party taps.** Homebrew refuses to load formulae from an untrusted tap, so
+   `terraform` (from `hashicorp/tap`) and `claude-usage-tracker` (from `hamed-elfayome/claude-usage`)
+   need `brew trust hashicorp/tap` and `brew trust hamed-elfayome/claude-usage` before
+   `brew bundle` can install them.
 
 ---
 
@@ -486,8 +517,150 @@ preferences are exported and tracked here:
 3. Set the folder path to:
 
    ```bash
-   /Users/sergiosantiago/.dotfiles/iterm
+   ~/.dotfiles/iterm
    ```
 
 4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
 5. Restart iTerm2 to apply all changes
+
+---
+### 🔊 Spoken Claude Code replies
+
+Dictating prompts is only half of a hands-free loop — this reads the answers back, out loud, through
+**[Piper](https://github.com/OHF-Voice/piper1-gpl)**: a neural TTS engine that runs on the machine.
+Offline, free, unlimited, no API key.
+
+```bash
+make speak-setup     # one-off: ~130 MB of voices + ~170 MB of venv, outside the repo
+/speak on            # arm this console
+```
+
+**Nothing is ever read automatically.** When a console is on, each reply is cleaned and kept ready,
+and the two commands appear under its spoken block. You skim the answer and decide whether it is
+worth hearing — no audio you did not ask for, and no deciding in advance what "reading" should mean.
+
+#### One switch per console
+
+With several sessions open, a global switch is unusable: one console reading aloud while you dictate
+into another means the mic picks up the synthetic voice and your prompt comes out garbled. So each
+terminal tab decides for itself, and the status line shows which:
+
+A 󰕾 appears in the status line while a console is on — replies prepared, commands offered. Off shows
+nothing at all: the indicator is there to flag the exception, and off is the rule.
+
+Off by default in every new console. The switch is keyed on the iTerm2 pane UUID, so restarting
+`claude` in the same tab keeps that tab's setting.
+
+#### Commands
+
+`/speak` from the Claude Code prompt, or `speak` from a terminal — same thing. It is a plain
+executable rather than a fish function precisely so `! speak …` works from inside Claude Code, where
+`!` runs under bash. Both forms read aloud immediately; `! speak summary` also puts the command's own
+confirmation on screen instead of a line written by Claude.
+
+| Command | What it does |
+|---------|--------------|
+| `/speak` | Toggle this console |
+| `/speak on` / `/speak off` | Set explicitly (`off` also discards what was saved) |
+| `/speak summary` | Read the last reply's summary out loud |
+| `/speak full` | Read the whole last reply out loud |
+| `/speak stop` | Shut up right now, mid-sentence |
+| `/speak test` | Check that audio works at all |
+
+The skill runs `` !`speak $ARGUMENTS` `` *before* the prompt reaches Claude, so the action happens
+immediately and only a one-line confirmation comes back. `disable-model-invocation: true` keeps it
+user-only — Claude cannot decide to start talking on its own.
+
+> **Not named `voice`**: Claude Code's built-in `/voice` is dictation — it *listens*. This is the
+> opposite direction, and reusing the word for both would be a coin flip every time.
+
+Voice, speed and how much `full` will read are global taste, hand-edited in `~/.claude/speak.conf`:
+
+```ini
+voice=es_ES-davefx-medium     # or es_ES-sharvard-medium; see ~/.local/share/piper/voices
+speed=1.0                     # <1 faster, >1 slower
+max_chars=11600               # optional; how much of a reply `full` will read
+```
+
+The file does not exist until you create it — the defaults above are the built-in ones. `speed` and
+`max_chars` are validated before use, so a typo falls back to the default instead of quietly breaking
+the hook.
+
+#### Summary or the whole reply
+
+Both are prepared for every reply, and both strip code, tables, links, paths and markup — whatever a
+voice cannot convey. The difference is length:
+
+- **`summary`** is a closing line Claude writes *to be heard*, about twenty seconds. It exists because
+  a reply adapted from prose never sounds as good as one written for the ear.
+- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (11 600 chars — the default
+  voice reads 19.4 chars/s, measured) so a runaway reply cannot hold the speaker hostage.
+
+In `full`, inline paths become the name a person would say (`claude/speak-lib.sh` → "speak lib")
+rather than being deleted, which would leave sentences dangling mid-clause.
+
+#### Nothing accumulates
+
+Each console keeps at most one saved reply, overwritten every turn, and `speak off` deletes it.
+Files left behind by consoles you closed are pruned after a week.
+
+#### Cutting a reply off mid-sentence
+
+Claude Code keybindings only map to its own internal actions, so a dedicated hotkey is not possible.
+Three things work: **sending the next message** (the prompt hook kills playback first, so answering
+back silences it), **`/speak stop`**, and **`/speak off`** for good. All three are scoped to the
+console you are in: typing here never cuts off what another pane is saying.
+
+#### How it works
+
+Three hooks in `claude/settings.json`, all no-ops in consoles that are off. Every piece resolves state
+through one shared helper (`claude/speak-lib.sh`), so the indicator can never disagree with reality:
+
+```mermaid
+flowchart LR
+    lib["speak-lib.sh<br/>state · config · playback"]
+    prompt["UserPromptSubmit"] --> vp["speak-prompt.sh<br/>asks for a #60;speak#62; line"]
+    disp["MessageDisplay"] --> sd["speak-display.sh<br/>󰕾 instead of raw tags"]
+    stop["Stop"] --> sp["speak-reply.sh<br/>cleans · saves"]
+    sp --> clean["speak-clean.py"]
+    cmd["speak summary | full"] --> piper["Piper (local)"] --> af["afplay"]
+    lib -.-> vp
+    lib -.-> sd
+    lib -.-> sp
+    lib -.-> sl["statusline.sh<br/>󰕾"]
+    lib -.-> cmd
+```
+
+- **`speak-prompt.sh`** asks Claude for the `<speak>` line, and stops playback — sending a message
+  means you are done listening. Because the instruction lives in a hook and not in `CLAUDE.md`, it
+  vanishes the moment you run `speak off`. It bails out early on a prompt that *is* a `speak` command,
+  before silencing anything: a turn asking for a reading must not cancel the one it just started.
+  Reordering those two lines is what caused the queue described below.
+- **`speak-display.sh`** rewrites the raw tags on screen into a grey 󰕾 with grey italic text, and
+  tucks the two commands underneath. `MessageDisplay` is display-only, so the transcript keeps the
+  real tags — which is what the Stop hook reads. Text arrives in `delta` chunks, so each tag is
+  rewritten independently rather than as a pair: a block split mid-stream still renders. The opening
+  tag only matches at the start of a line, so prose mentioning the literal tag is left alone.
+- **`speak-reply.sh`** cleans the reply via **`speak-clean.py`** and saves both versions. It prints
+  nothing, plays nothing and never touches Piper.
+- **`speak`** does the reading itself, the moment you ask. Synthesis is detached, so nothing waits on
+  audio: the command returns immediately and Piper keeps going.
+
+Playback is identified by the temp file it was handed, console id included, so `speak stop` in one
+pane cannot silence another. Starting a *new* reading does stop every other one — there is only one
+pair of speakers.
+
+> **The queue that used to be here.** For a while the command could not play at all: it wrote down
+> what to read and an async `Stop` hook did it, on the belief that Claude Code tore down the process
+> tree of an inline `!command` and killed Piper mid-synthesis. Measured properly, it does not — a
+> detached job outlives the command indefinitely. The real culprit was this feature stopping its own
+> audio, because the prompt hook silenced playback before checking whether the turn was *asking* for
+> a reading. The queue also meant waiting for the whole model turn to end before hearing anything,
+> most of a minute for nothing. Fixing the order removed a hook, a state file and four helpers.
+
+The cleaning lives in its own Python file rather than a heredoc inside the hook: a heredoc in a shell
+script cannot contain an apostrophe without breaking the script, and logic this fiddly is worth being
+able to run and test on its own.
+
+Synthesis takes about a second per sentence. `make doctor` reports whether Piper, the models, the
+Python the cleaner needs and the per-console switches are all in place.

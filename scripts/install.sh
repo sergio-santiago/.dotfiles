@@ -31,24 +31,10 @@ info() { printf "  %s→%s %s\n" "$BLUE" "$RESET" "$1"; }
 warn() { printf "  %s!%s %s\n" "$YELLOW" "$RESET" "$1"; }
 head() { printf "\n%s%s%s\n" "$BOLD" "$1" "$RESET"; }
 
-# ── Symlink map: "<relative-source>|<absolute-destination>" ─────────────────
-LINKS=(
-  "ssh/config|$HOME/.ssh/config"
-  "fish/conf.d|$HOME/.config/fish/conf.d"
-  "fish/functions|$HOME/.config/fish/functions"
-  "fish/config.fish|$HOME/.config/fish/config.fish"
-  "starship/starship.toml|$HOME/.config/starship.toml"
-  "git/config|$HOME/.config/git/config"
-  "micro/settings.json|$HOME/.config/micro/settings.json"
-  "micro/colorschemes/linked-data-dark-rainbow.micro|$HOME/.config/micro/colorschemes/linked-data-dark-rainbow.micro"
-  "bat/themes|$HOME/.config/bat/themes"
-  "finicky/finicky.ts|$HOME/.config/finicky/finicky.ts"
-  "claude/CLAUDE.md|$HOME/.claude/CLAUDE.md"
-  "claude/settings.json|$HOME/.claude/settings.json"
-  "claude/statusline.sh|$HOME/.claude/statusline.sh"
-  "btop/btop.conf|$HOME/.config/btop/btop.conf"
-  "gh/config.yml|$HOME/.config/gh/config.yml"
-)
+# ── Symlink map ─────────────────────────────────────────────────────────────
+# Shared with doctor.sh, which verifies what this creates. See scripts/links.sh.
+# shellcheck source=links.sh
+source "$(dirname "${BASH_SOURCE[0]}")/links.sh"
 
 link_one() {
   local src="$DOTFILES/$1" dest="$2"
@@ -100,7 +86,13 @@ fi
 # Bat theme cache: needs rebuilding for the custom theme to be selectable.
 head "🦇 Bat theme cache"
 if command -v bat >/dev/null 2>&1; then
-  bat cache --build >/dev/null && ok "bat cache rebuilt"
+  if bat cache --build >/dev/null 2>&1; then
+    ok "bat cache rebuilt"
+  else
+    # A failure inside an && list is exempt from errexit, so without this branch
+    # the script sailed on to "Done" with no cache and a zero exit status.
+    warn "bat cache could not be rebuilt — run 'bat cache --build' by hand"
+  fi
 else
   warn "bat not installed — run 'make brew' first, then 'bat cache --build'"
 fi

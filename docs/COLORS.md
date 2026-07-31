@@ -80,13 +80,18 @@ All 10 core colors. Config: `starship/starship.toml`
 Color set in RGB format with gradient bar. Config: `claude/statusline.sh`
 
 ```bash
-COLOR_BLUE='\033[38;2;104;213;255m'    # Folder name (matches #68d5ff)
-COLOR_YELLOW='\033[38;2;255;236;153m'  # Git branch (matches #ffec99)
-COLOR_ORANGE='\033[38;2;255;184;108m'  # Git special states (matches #ffb86c)
-COLOR_GREEN='\033[38;2;68;243;115m'    # Model name (matches #44f373)
-COLOR_PURPLE='\033[38;2;189;147;249m'  # Context bar (matches #bd93f9)
-COLOR_DIM='\033[38;2;108;108;108m'     # Dimmed elements
+COLOR_BLUE='\033[38;2;104;213;255m'       # Folder name (matches #68d5ff)
+COLOR_CYAN='\033[38;2;127;255;212m'       # Fresh context zone (matches #7fffd4)
+COLOR_YELLOW='\033[38;2;255;236;153m'     # Git branch, normal (matches #ffec99)
+COLOR_ORANGE='\033[38;2;255;184;108m'     # Git special states (matches #ffb86c)
+COLOR_GREEN='\033[38;2;68;243;115m'       # Added lines, fallback model (matches #44f373)
+COLOR_PURPLE='\033[38;2;189;147;249m'     # Clock icon (matches #bd93f9)
+COLOR_RED='\033[38;2;255;85;85m'          # Deleted lines (matches #ff5555)
+COLOR_DIM='\033[38;2;108;108;108m'        # Borders, placeholders
+COLOR_DIM_BRIGHT='\033[38;2;170;170;170m' # Diff arrows when changes present
 ```
+
+The context/usage bar is **not** `COLOR_PURPLE` — it is painted from `GRADIENT_COLORS`, below.
 
 **Gradient bar colors** (green → yellow → orange → red):
 - `#50FA7B` → `#F1FA8C` → `#FFB86C` → `#FF5555` (10 steps for context/usage bars)
@@ -199,7 +204,7 @@ Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
 
 ### Colors per Tool:
 - ✅ **Starship** (9 colors) - Core palette
-- ✅ **Claude statusline** (6 colors + 10-step gradient) - Core palette in RGB with gradient bars
+- ✅ **Claude statusline** (9 colors + 10-step gradient) - Core palette in RGB with gradient bars
 - ✅ **Bat theme** (24 colors) - Core + extended + UI + diff
 - ✅ **Micro editor** (35 color definitions) - Most comprehensive
 - ✅ **Fish shell** (25 colors) - Includes shell-specific variants

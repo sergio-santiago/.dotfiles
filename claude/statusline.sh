@@ -5,7 +5,8 @@
 # Description:
 #   Generates a responsive 2-column boxed statusline showing:
 #     Left column:  folder, git branch+status, diff stats (+added / -deleted)
-#     Right column: AI model, context bar + zone tag, usage bar + reset time
+#     Right column: AI model + spoken-reply indicator, context bar + zone tag,
+#                   usage bar + reset time
 #
 #   Column widths auto-fit the longest cell on each side (responsive layout).
 #   The middle │ stays vertically aligned regardless of content length.
@@ -59,6 +60,7 @@ readonly ICON_GIT_MERGING=""
 readonly ICON_GIT_CHERRY=""
 readonly ICON_GIT_DETACHED="󰃻"
 readonly ICON_AI="󰧑"
+readonly ICON_SPEAK_ON="󰕾"
 readonly ICON_STAGED="+"
 readonly ICON_MODIFIED="!"
 readonly ICON_UNTRACKED="?"
@@ -384,6 +386,22 @@ format_percent() {
 }
 
 ################################################################################
+# Build the spoken-replies cell: 󰕾 while this console reads replies aloud
+#
+# Shown only when on, in the plain terminal foreground so it follows the theme.
+# Nothing when off: the indicator has one job, warning you that this console
+# talks, and silence needs no icon. State comes from the same helper the hooks
+# use, so the indicator can never disagree with what actually happens.
+################################################################################
+build_speak_cell() {
+    local lib="$HOME/.claude/speak-lib.sh"
+    [[ -r "$lib" ]] || return 0
+    # shellcheck source=/dev/null
+    ( source "$lib" && speak_is_on ) || return 0
+    printf '%s%s' "$COLOR_RESET" "$ICON_SPEAK_ON"
+}
+
+################################################################################
 # Build the diff stats cell: "N+ 󰓢 -N" with + and - sides colored when nonzero
 ################################################################################
 build_diff_cell() {
@@ -561,6 +579,12 @@ format_statusline() {
     else
         right_1=$(printf '%s%s %s%s' "$COLOR_GREEN" "$ICON_AI" "$model_name" "$COLOR_RESET")
     fi
+    # Appended after lolcat so the indicator keeps its own color instead of
+    # picking up a random hue from the rainbow gradient. Only when there is
+    # something to show, or the cell would carry a stray trailing space.
+    local speak_cell
+    speak_cell=$(build_speak_cell)
+    [[ -n "$speak_cell" ]] && right_1+=" $speak_cell"
 
     local context_bar percent_color
     context_bar=$(generate_context_bar "$percent_int")

@@ -41,26 +41,19 @@ done
 
 # ── Symlinks ────────────────────────────────────────────────────────────────
 head "🔗 Symlinks"
-LINKS=(
-  "ssh/config|$HOME/.ssh/config"
-  "fish/conf.d|$HOME/.config/fish/conf.d"
-  "fish/functions|$HOME/.config/fish/functions"
-  "fish/config.fish|$HOME/.config/fish/config.fish"
-  "starship/starship.toml|$HOME/.config/starship.toml"
-  "git/config|$HOME/.config/git/config"
-  "micro/settings.json|$HOME/.config/micro/settings.json"
-  "bat/themes|$HOME/.config/bat/themes"
-  "finicky/finicky.ts|$HOME/.config/finicky/finicky.ts"
-  "claude/CLAUDE.md|$HOME/.claude/CLAUDE.md"
-  "claude/settings.json|$HOME/.claude/settings.json"
-  "claude/statusline.sh|$HOME/.claude/statusline.sh"
-  "btop/btop.conf|$HOME/.config/btop/btop.conf"
-  "gh/config.yml|$HOME/.config/gh/config.yml"
-)
+# Shared with install.sh, which creates what this verifies. Keeping a second copy
+# here is what let the two drift: doctor stopped checking the micro colorscheme
+# and still reported all-green over a list one entry short of the installer's.
+# shellcheck source=links.sh
+source "$(dirname "${BASH_SOURCE[0]}")/links.sh"
 for entry in "${LINKS[@]}"; do
   src="$DOTFILES/${entry%%|*}"; dest="${entry#*|}"
-  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" && -e "$dest" ]]; then
     pass "${dest/#$HOME/~}"
+  elif [[ -L "$dest" && ! -e "$dest" ]]; then
+    # readlink hands back the stored path whether or not it resolves, so without
+    # the -e above a dangling link passed while the feature was entirely broken.
+    fail "${dest/#$HOME/~} → dangling, points at nothing ($(readlink "$dest"))"
   elif [[ -L "$dest" ]]; then
     warn "${dest/#$HOME/~} → points elsewhere ($(readlink "$dest"))"
   elif [[ -e "$dest" ]]; then
@@ -91,6 +84,60 @@ if [[ -e "$HOME/.ssh/config.private" ]]; then
   pass "~/.ssh/config.private exists"
 else
   warn "~/.ssh/config.private missing — run 'make link'"
+fi
+
+# ── Spoken Claude Code replies (optional) ───────────────────────────────────
+head "🔊 Spoken replies (optional)"
+PIPER_PY="$HOME/.local/share/piper/venv/bin/python"
+
+if [[ -x "$PIPER_PY" ]]; then
+  # Importing is the real test. The venv is created before piper-tts goes into it,
+  # so a failed pip leaves a python that runs perfectly and cannot speak a word.
+  if "$PIPER_PY" -c 'import piper' >/dev/null 2>&1; then
+    pass "Piper installed"
+  else
+    fail "venv exists but piper-tts is not in it — re-run 'make speak-setup'"
+  fi
+  # A voice is two files: piper aborts without the sidecar .onnx.json, and the
+  # download is not atomic, so half-arrived voices are a real state.
+  shopt -s nullglob
+  models=("$HOME/.local/share/piper/voices/"*.onnx)
+  shopt -u nullglob
+  # The count guard is not decoration: in bash 3.2 an empty array expands to an
+  # unbound variable under `set -u`, which killed this script outright on the one
+  # machine state that matters most — a venv with no voices yet.
+  complete=0
+  if ((${#models[@]} > 0)); then
+    for m in "${models[@]}"; do [[ -r "$m.json" ]] && complete=$((complete + 1)); done
+  fi
+  if ((${#models[@]} == 0)); then
+    warn "no voice models — run 'make speak-setup'"
+  elif ((complete == ${#models[@]})); then
+    pass "$complete voice model(s) installed"
+  else
+    # A good voice next to a broken one used to pass in green while the broken one
+    # was the configured voice, so report the shortfall rather than the successes.
+    fail "$((${#models[@]} - complete)) of ${#models[@]} voice model(s) missing their .onnx.json — re-run 'make speak-setup'"
+  fi
+  # The Stop hook pipes every reply through python3 and swallows the failure, so
+  # a broken interpreter means replies are silently never saved.
+  if python3 -c 'import json, re' >/dev/null 2>&1; then
+    pass "python3 can run the reply cleaner"
+  else
+    fail "python3 cannot import json/re — replies will never be prepared"
+  fi
+  # Enabled is per console, so report how many consoles are currently speaking
+  # rather than a single global state.
+  shopt -s nullglob
+  speaking=("$HOME/.claude/speak-consoles/"*)
+  shopt -u nullglob
+  if ((${#speaking[@]} > 0)); then
+    pass "${#speaking[@]} console marker(s) ${DIM}('speak off' in each to silence)${RESET}"
+  else
+    pass "all consoles off ${DIM}(turn one on with 'speak on')${RESET}"
+  fi
+else
+  warn "Piper not installed — run 'make speak-setup' (optional feature)"
 fi
 
 # ── Summary ─────────────────────────────────────────────────────────────────
