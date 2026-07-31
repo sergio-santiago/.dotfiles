@@ -132,9 +132,9 @@ end
 # 🍺 Homebrew
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q brew
-    function brew-maintenance --description 'Update, upgrade, cleanup, autoremove and check Homebrew'
-        brew update && brew upgrade && brew cleanup && brew autoremove && brew doctor
-    end
+    # The logic lives in scripts/bin/brew-maintenance, linked onto $PATH by
+    # `make link`, so it is testable, works from any shell, and its steps do not
+    # cancel each other the way a chain of && did.
     alias bm="brew-maintenance"
 
     function brew-installed --description 'List formulas, casks, and taps installed manually'

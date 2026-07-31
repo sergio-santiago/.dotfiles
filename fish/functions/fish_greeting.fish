@@ -14,4 +14,8 @@ function fish_greeting
         echo $banner
         set_color normal
     end
+
+    # Passive suggestion, printed only when maintenance is overdue. Autoloaded and
+    # two file reads deep, so it adds 0.21 ms to a 140 ms startup.
+    brew_nudge
 end

@@ -1,0 +1,361 @@
+#!/usr/bin/env bash
+################################################################################
+# Homebrew maintenance
+#
+# Description:
+#   Runs Homebrew maintenance as a set of independent steps and prints one
+#   summary at the end. Steps come in two classes:
+#
+#     action  update · upgrade · cleanup · autoremove   → decide the exit status
+#     report  doctor · greedy casks · external updaters → never touch it
+#
+#   That split is the whole point. `brew doctor` exits 1 for any warning at all,
+#   and its own output asks you to ignore those warnings, so a maintenance run
+#   that inherits its status reports failure on a healthy machine. Steps also run
+#   independently instead of chained with &&: a failed `brew update` no longer
+#   cancels the rest, because upgrade still has a cached index to work against.
+#
+#   A finished run is recorded in a stamp file, the only place that knows when
+#   maintenance last happened. `brew_nudge` (fish) and `doctor.sh` read it.
+#   Nothing here runs in the background and nothing schedules itself.
+#
+# Usage:
+#   brew-maintenance [--check] [--quiet] [--verbose] [--with-external]
+#   make brew-maintenance   |   bm   (fish alias)
+#
+# Environment (overridable, used by scripts/tests):
+#   BREW_MAINTENANCE_STAMP    stamp file path
+#   BREW_MAINTENANCE_BREW     brew executable
+#   BREW_MAINTENANCE_GCLOUD   gcloud state file (.last_update_check.json)
+################################################################################
+
+set -uo pipefail
+
+STAMP="${BREW_MAINTENANCE_STAMP:-${XDG_CACHE_HOME:-$HOME/.cache}/brew-maintenance/last-run}"
+BREW="${BREW_MAINTENANCE_BREW:-brew}"
+GCLOUD_STATE="${BREW_MAINTENANCE_GCLOUD:-$HOME/.config/gcloud/.last_update_check.json}"
+
+CHECK=0 QUIET=0 VERBOSE=0 EXTERNAL=0
+
+# ── Pretty output ───────────────────────────────────────────────────────────
+# Same vocabulary as doctor.sh on purpose: two tools reporting on the same
+# machine should not invent two different ways of saying "this is fine".
+if [[ -t 1 ]]; then
+  BOLD=$'\033[1m'; DIM=$'\033[2m'; RESET=$'\033[0m'
+  GREEN=$'\033[38;2;68;243;115m'; YELLOW=$'\033[38;2;255;236;153m'; RED=$'\033[38;2;255;77;77m'
+else
+  BOLD=""; DIM=""; RESET=""; GREEN=""; YELLOW=""; RED=""
+fi
+pass() { printf "  %s✓%s %-11s %s\n" "$GREEN" "$RESET" "$1" "${2:-}"; }
+warn() { printf "  %s!%s %-11s %s\n" "$YELLOW" "$RESET" "$1" "${2:-}"; }
+fail() { printf "  %s✗%s %-11s %s\n" "$RED" "$RESET" "$1" "${2:-}"; }
+head() { printf "\n%s%s%s\n" "$BOLD" "$1" "$RESET"; }
+
+usage() {
+  cat <<EOF
+${BOLD}brew-maintenance${RESET} - update, tidy up and review Homebrew
+
+  --check           report only, change nothing (no stamp is written)
+  --quiet           print the summary alone, no command output
+  --verbose         also print the raw output of the review steps
+  --with-external   also run third-party updaters (gcloud components update)
+  -h, --help        this text
+
+Actions decide the exit status, reports never do. 0 means every action that ran
+succeeded, whatever \`brew doctor\` had to say about it.
+EOF
+}
+
+while (($#)); do
+  case "$1" in
+    --check) CHECK=1 ;;
+    --quiet) QUIET=1 ;;
+    --verbose) VERBOSE=1 ;;
+    --with-external) EXTERNAL=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf "unknown option: %s\n\n" "$1" >&2; usage >&2; exit 2 ;;
+  esac
+  shift
+done
+
+if ! command -v "$BREW" >/dev/null 2>&1; then
+  printf "brew not found (looked for '%s'). Install Homebrew first\n" "$BREW" >&2
+  exit 2
+fi
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+# ── Step bookkeeping ────────────────────────────────────────────────────────
+# Every step appends one "name|kind|rc|summary" record and returns 0, so a
+# failure becomes data instead of control flow. Nothing short-circuits.
+STEPS=()
+FAILED=0 WARNINGS=0
+N_FORMULAE=0 N_CASKS=0 N_GREEDY=0
+GREEDY_LINES=()
+
+# kind is one of:
+#   action  the exit status depends on rc
+#   ok      report, reads as fine
+#   warn    report, reads as worth a look, still never fatal
+# Severity is stated here rather than guessed from the summary text later. It was
+# guessed once, and "no warnings" matched the pattern for a warning.
+record() { # name kind rc summary
+  STEPS+=("$1|$2|$3|$4")
+  if [[ "$2" == "action" && "$3" -ne 0 ]]; then
+    FAILED=$((FAILED + 1))
+  fi
+  return 0
+}
+
+# Runs a command into a file and echoes it unless --quiet. The copy is what lets
+# the summary be parsed from output the user has already seen.
+run() { # outfile cmd...
+  local out=$1; shift
+  "$@" >"$out" 2>&1
+  local rc=$?
+  ((QUIET)) || cat "$out"
+  return $rc
+}
+
+# `env` rather than a bare VAR=x prefix: bash keeps an assignment made in front
+# of a *function* call alive after the call returns, which would silently leave
+# auto-update disabled for every later step.
+brew_offline() { env HOMEBREW_NO_AUTO_UPDATE=1 "$BREW" "$@"; }
+
+have_jq() { command -v jq >/dev/null 2>&1; }
+
+# ── Offline inventory ───────────────────────────────────────────────────────
+# With auto-update off, `brew outdated` compares the Cellar against the
+# already-cached API index: no network, and it writes nothing (verified by
+# hashing every mtime under brew's api cache before and after).
+read_outdated() {
+  have_jq || return 0
+  brew_offline outdated --json >"$WORK/outdated.json" 2>/dev/null || return 0
+  N_FORMULAE=$(jq -r '.formulae | length' "$WORK/outdated.json" 2>/dev/null || echo 0)
+  N_CASKS=$(jq -r '.casks | length' "$WORK/outdated.json" 2>/dev/null || echo 0)
+  N_FORMULAE=${N_FORMULAE:-0}; N_CASKS=${N_CASKS:-0}
+}
+
+# Casks with `auto_updates: true`. Listed, never upgraded: brew's receipt records
+# the version it installed, not the version now on disk, so --greedy downloads a
+# whole app to correct bookkeeping. What is behind is the ledger, not the app.
+read_greedy() {
+  have_jq || return 0
+  brew_offline outdated --greedy-auto-updates --json >"$WORK/greedy.json" 2>/dev/null || return 0
+  local name have want
+  while IFS=$'\t' read -r name have want; do
+    [[ -z "$name" ]] && continue
+    GREEDY_LINES+=("$name|$have|$want")
+  done < <(jq -r '.casks[]? | [.name, (.installed_versions // [] | join(",")), .current_version] | @tsv' \
+    "$WORK/greedy.json" 2>/dev/null)
+  N_GREEDY=${#GREEDY_LINES[@]}
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  Actions
+# ═══════════════════════════════════════════════════════════════════════════
+do_actions() {
+  # No header under --quiet: nothing is streamed there, and a heading with
+  # nothing beneath it reads like output that failed to appear.
+  ((QUIET)) || head "🔧 Actions"
+  local out rc n freed
+
+  out="$WORK/update.out"
+  run "$out" "$BREW" update; rc=$?
+  if grep -q "Already up-to-date" "$out" 2>/dev/null; then
+    record update action "$rc" "index already current"
+  else
+    record update action "$rc" "index refreshed"
+  fi
+
+  # Runs even when update failed. The cached index can still hold work from an
+  # earlier refresh, and refusing to upgrade over a network blip helps nobody.
+  out="$WORK/upgrade.out"
+  run "$out" "$BREW" upgrade; rc=$?
+  # Homebrew announces the batch size once. Reading that beats counting the
+  # per-package headers, which also appear for dependencies pulled in along.
+  n=$(sed -nE 's/^==> Upgrading ([0-9]+) outdated package.*/\1/p' "$out" | tail -1)
+  record upgrade action "$rc" "${n:-0} upgraded"
+
+  # After upgrade, so it clears what upgrade left behind. That is ordering, not
+  # a condition: cleanup still runs if upgrade failed.
+  out="$WORK/cleanup.out"
+  run "$out" "$BREW" cleanup; rc=$?
+  freed=$(sed -nE 's/.*freed approximately ([0-9.]+ ?[KMGT]?B).*/\1/p' "$out" | tail -1)
+  if [[ -n "$freed" ]]; then
+    record cleanup action "$rc" "$freed freed"
+  else
+    record cleanup action "$rc" "nothing to free"
+  fi
+
+  out="$WORK/autoremove.out"
+  run "$out" "$BREW" autoremove; rc=$?
+  n=$(sed -nE 's/^==> Autoremoving ([0-9]+) unneeded formula.*/\1/p' "$out" | tail -1)
+  if [[ "${n:-0}" -gt 0 ]]; then
+    record autoremove action "$rc" "$n removed"
+  else
+    record autoremove action "$rc" "nothing unneeded"
+  fi
+
+  # Only ever runs when asked for, and then it is an action: a failure in
+  # something explicitly requested is a failure of the run. `--quiet` accepts
+  # every prompt sight unseen, which is precisely why this is behind a flag.
+  if ((EXTERNAL)); then
+    if command -v gcloud >/dev/null 2>&1; then
+      out="$WORK/gcloud.out"
+      run "$out" gcloud components update --quiet; rc=$?
+      record gcloud action "$rc" "SDK components updated"
+    else
+      record gcloud warn 0 "gcloud not installed, skipped"
+    fi
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  Check: says what a real run would do and changes nothing
+# ═══════════════════════════════════════════════════════════════════════════
+do_check() {
+  local age=""
+  # Homebrew touches FETCH_HEAD after every update check, so its mtime dates the
+  # index. See Library/Homebrew/cmd/update.sh, "Touch FETCH_HEAD to confirm".
+  local fetch="${HOMEBREW_REPOSITORY:-/opt/homebrew}/.git/FETCH_HEAD"
+  if [[ -f "$fetch" ]]; then
+    age=$(( ( $(date +%s) - $(stat -f %m "$fetch") ) / 86400 ))
+    record index ok 0 "refreshed $age day(s) ago"
+  fi
+  if ((N_FORMULAE > 0)); then
+    record formulae warn 0 "$N_FORMULAE outdated"
+  else
+    record formulae ok 0 "0 outdated"
+  fi
+  if ((N_CASKS > 0)); then
+    record casks warn 0 "$N_CASKS outdated"
+  else
+    record casks ok 0 "0 outdated"
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  Reports: they look, they never touch, they never set the exit status
+# ═══════════════════════════════════════════════════════════════════════════
+do_reports() {
+  # Only headed when there is raw output to head. Otherwise these steps speak
+  # through the summary alone.
+  ((VERBOSE)) && head "📋 Review ${DIM}(nothing is changed here)${RESET}"
+  local out n
+
+  # Exit 1 from doctor means "some check has something to say", not "broken", so
+  # the warning count is what gets reported and the status is discarded.
+  out="$WORK/doctor.out"
+  "$BREW" doctor >"$out" 2>&1
+  n=$(grep -c '^Warning:' "$out" 2>/dev/null || true)
+  n=${n:-0}
+  WARNINGS=$((WARNINGS + n))
+  ((VERBOSE)) && cat "$out"
+  if ((n > 0)); then
+    record doctor warn 0 "$n warning(s), advisory only"
+  else
+    record doctor ok 0 "no warnings"
+  fi
+
+  # Always ok, never a warning. These are not work to do, they are casks brew is
+  # deliberately not managing, and flagging them yellow every run would train the
+  # eye to skip the colour that has to mean something.
+  if ((N_GREEDY > 0)); then
+    record greedy ok 0 "$N_GREEDY cask(s) with their own updater"
+  else
+    record greedy ok 0 "no self-updating casks"
+  fi
+
+  # Free and offline: the SDK writes its own pending notices into this file, so
+  # finding out costs a read instead of a network round trip through gcloud.
+  if ((EXTERNAL)); then
+    return 0
+  fi
+  if [[ -r "$GCLOUD_STATE" ]] && have_jq; then
+    n=$(jq -r '.notifications | length' "$GCLOUD_STATE" 2>/dev/null)
+    n=${n:-0}
+    if [[ "$n" -gt 0 ]]; then
+      WARNINGS=$((WARNINGS + 1))
+      record external warn 0 "gcloud has $n pending notice(s), rerun with --with-external"
+    else
+      record external ok 0 "gcloud has no news"
+    fi
+  fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  Summary
+# ═══════════════════════════════════════════════════════════════════════════
+print_summary() {
+  if ((CHECK)); then
+    head "🔍 Pending work ${DIM}(check only, nothing was changed)${RESET}"
+  else
+    head "📋 Summary"
+  fi
+  local entry name kind rc summary
+  ACTIONS_OK=0
+  for entry in "${STEPS[@]}"; do
+    IFS='|' read -r name kind rc summary <<<"$entry"
+    case "$kind" in
+      action)
+        if [[ "$rc" -eq 0 ]]; then
+          pass "$name" "$summary"
+          ACTIONS_OK=$((ACTIONS_OK + 1))
+        else
+          fail "$name" "exit $rc, see the output above"
+        fi
+        ;;
+      warn) warn "$name" "$summary" ;;
+      *)    pass "$name" "$summary" ;;
+    esac
+  done
+
+  # The detail worth keeping: brew's number beside the one on disk, so a cask
+  # flagged outdated reads as "already current" rather than as work to do.
+  if ((N_GREEDY > 0)); then
+    printf "\n  %sCasks with their own updater, left alone:%s\n" "$DIM" "$RESET"
+    local line have want
+    for line in "${GREEDY_LINES[@]}"; do
+      IFS='|' read -r name have want <<<"$line"
+      printf "    %-14s brew records %-10s latest known %s\n" "$name" "$have" "$want"
+    done
+    printf "    %sThey install their own updates. To correct brew's records only:%s\n" "$DIM" "$RESET"
+    printf "    %sbrew upgrade --cask --greedy-auto-updates <cask>%s\n" "$DIM" "$RESET"
+  fi
+
+  printf "\n  %s%d action(s) ok%s · %s%d failed%s · %s%d warning(s)%s\n" \
+    "$GREEN" "$ACTIONS_OK" "$RESET" "$RED" "$FAILED" "$RESET" "$YELLOW" "$WARNINGS" "$RESET"
+}
+
+# ── Run ─────────────────────────────────────────────────────────────────────
+read_greedy
+if ((CHECK)); then
+  read_outdated
+  do_check
+  do_reports
+  print_summary
+  # Looking is not maintaining, so --check leaves the stamp alone. Its exit
+  # status is not a verdict on the machine either, only on the run.
+  exit 0
+fi
+
+do_actions
+# Read after the actions, so the stamp records what is still outstanding rather
+# than what was outstanding before upgrade ran.
+read_outdated
+do_reports
+print_summary
+
+# ── Stamp ───────────────────────────────────────────────────────────────────
+# The mtime answers "when did maintenance last run", which is the question the
+# nudge asks. Homebrew's FETCH_HEAD cannot answer it: any auto-update triggered
+# by an unrelated `brew install` touches that file, so it dates the index.
+mkdir -p "$(dirname "$STAMP")"
+printf '%s status=%d actions=%d failed=%d warnings=%d formulae=%s casks=%s greedy=%d\n' \
+  "$(date +%s)" "$(( FAILED > 0 ? 1 : 0 ))" "$ACTIONS_OK" "$FAILED" \
+  "$WARNINGS" "$N_FORMULAE" "$N_CASKS" "$N_GREEDY" >"$STAMP"
+((QUIET)) || printf "  %srecorded in %s%s\n" "$DIM" "${STAMP/#$HOME/~}" "$RESET"
+
+[[ "$FAILED" -eq 0 ]] || exit 1

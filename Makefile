@@ -8,7 +8,7 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link default-shell doctor colors-check speak-setup
+.PHONY: help install brew link default-shell doctor colors-check speak-setup brew-maintenance test
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -31,6 +31,12 @@ default-shell: ## Make Homebrew fish the default login shell
 
 doctor: ## Verify tools, symlinks and environment are healthy
 	@bash "$(DOTFILES)/scripts/doctor.sh"
+
+brew-maintenance: ## Update, tidy up and review Homebrew (also on PATH, aliased to bm)
+	@bash "$(DOTFILES)/scripts/bin/brew-maintenance"
+
+test: ## Run the test suite
+	@bash "$(DOTFILES)/scripts/tests/run.sh"
 
 colors-check: ## Lint the linked_data_dark_rainbow palette for drift
 	@bash "$(DOTFILES)/scripts/colors-check.sh"

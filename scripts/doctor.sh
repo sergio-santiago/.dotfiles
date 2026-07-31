@@ -109,6 +109,71 @@ else
   warn "~/.ssh/config.private missing. Run 'make link'"
 fi
 
+# ── Homebrew maintenance ────────────────────────────────────────────────────
+# The pull half of the maintenance reminder. The fish greeting only ever reports
+# the age of the last run, because anything more costs real time at every shell
+# start. Here the expensive question is affordable, so this is where it is asked.
+head "🍺 Homebrew maintenance"
+STAMP="${XDG_CACHE_HOME:-$HOME/.cache}/brew-maintenance/last-run"
+NUDGE_DAYS=7
+
+if [[ -r "$STAMP" ]]; then
+  AGE_DAYS=$(( ( $(date +%s) - $(stat -f %m "$STAMP") ) / 86400 ))
+  if (( AGE_DAYS < NUDGE_DAYS )); then
+    pass "last run $AGE_DAYS day(s) ago"
+  else
+    warn "last run $AGE_DAYS day(s) ago. Run 'bm'"
+  fi
+else
+  warn "never run on this machine. Run 'bm'"
+fi
+
+if command -v brew >/dev/null 2>&1; then
+  # Homebrew touches this after every update check, so its mtime dates the
+  # package index. See Library/Homebrew/cmd/update.sh, "Touch FETCH_HEAD to
+  # confirm we've checked for an update". It dates the index and not the
+  # maintenance run, since an auto-update from any `brew install` touches it too.
+  FETCH_HEAD="${HOMEBREW_REPOSITORY:-/opt/homebrew}/.git/FETCH_HEAD"
+  if [[ -f "$FETCH_HEAD" ]]; then
+    INDEX_DAYS=$(( ( $(date +%s) - $(stat -f %m "$FETCH_HEAD") ) / 86400 ))
+    if (( INDEX_DAYS < NUDGE_DAYS )); then
+      pass "package index refreshed $INDEX_DAYS day(s) ago"
+    else
+      warn "package index is $INDEX_DAYS day(s) stale, so counts below may lag"
+    fi
+  fi
+
+  # HOMEBREW_NO_AUTO_UPDATE is what makes this free: `brew outdated` then compares
+  # the Cellar against the already-cached API index, touching neither the network
+  # nor any cache file. It still costs ~0.5s, which is why it lives here and not
+  # in the shell greeting.
+  if command -v jq >/dev/null 2>&1; then
+    OUTDATED_JSON="$(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --json 2>/dev/null)"
+    N_FORMULAE="$(printf '%s' "$OUTDATED_JSON" | jq -r '.formulae | length' 2>/dev/null || echo 0)"
+    N_CASKS="$(printf '%s' "$OUTDATED_JSON" | jq -r '.casks | length' 2>/dev/null || echo 0)"
+    TOTAL=$(( ${N_FORMULAE:-0} + ${N_CASKS:-0} ))
+    if (( TOTAL == 0 )); then
+      pass "nothing outdated"
+    else
+      warn "$N_FORMULAE formula(e) and $N_CASKS cask(s) outdated. Run 'bm'"
+    fi
+
+    # Reported apart, and never as work to do. These carry their own updaters, so
+    # brew's recorded version trails the one on disk. See brew-maintenance.
+    N_GREEDY="$(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --greedy-auto-updates --json 2>/dev/null \
+      | jq -r '.casks | length' 2>/dev/null || echo 0)"
+    if (( ${N_GREEDY:-0} > 0 )); then
+      pass "${N_GREEDY} cask(s) update themselves ${DIM}(brew's record trails on purpose)${RESET}"
+    else
+      pass "no self-updating casks"
+    fi
+  else
+    warn "jq not found, skipping the outdated counts"
+  fi
+else
+  fail "brew not found. Install Homebrew first"
+fi
+
 # ── Spoken Claude Code replies (optional) ───────────────────────────────────
 head "🔊 Spoken replies (optional)"
 PIPER_PY="$HOME/.local/share/piper/venv/bin/python"

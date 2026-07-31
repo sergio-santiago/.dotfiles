@@ -33,6 +33,7 @@ LINKS=(
   "claude/speak-clean.py|$HOME/.claude/speak-clean.py"
   "claude/skills/speak|$HOME/.claude/skills/speak"
   "scripts/bin/speak|$HOME/.local/bin/speak"
+  "scripts/bin/brew-maintenance|$HOME/.local/bin/brew-maintenance"
   "btop/btop.conf|$HOME/.config/btop/btop.conf"
   "gh/config.yml|$HOME/.config/gh/config.yml"
 )
