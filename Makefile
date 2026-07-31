@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-#  Sergio's .dotfiles — common tasks
+#  Sergio's .dotfiles: common tasks
 #  Run `make` (or `make help`) to see available targets.
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ help: ## Show this help
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-16s\033[0m %s\n", $$1, $$2}'
 
 install: brew link ## Full setup on a new machine: install packages + symlink configs
-	@echo "✅ install complete — see post-install steps above"
+	@echo "✅ install complete. See post-install steps above"
 
 brew: ## Install all packages/apps from the Brewfile
 	brew bundle --file "$(DOTFILES)/Brewfile"
@@ -25,7 +25,7 @@ link: ## Symlink configs into ~/.config, ~/.claude, ~/.ssh, ~/.local/bin (idempo
 
 default-shell: ## Make Homebrew fish the default login shell
 	@FISH="$$(command -v fish)"; \
-	if [ -z "$$FISH" ]; then echo "fish not installed — run 'make brew' first"; exit 1; fi; \
+	if [ -z "$$FISH" ]; then echo "fish not installed. Run 'make brew' first"; exit 1; fi; \
 	grep -qxF "$$FISH" /etc/shells || (echo "$$FISH" | sudo tee -a /etc/shells >/dev/null); \
 	chsh -s "$$FISH" && echo "Default shell set to $$FISH (restart your terminal)"
 

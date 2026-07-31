@@ -52,7 +52,7 @@ function __fzf_apply_responsive_opts
         end
     end
 
-    # Ctrl+T → File picker (prefer bat; else no preview)
+    # Ctrl+T → File picker (prefer bat, else no preview)
     if type -q bat
         set -gx FZF_CTRL_T_OPTS "--preview=bat\ --style=plain\ --color=always\ --wrap=auto\ --tabs=4\ --terminal-width=\$FZF_PREVIEW_COLUMNS\ --line-range=:200\ {} \
             --preview-window=$pos \
@@ -62,7 +62,7 @@ function __fzf_apply_responsive_opts
             --bind=ctrl-/:toggle-preview,ctrl-y:preview-half-page-down,ctrl-u:preview-half-page-up"
     end
 
-    # Alt/Opt+C → Directory picker (prefer eza; else ls -la)
+    # Alt/Opt+C → Directory picker (prefer eza, else ls -la)
     if type -q eza
         set -gx FZF_ALT_C_OPTS "--preview=eza\ -lah\ --color=always\ --icons=auto\ --group\ --time-style=long-iso\ {} \
             --preview-window=$pos \

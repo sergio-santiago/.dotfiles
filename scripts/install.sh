@@ -77,7 +77,7 @@ head "🔐 Private SSH config"
 if [[ ! -e "$HOME/.ssh/config.private" ]]; then
   mkdir -p "$HOME/.ssh"
   touch "$HOME/.ssh/config.private"
-  ok "created ~/.ssh/config.private — add machine-specific hosts here"
+  ok "created ~/.ssh/config.private. Add machine-specific hosts here"
 else
   ok "~/.ssh/config.private already exists"
 fi
@@ -94,10 +94,10 @@ if command -v bat >/dev/null 2>&1; then
   else
     # A failure inside an && list is exempt from errexit, so without this branch the
     # script reaches "Done" with no cache and a zero exit status.
-    warn "bat cache could not be rebuilt — run 'bat cache --build' by hand"
+    warn "bat cache could not be rebuilt. Run 'bat cache --build' by hand"
   fi
 else
-  warn "bat not installed — run 'make brew' first, then 'bat cache --build'"
+  warn "bat not installed. Run 'make brew' first, then 'bat cache --build'"
 fi
 
 head "✅ Done"

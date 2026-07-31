@@ -38,7 +38,7 @@ for bin in "${REQUIRED[@]}"; do
   if command -v "$bin" >/dev/null 2>&1; then
     pass "$bin"
   else
-    fail "$bin not found — run 'make brew'"
+    fail "$bin not found. Run 'make brew'"
   fi
 done
 
@@ -47,7 +47,7 @@ done
 if command -v git >/dev/null 2>&1; then
   pass "git"
 else
-  fail "git not found — run 'xcode-select --install'"
+  fail "git not found. Run 'xcode-select --install'"
 fi
 
 # ── Symlinks ────────────────────────────────────────────────────────────────
@@ -67,9 +67,9 @@ for entry in "${LINKS[@]}"; do
   elif [[ -L "$dest" ]]; then
     warn "${dest/#$HOME/~} → points elsewhere ($(readlink "$dest"))"
   elif [[ -e "$dest" ]]; then
-    warn "${dest/#$HOME/~} exists but is not a symlink — run 'make link'"
+    warn "${dest/#$HOME/~} exists but is not a symlink. Run 'make link'"
   else
-    fail "${dest/#$HOME/~} missing — run 'make link'"
+    fail "${dest/#$HOME/~} missing. Run 'make link'"
   fi
 done
 
@@ -82,31 +82,31 @@ head "⚙️  Environment"
 FISH_PATH="$(command -v fish || true)"
 LOGIN_SHELL="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
 if [[ -z "$LOGIN_SHELL" ]]; then
-  warn "could not read the login shell — dscl returned nothing"
+  warn "could not read the login shell, dscl returned nothing"
 elif [[ -n "$FISH_PATH" && "$LOGIN_SHELL" == "$FISH_PATH" ]]; then
   pass "login shell is fish ($LOGIN_SHELL)"
 else
-  warn "login shell is '$LOGIN_SHELL', not fish — run 'make default-shell'"
+  warn "login shell is '$LOGIN_SHELL', not fish. Run 'make default-shell'"
 fi
 
 OP_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
 if [[ -x "$OP_SIGN" ]]; then
   pass "1Password op-ssh-sign present (commit signing)"
 else
-  warn "1Password op-ssh-sign not found — install 1Password & enable the SSH agent"
+  warn "1Password op-ssh-sign not found. Install 1Password & enable the SSH agent"
 fi
 
 if [[ -e "$HOME/.ssh/config.private" ]]; then
-  # It holds private hostnames, and install.sh promises 0600 — so report the mode
+  # It holds private hostnames, and install.sh promises 0600, so report the mode
   # rather than mere existence, or a world-readable one passes unnoticed.
   MODE="$(stat -f '%Lp' "$HOME/.ssh/config.private" 2>/dev/null)"
   if [[ "$MODE" == "600" ]]; then
     pass "~/.ssh/config.private exists (0600)"
   else
-    warn "~/.ssh/config.private is mode ${MODE:-unknown}, not 0600 — run 'make link'"
+    warn "~/.ssh/config.private is mode ${MODE:-unknown}, not 0600. Run 'make link'"
   fi
 else
-  warn "~/.ssh/config.private missing — run 'make link'"
+  warn "~/.ssh/config.private missing. Run 'make link'"
 fi
 
 # ── Spoken Claude Code replies (optional) ───────────────────────────────────
@@ -119,7 +119,7 @@ if [[ -x "$PIPER_PY" ]]; then
   if "$PIPER_PY" -c 'import piper' >/dev/null 2>&1; then
     pass "Piper installed"
   else
-    fail "venv exists but piper-tts is not in it — re-run 'make speak-setup'"
+    fail "venv exists but piper-tts is not in it. Re-run 'make speak-setup'"
   fi
   # A voice is two files: piper aborts without the sidecar .onnx.json, and the
   # download is not atomic, so half-arrived voices are a real state.
@@ -128,26 +128,26 @@ if [[ -x "$PIPER_PY" ]]; then
   shopt -u nullglob
   # The count guard is not decoration: in bash 3.2 an empty array expands to an
   # unbound variable under `set -u`, which killed this script outright on the one
-  # machine state that matters most — a venv with no voices yet.
+  # machine state that matters most, a venv with no voices yet.
   complete=0
   if ((${#models[@]} > 0)); then
     for m in "${models[@]}"; do [[ -r "$m.json" ]] && complete=$((complete + 1)); done
   fi
   if ((${#models[@]} == 0)); then
-    warn "no voice models — run 'make speak-setup'"
+    warn "no voice models. Run 'make speak-setup'"
   elif ((complete == ${#models[@]})); then
     pass "$complete voice model(s) installed"
   else
     # Report the shortfall rather than the successes: a green count next to a voice
     # that cannot speak is worse than no count at all.
-    fail "$((${#models[@]} - complete)) of ${#models[@]} voice model(s) missing their .onnx.json — re-run 'make speak-setup'"
+    fail "$((${#models[@]} - complete)) of ${#models[@]} voice model(s) missing their .onnx.json. Re-run 'make speak-setup'"
   fi
   # The Stop hook pipes every reply through python3 and swallows the failure, so
   # a broken interpreter means replies are silently never saved.
   if python3 -c 'import json, re' >/dev/null 2>&1; then
     pass "python3 can run the reply cleaner"
   else
-    fail "python3 cannot import json/re — replies will never be prepared"
+    fail "python3 cannot import json/re, replies will never be prepared"
   fi
   # Enabled is per console, so report how many consoles are currently speaking
   # rather than a single global state.
@@ -160,7 +160,7 @@ if [[ -x "$PIPER_PY" ]]; then
     pass "all consoles off ${DIM}(turn one on with 'speak on')${RESET}"
   fi
 else
-  warn "Piper not installed — run 'make speak-setup' (optional feature)"
+  warn "Piper not installed. Run 'make speak-setup' (optional feature)"
 fi
 
 # ── Summary ─────────────────────────────────────────────────────────────────

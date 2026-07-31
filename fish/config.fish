@@ -36,4 +36,4 @@
 #   ~/.dotfiles/ssh  +  1Password SSH Agent
 #
 # ==============================================================================
-# End of config.fish — all logic is delegated to conf.d/ and functions/
+# End of config.fish. All logic is delegated to conf.d/ and functions/

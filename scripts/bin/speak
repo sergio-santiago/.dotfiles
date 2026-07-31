@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ################################################################################
-# speak — read Claude Code replies out loud, when you ask for it
+# speak. Read Claude Code replies out loud, when you ask for it
 #
 #   Named `speak`, not `voice`: Claude Code's own /voice is dictation (it listens
 #   to you). This is the opposite direction, and reusing the word for both would
@@ -18,7 +18,7 @@
 #   speak test [text]     check that audio works at all
 #
 # Voice and speed are hand-edited in ~/.claude/speak.conf, which does not exist
-# until you create it — these are the built-in defaults:
+# until you create it. These are the built-in defaults:
 #   voice=es_ES-davefx-medium     any model in ~/.local/share/piper/voices
 #   speed=1.0                     <1 faster, >1 slower
 #   max_chars=11600               caps both the summary and the full text
@@ -28,7 +28,7 @@ set -uo pipefail
 
 LIB="$HOME/.claude/speak-lib.sh"
 if [[ ! -r "$LIB" ]]; then
-  echo "speak: missing $LIB — run 'make link' in ~/.dotfiles" >&2
+  echo "speak: missing $LIB. Run 'make link' in ~/.dotfiles" >&2
   exit 1
 fi
 # shellcheck source=/dev/null
@@ -44,7 +44,7 @@ fi
 
 # Confirms a state change. Not exposed as a `status` subcommand: the status line
 # already shows whether a console is on, and voice, speed and length live in a
-# hand-edited config file — there was nothing left worth asking for.
+# hand-edited config file, there was nothing left worth asking for.
 report_state() {
   if speak_is_on; then
     printf "  %s● this console is on%s\n" "$GREEN" "$RESET"
@@ -53,18 +53,18 @@ report_state() {
   fi
 
   [[ -x "$SPEAK_PIPER_PY" ]] ||
-    printf "  %s! Piper is not installed — run 'make speak-setup' in ~/.dotfiles%s\n" "$YELLOW" "$RESET"
+    printf "  %s! Piper is not installed. Run 'make speak-setup' in ~/.dotfiles%s\n" "$YELLOW" "$RESET"
 }
 
 # Read one of the saved versions of the last reply, starting now.
 #
 # Every branch says something and every branch succeeds. Three states look alike
-# from the outside and need different remedies, and "nothing saved yet — send a
+# from the outside and need different remedies, and "nothing saved yet. Send a
 # message first" is a dead end in two of them.
 say() {
   local path
   if ! speak_is_on; then
-    printf "  %s○ this console is off — turn it on first%s\n" "$DIM" "$RESET"
+    printf "  %s○ this console is off. Turn it on first%s\n" "$DIM" "$RESET"
     return 0
   fi
   path="$(speak_last_path "$1")"
@@ -72,14 +72,14 @@ say() {
     if speak_say_file "$path"; then
       printf "  %s󰕾 reading%s\n" "$GREEN" "$RESET"
     else
-      printf "  %s✗ could not speak — see ~/.claude/speak.log%s\n" "$RED" "$RESET"
+      printf "  %s✗ could not speak. See ~/.claude/speak.log%s\n" "$RED" "$RESET"
     fi
   elif [[ "$1" == .summary && -s "$(speak_last_path .txt)" ]]; then
-    printf "  %s○ that reply carried no summary — read it in full instead%s\n" "$DIM" "$RESET"
+    printf "  %s○ that reply carried no summary. Read it in full instead%s\n" "$DIM" "$RESET"
   elif [[ "$1" == .txt && -s "$(speak_last_path .summary)" ]]; then
-    printf "  %s○ that reply was all code outside its summary — read the summary instead%s\n" "$DIM" "$RESET"
+    printf "  %s○ that reply was all code outside its summary. Read the summary instead%s\n" "$DIM" "$RESET"
   else
-    printf "  %s○ nothing saved yet — send a message first%s\n" "$DIM" "$RESET"
+    printf "  %s○ nothing saved yet. Send a message first%s\n" "$DIM" "$RESET"
   fi
 }
 
@@ -89,12 +89,12 @@ say() {
 #
 # Only when nothing is attached to stdout, which is how we know we are inside
 # Claude Code. Marked unconditionally, `speak on` typed in the pane *before*
-# launching claude left a mark that swallowed the first real reply — and the
+# launching claude left a mark that swallowed the first real reply, and the
 # advice offered then, "send a message first", was the one thing that could not
 # help. The prompt hook clears any mark a turn left unconsumed, belt and braces.
 #
-# The obvious tidier idea — let the prompt hook write the mark, since it already
-# recognises these commands — does not work: measured, UserPromptSubmit does not
+# The obvious tidier idea, letting the prompt hook write the mark since it already
+# recognises these commands, does not work: measured, UserPromptSubmit does not
 # fire for `! command` bash-mode input, so on that path no hook runs at all. This
 # test is the only signal there is.
 [[ -t 1 ]] || speak_admin_mark
@@ -131,7 +131,7 @@ case "${1:-}" in
 
   test)
     if [[ ! -x "$SPEAK_PIPER_PY" ]]; then
-      printf "  %s✗ Piper is not installed — run 'make speak-setup'%s\n" "$RED" "$RESET"
+      printf "  %s✗ Piper is not installed. Run 'make speak-setup'%s\n" "$RED" "$RESET"
       exit 0
     fi
     tmp="$(mktemp -t claude-speak-test)" || exit 0
@@ -141,7 +141,7 @@ case "${1:-}" in
     if speak_say_file "$tmp"; then
       printf "  %s󰕾 speaking%s\n" "$GREEN" "$RESET"
     else
-      printf "  %s✗ could not speak — see ~/.claude/speak.log%s\n" "$RED" "$RESET"
+      printf "  %s✗ could not speak. See ~/.claude/speak.log%s\n" "$RED" "$RESET"
     fi
     rm -f "$tmp"   # speak_say_file already took its own copy
     ;;
@@ -154,7 +154,7 @@ case "${1:-}" in
     # Exit 0, like every other branch: a non-zero status makes Claude Code abort
     # the turn with a red "shell command failed" and swallow the line below, so a
     # typo would hide the very message that corrects it. Only failing to load the
-    # library is worth an error — nothing works at all after that.
+    # library is worth an error, nothing works at all after that.
     echo "  usage: speak [on|off|summary|full|stop|test <text>]"
     ;;
 esac

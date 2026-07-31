@@ -1,7 +1,7 @@
 # --- Taps ---
 # Homebrew will not load a formula from a tap it does not trust. The two entries
 # from these taps carry `trusted: true` below, which grants that trust as they are
-# installed — so `brew bundle` works on a new machine with nothing done by hand.
+# installed, so `brew bundle` works on a new machine with nothing done by hand.
 # The trust is per entry and needs the tap-qualified name to apply.
 tap "hamed-elfayome/claude-usage" # Claude API usage tracking
 tap "hashicorp/tap"             # HashiCorp tools (provides 'terraform')

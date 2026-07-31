@@ -8,13 +8,13 @@ allowed-tools: Bash(speak) Bash(speak *)
 
 # Spoken replies
 
-The command below already ran — its output is the result:
+The command below already ran. Its output is the result:
 
 !`speak $ARGUMENTS`
 
-Answer in **one short line** and nothing else — no explanation, no next steps, no
+Answer in **one short line** and nothing else. No explanation, no next steps, no
 lists.
 
-The user cannot see the command output above; only your line reaches the screen,
+The user cannot see the command output above, only your line reaches the screen,
 so state the outcome: now on, now off, reading, or nothing to read. If the output
 reports a problem, such as Piper missing, say that instead.

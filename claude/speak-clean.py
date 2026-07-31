@@ -24,7 +24,7 @@ import re
 import sys
 
 # The spoken block is the *last* one that starts a line. Anchored, because prose
-# discussing this feature quotes the tag; last, because the hook asks for it at
+# discussing this feature quotes the tag, and last because the hook asks for it at
 # the end of the reply. First-wins let a quoted example hijack the summary.
 SPOKEN = re.compile(
     r"(?:\A|\n)[ \t]*<speak>(?![\s\S]*\n[ \t]*<speak>)([\s\S]*?)(?:</speak>|\Z)"
@@ -47,7 +47,7 @@ CODE_SPAN_MAX = 30   # past this an inline span is a blob, not a word
 
 
 def unfenced(text: str) -> str:
-    """Drop paired code blocks — before anything else looks at the text.
+    """Drop paired code blocks, before anything else looks at the text.
 
     A <speak> example inside a fence must not be mistaken for the real block,
     which is why this runs first rather than inside readable().
@@ -59,8 +59,8 @@ def unfenced(text: str) -> str:
 def undangled(text: str) -> str:
     """A fence with no closing partner swallows the rest of the reply.
 
-    An odd number of fences is ordinary — one inside a bullet, or a reply cut
-    short — and the leftover opener would otherwise leave every following line to
+    An odd number of fences is ordinary, one inside a bullet or a reply cut
+    short, and the leftover opener would otherwise leave every following line to
     be read out as prose ("hash bang slash usr slash bin…"). Losing the tail is
     the lesser loss. Runs after the summary has been taken, so a spoken block
     sitting past the stray fence still survives.
@@ -69,7 +69,7 @@ def undangled(text: str) -> str:
 
 
 def spoken_code(match: "re.Match[str]") -> str:
-    """Keep inline code that reads as a word; say paths the way a person would.
+    """Keep inline code that reads as a word, and say paths the way a person would.
 
     Deleting paths outright leaves sentences dangling mid-clause ("I edited
     and then…"), so `claude/speak-lib.sh` becomes "speak lib". Every span goes
@@ -89,7 +89,7 @@ def spoken_code(match: "re.Match[str]") -> str:
 
 
 def readable(text: str) -> str:
-    """Strip markup and paths — whatever a voice cannot convey.
+    """Strip markup and paths, whatever a voice cannot convey.
 
     Expects fenced code to be gone already (see unfenced).
     """
@@ -149,8 +149,8 @@ def main() -> int:
     if not isinstance(data, dict):
         data = {}
 
-    # Subagents finish their own turns; only the main conversation is narrated,
-    # and the main console's files are not theirs to clear — hence the early
+    # Subagents finish their own turns, and only the main conversation is narrated,
+    # and the main console's files are not theirs to clear, hence the early
     # return, before clear() below.
     #
     # Keyed on agent_id and NOT on agent_type: a session started with
@@ -169,7 +169,7 @@ def main() -> int:
     match = SPOKEN.search(body)
 
     # The summary is cleaned and capped like the full text. It is the version
-    # played most often, and an unclosed tag makes it swallow the entire reply —
+    # played most often, and an unclosed tag makes it swallow the entire reply,
     # half an hour of audio where a few seconds were meant.
     full = trim(readable(undangled(body)), limit)
     summary = trim(readable(match.group(1)), limit) if match else ""

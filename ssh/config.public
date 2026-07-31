@@ -1,4 +1,4 @@
-# Public SSH config — safe to version in git
+# Public SSH config: safe to version in git
 # This file is included from ~/.ssh/config (via symlink)
 
 # Route all SSH connections through 1Password's agent

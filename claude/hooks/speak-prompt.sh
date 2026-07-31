@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 ################################################################################
-# Claude Code — ask for a spoken summary (UserPromptSubmit hook)
+# Claude Code: ask for a spoken summary (UserPromptSubmit hook)
 #
 # Description:
 #   While this console is on, asks Claude to close each reply with a short
 #   <speak>…</speak> line written to be *heard*, so there is something worth
 #   listening to when you ask for it. Keeping the instruction in a hook rather
-#   than in CLAUDE.md means it disappears the moment you run `speak off` — no
+#   than in CLAUDE.md means it disappears the moment you run `speak off`. No
 #   stray summaries in replies you are only going to read.
 #
 #   Also stops playback: sending a new message means you are done listening.
@@ -24,13 +24,13 @@ prompt="$(printf '%s' "$payload" | jq -r '.prompt // ""' 2>/dev/null)"
 
 # A turn that asks for a reading must not cancel one, so this runs *before* the
 # silencing below. DO NOT REORDER: the other way round kills the playback that this
-# very turn's command just started, and the symptom — silence, with a half-written
-# wav — looks like an external process killing Piper rather than us doing it.
+# very turn's command just started, and the symptom, silence with a half-written
+# wav, looks like an external process killing Piper rather than us doing it.
 #
 # A leading `!` and any spaces after it are stripped so the bash-mode form is
 # recognised too. The subcommands are matched whole and not as prefixes: none of
 # them takes an argument, and a prefix glob would swallow an ordinary sentence that
-# merely opens with the word — "speak only in English please" is a prompt, and
+# merely opens with the word. "speak only in English please" is a prompt, and
 # treating it as a command left the turn with no instruction and nothing silenced.
 bare="${prompt#!}"
 while [[ "$bare" == ' '* ]]; do bare="${bare# }"; done
@@ -54,7 +54,7 @@ speak_is_on || exit 0
 # back and offer to read it aloud. The Stop hook independently skips saving them.
 
 # The instruction names where the block belongs because Claude Code generates other
-# text from the same context — the end-of-turn recap most visibly — and that text
+# text from the same context, the end-of-turn recap most visibly, and that text
 # reaches the screen without passing through MessageDisplay, which fires only on
 # assistant message deltas. A block written there cannot be rendered as an icon and
 # shows as raw tags. Harmless otherwise: the reading comes from the Stop hook's

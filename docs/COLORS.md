@@ -63,7 +63,7 @@ ANSI bright variants (slots 8-15):
 ## 🔧 Configuration by Tool
 
 ### Starship Prompt
-The 9 core colors Starship declares — it has no pink. Config: `starship/starship.toml`
+The 9 core colors Starship declares. It has no pink. Config: `starship/starship.toml`
 
 - **black** = `#000000`
 - **white** = `#ffffff`
@@ -95,7 +95,7 @@ readonly COLOR_RESET=$'\033[0m'
 literal backslash, which prints as escape text.
 
 Five of these are the core palette in RGB. Four are the statusline's own, outside the
-28: the clock's purple `#BD93F9`, the deleted-lines red `#FF5555` and the two greys —
+28: the clock's purple `#BD93F9`, the deleted-lines red `#FF5555` and the two greys are
 Dracula values kept because they read better against a pure black terminal.
 
 **Gradient bar colors** (green → yellow → orange → red):
@@ -162,9 +162,9 @@ All ANSI colors + UI elements. Config: `iterm/com.googlecode.iterm2.plist` (prof
 | Cursor Guide | `#7FFFD4` | Cyan | 25% |
 | Badge | `#FF4D4D` | Red | 50% |
 | Underline | `#FF6CD4` | Pink | 100% |
-| Match Background | `#FFFF00` | — | 100% |
+| Match Background | `#FFFF00` | n/a | 100% |
 
-Match Background is pure yellow and the one UI element outside the 28-color palette;
+Match Background is pure yellow and the one UI element outside the 28-color palette,
 the palette's yellow is `#FFEC99`. Changing it means editing the plist and
 re-importing the profile.
 
@@ -222,16 +222,16 @@ and `#737994`)
 
 ### Same meaning, same color
 
-- **Errors** → Red `#FF4D4D` — bat, micro, fish
+- **Errors** → Red `#FF4D4D`: bat, micro, fish
 - **Success** → Green `#44F373`
 - **Functions / identifiers** → Blue `#68D5FF`
-- **Git branch** → Yellow `#FFEC99` — statusline
+- **Git branch** → Yellow `#FFEC99`: statusline
 - **Types** → Purple `#C6A7FF` / Mauve `#CCA5FF`
 - **Numbers** → Orange `#FFB86C`
-- **Strings** → Deep Blue `#0066FF` — bat and micro, and iTerm2's links: a darker,
+- **Strings** → Deep Blue `#0066FF`, in bat and micro and iTerm2's links. A darker,
   more saturated blue that separates literal content from active code
-- **Selection** → Purple `#C6A7FF` background — micro, fish, iTerm2
-- **UI backgrounds** → UI Dark `#24273A` — bat and micro
+- **Selection** → Purple `#C6A7FF` background: micro, fish, iTerm2
+- **UI backgrounds** → UI Dark `#24273A`: bat and micro
 
 Three places diverge on purpose, and are documented above where they occur: fish paints
 operators soft green `#5EFC94` rather than pink, FZF's selected background is UI Dark

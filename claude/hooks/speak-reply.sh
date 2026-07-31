@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 ################################################################################
-# Claude Code — prepare the reply for listening (Stop hook)
+# Claude Code: prepare the reply for listening (Stop hook)
 #
 # Description:
 #   Nothing is ever read automatically. When this console is on, the reply is
-#   cleaned and saved so it is ready to be read — you decide, with the answer
+#   cleaned and saved so it is ready to be read. You decide, with the answer
 #   already in front of you, whether it is worth hearing.
 #
 #   Saved files are overwritten each turn, so nothing accumulates.
@@ -38,7 +38,7 @@ err="$(printf '%s' "$payload" |
 status=$?
 
 # 0 saved it, 3 means there was nothing worth saving. Anything else is a real
-# failure — a bad max_chars, a missing interpreter — and must not pass unnoticed
+# failure, a bad max_chars or a missing interpreter, and must not pass unnoticed
 # while the status line goes on promising a reading.
 case "$status" in
     0 | 3) ;;

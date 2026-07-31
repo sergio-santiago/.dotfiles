@@ -7,7 +7,7 @@
 #   across several tools (docs/COLORS.md is the source of truth). Flags the most
 #   likely drift: a core color whose hex no longer matches the canonical
 #   Starship palette, or a stale "total unique colors" count in COLORS.md.
-#   Intentionally shallow — green means "no obvious drift", not a formal proof.
+#   Intentionally shallow: green means "no obvious drift", not a formal proof.
 #
 # Usage:
 #   ./scripts/colors-check.sh   |   make colors-check
@@ -65,7 +65,7 @@ else
   # Without this the whole comparison is skipped in silence and the summary below
   # still reports no drift, which is the one answer this script must never give
   # when it has checked nothing.
-  warn "starship.toml not found — the palette could not be checked"
+  warn "starship.toml not found, the palette could not be checked"
 fi
 
 head "🔢 Color count in COLORS.md"
@@ -73,7 +73,7 @@ if [[ -f "$COLORS_DOC" ]]; then
   if grep -qiE "Total unique colors:\**\s*28" "$COLORS_DOC"; then
     pass "COLORS.md still declares 28 unique colors"
   else
-    warn "COLORS.md 'Total unique colors' is not 28 — update the count or the audit"
+    warn "COLORS.md 'Total unique colors' is not 28. Update the count or the audit"
   fi
 else
   warn "docs/COLORS.md not found"
@@ -83,5 +83,5 @@ head "📋 Summary"
 if [[ "$ISSUES" -eq 0 ]]; then
   printf "  %sNo obvious palette drift detected.%s\n" "$GREEN" "$RESET"
 else
-  printf "  %s%d potential issue(s) — review against docs/COLORS.md.%s\n" "$YELLOW" "$ISSUES" "$RESET"
+  printf "  %s%d potential issue(s). Review against docs/COLORS.md.%s\n" "$YELLOW" "$ISSUES" "$RESET"
 fi

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ################################################################################
-# Claude Code — pretty-print the spoken block (MessageDisplay hook)
+# Claude Code: pretty-print the spoken block (MessageDisplay hook)
 #
 # Description:
 #   Turns the raw <speak>…</speak> markers into a quiet one-liner prefixed with a
@@ -9,14 +9,14 @@
 #
 #   MessageDisplay is display-only: the transcript keeps the original text, which
 #   is what the Stop hook reads. Text arrives in `delta` chunks, so each tag is
-#   rewritten independently rather than as a pair — a block split mid-stream
+#   rewritten independently rather than as a pair, so a block split mid-stream
 #   still renders correctly. The opening tag only matches at the start of a line, so
 #   prose mentioning it mid-sentence is left alone. The closing tag is not anchored
 #   and is rewritten wherever it appears: a chunk cannot know whether an opening tag
 #   arrived in an earlier one, so anchoring it would drop the hint from real blocks.
 #
 #   Blank space on either side of a tag is swallowed, so a block whose tags sit on
-#   lines of their own still renders as one unit — icon and first word together —
+#   lines of their own still renders as one unit, icon and first word together,
 #   while blank lines inside it survive.
 #
 #   A closing tag that *starts* its chunk gets the tight hint, without a line break:

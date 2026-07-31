@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 ################################################################################
-# The symlink map — single source of truth
+# The symlink map: single source of truth
 #
 # Description:
 #   Sourced by scripts/install.sh, which creates these links, and by
 #   scripts/doctor.sh, which verifies them. One map read by both, so what gets
-#   created and what gets checked cannot disagree — a copy in each would drift,
+#   created and what gets checked cannot disagree, since a copy in each would drift
 #   and a doctor that checks a shorter list reports all-green over a gap.
 #
 #   Format: "<path relative to the repo>|<absolute destination>"
 #
-#   Not executable on its own — it only declares the array.
+#   Not executable on its own, it only declares the array.
 ################################################################################
 
 LINKS=(

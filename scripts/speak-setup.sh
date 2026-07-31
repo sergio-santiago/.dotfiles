@@ -1,12 +1,12 @@
 #!/bin/bash
 ################################################################################
-# Spoken Claude Code replies — setup
+# Spoken Claude Code replies: setup
 #
 # Description:
 #   Installs Piper (a local neural text-to-speech engine) into its own venv and
 #   downloads the Spanish voices, so Claude Code can read its replies out loud.
 #   Everything runs offline and free: no API keys, no quotas, no network at
-#   speaking time. Idempotent — re-run it any time, it only does what's missing.
+#   speaking time. Idempotent. Re-run it any time, it only does what's missing.
 #
 #   The voices live outside the repo (~/.local/share/piper, ~140 MB of models)
 #   because model blobs have no business in version control.
@@ -39,7 +39,7 @@ if [[ -x "$VENV/bin/python" ]]; then
   ok "${VENV/#$HOME/~} ${DIM}(already exists)${RESET}"
 else
   command -v python3 >/dev/null 2>&1 || {
-    warn "python3 not found — install it first (pyenv is in the Brewfile)"
+    warn "python3 not found. Install it first (pyenv is in the Brewfile)"
     exit 1
   }
   mkdir -p "$PIPER_HOME"
@@ -68,7 +68,7 @@ for model in "${MODELS[@]}"; do
   else
     # Braces are load-bearing: bash 3.2 swallows the first byte of the following
     # multibyte character into the variable name, so "$model…" aborts the script
-    # under `set -u` with "model\xe2: unbound variable" — and this is the only
+    # under `set -u` with "model\xe2: unbound variable", and this is the only
     # path that ever downloads anything.
     info "downloading ${model}…"
     if err="$("$VENV/bin/python" -m piper.download_voices \
@@ -77,7 +77,7 @@ for model in "${MODELS[@]}"; do
     else
       # Not fatal, and not silent: a 404 or a dropped connection on one voice must
       # neither hide itself nor stop the other one from being fetched.
-      warn "could not download $model — ${err:-no output from piper}"
+      warn "could not download $model: ${err:-no output from piper}"
     fi
   fi
 done

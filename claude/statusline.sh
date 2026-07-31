@@ -451,7 +451,7 @@ def vwidth(s: str) -> int:
         cp = ord(ch)
         if cp < 0x20:
             continue
-        # Nerd Fonts BMP PUA + Supplementary PUA — single-cell in Nerd Fonts
+        # Nerd Fonts BMP PUA + Supplementary PUA, single-cell in Nerd Fonts
         if 0xE000 <= cp <= 0xF8FF or 0xF0000 <= cp <= 0x10FFFD:
             w += 1
             continue
@@ -481,7 +481,7 @@ rmax = max(rw) if rw else 0
 LEFT_LPAD, LEFT_RPAD  = 3, 1
 RIGHT_LPAD, RIGHT_RPAD = 1, 1
 
-# Visual trim for the separator line — terminal renders box-drawing chars
+# Visual trim for the separator line, because the terminal renders box-drawing chars
 # slightly wider than the cell padding suggests, so shave a few chars off
 # the dashes to land the ┬/┴ underneath the content's │.
 LEFT_SEP_TRIM = 3

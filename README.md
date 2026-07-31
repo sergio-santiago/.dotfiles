@@ -1,4 +1,4 @@
-# 🛠️ Sergio’s .dotfiles — macOS Fish Shell Environment
+# 🛠️ Sergio’s .dotfiles: macOS Fish Shell Environment
 
 This repository contains my personal macOS development environment configuration, with a focus on:
 
@@ -55,8 +55,8 @@ This repository contains my personal macOS development environment configuration
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
     - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks, skills and settings all tracked in
       `.dotfiles/claude/`, with a custom `statusline.sh`.
-    - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS —
-      offline, free, one switch per terminal. See [Spoken Claude Code replies](#-spoken-claude-code-replies).
+    - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS.
+      Offline, free, one switch per terminal. See [Spoken Claude Code replies](#-spoken-claude-code-replies).
 - 📊 **btop**
     - Modern system resource monitor with custom configuration.
     - Truecolor support, braille graphs, rounded corners, and transparent background.
@@ -97,7 +97,7 @@ This repository contains my personal macOS development environment configuration
 ### Repository layout & symlink map
 
 Configs live in this repo and are symlinked into their expected locations (`make link`).
-`git/config-personal` and `git/config-tribbu` are **not** symlinked — they are pulled in by
+`git/config-personal` and `git/config-tribbu` are **not** symlinked. They are pulled in by
 `git/config` via absolute `includeIf` paths.
 
 ```mermaid
@@ -144,7 +144,7 @@ and `doctor.sh` so that what gets created and what gets verified cannot drift ap
 
 `iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
 plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
-custom folder** instead — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles).
+custom folder** instead. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles).
 
 ### Fish load order (`conf.d/`)
 
@@ -187,7 +187,7 @@ flowchart LR
 
 ### Git identity resolution
 
-A commit's author email is chosen by where the repository lives; the name and signing key
+A commit's author email is chosen by where the repository lives. The name and signing key
 are always inherited from the base identity.
 
 ```mermaid
@@ -216,7 +216,7 @@ make default-shell    # set fish as the default login shell
 make doctor           # verify tools, symlinks and environment
 ```
 
-Then finish the [manual steps](#-manual-steps-not-automatable) — the handful of things no script can
+Then finish the [manual steps](#-manual-steps-not-automatable), the handful of things no script can
 do for you, starting with the apps Homebrew does not manage.
 The sections below explain each piece in detail.
 
@@ -224,7 +224,7 @@ The sections below explain each piece in detail.
 
 | Target | What it does |
 |--------|--------------|
-| `make install` | `brew` + `link` — full setup on a new machine |
+| `make install` | `brew` + `link`, full setup on a new machine |
 | `make brew` | Install all packages/apps from the `Brewfile` |
 | `make link` | Symlink configs into `~/.config`, `~/.claude`, `~/.ssh`, `~/.local/bin` (idempotent, backs up existing files) |
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
@@ -257,36 +257,36 @@ brew bundle --file ~/.dotfiles/Brewfile
 This will install:
 
 #### 🔖 Taps
-- **hamed-elfayome/claude-usage** — Claude API usage tracking
-- **hashicorp/tap** — HashiCorp tools (provides `terraform`)
+- **hamed-elfayome/claude-usage**: Claude API usage tracking
+- **hashicorp/tap**: HashiCorp tools (provides `terraform`)
 
 #### 🛠️ CLI tools
-- **bat** — `cat` clone with syntax highlighting
-- **btop** — modern system resource monitor
-- **eza** — improved `ls` with colors and icons
-- **fd** — fast and user-friendly alternative to `find`
-- **fish** — friendly interactive shell
-- **fnm** — fast Node.js version manager
-- **fzf** — fuzzy finder for the terminal
-- **gh** — GitHub CLI tool
-- **jq** — JSON processor for command line
-- **lolcat** — rainbow coloring for terminal output
-- **micro** — lightweight terminal text editor
-- **mole** — deep clean and optimize macOS
-- **node** — JavaScript runtime
-- **poppler** — PDF rendering library
-- **pyenv** — manage multiple Python versions
-- **starship** — fast and customizable prompt
-- **terraform** — infrastructure as code tool
-- **zoxide** — smarter `cd` command with jump history
+- **bat**: `cat` clone with syntax highlighting
+- **btop**: modern system resource monitor
+- **eza**: improved `ls` with colors and icons
+- **fd**: fast and user-friendly alternative to `find`
+- **fish**: friendly interactive shell
+- **fnm**: fast Node.js version manager
+- **fzf**: fuzzy finder for the terminal
+- **gh**: GitHub CLI tool
+- **jq**: JSON processor for command line
+- **lolcat**: rainbow coloring for terminal output
+- **micro**: lightweight terminal text editor
+- **mole**: deep clean and optimize macOS
+- **node**: JavaScript runtime
+- **poppler**: PDF rendering library
+- **pyenv**: manage multiple Python versions
+- **starship**: fast and customizable prompt
+- **terraform**: infrastructure as code tool
+- **zoxide**: smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
-- **Claude Usage Tracker** — Claude API usage dashboard
-- **Finicky** — control which browser/profile opens links
-- **Fira Code Nerd Font** — a developer-friendly font with ligatures and Nerd Font icons
-- **Google Cloud CLI** — `gcloud` command-line interface
-- **iTerm2** — terminal emulator for macOS
-- **Thaw** — menu bar manager for macOS
+- **Claude Usage Tracker**: Claude API usage dashboard
+- **Finicky**: control which browser/profile opens links
+- **Fira Code Nerd Font**: a developer-friendly font with ligatures and Nerd Font icons
+- **Google Cloud CLI**: `gcloud` command-line interface
+- **iTerm2**: terminal emulator for macOS
+- **Thaw**: menu bar manager for macOS
 
 > 🔄️ Keeping Homebrew current is a deliberate step: run `brew-maintenance`
 > (or `bm`), the fish function in `conf.d/08-aliases.fish` that chains `update`, `upgrade`,
@@ -382,7 +382,7 @@ mkdir -p ~/.config/gh
 ln -sfh ~/.dotfiles/gh/config.yml ~/.config/gh/config.yml
 ```
 
-> ⚠️ **Note:** Manual symlinks overwrite existing files with no backup — `make link` is safer.
+> ⚠️ **Note:** Manual symlinks overwrite existing files with no backup. `make link` is safer.
 
 </details>
 
@@ -437,14 +437,14 @@ A few things can't be symlinked and must be done by hand on a new machine:
 2. **Install Google Chrome.** `finicky/finicky.ts` names it as the default browser and routes Meet
    links to the **Tribbu** profile, so link routing does nothing useful without it. Also outside
    Homebrew, and the profile itself has to be signed in by hand.
-3. **Load iTerm2 preferences** — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
+3. **Load iTerm2 preferences**. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
 4. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
-   `0600` file for you) — see [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
+   `0600` file for you). See [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
 5. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
    `slack@claude-plugins-official`, but the plugin itself is cached under `~/.claude/plugins/` and is
    not part of this repo. Run `/plugin` in Claude Code to install it, then authenticate.
 6. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
-   through Context7, and that rule *is* symlinked — so without the server a new machine gets an
+   through Context7, and that rule *is* symlinked, so without the server a new machine gets an
    instruction pointing at a tool that isn't there. MCP servers live in `~/.claude.json`, outside the
    repo: add it with `claude mcp add`.
 
@@ -455,22 +455,22 @@ A few things can't be symlinked and must be done by hand on a new machine:
 The Fish shell configuration is fully modular and follows a numbered loading order:
 
 #### conf.d/ files (autoloaded in order):
-- `00-xdg_redirects.fish` — XDG base directories
-- `01-local-bin.fish` — Local user binaries PATH
-- `02-homebrew.fish` — Homebrew environment
-- `03-pyenv.fish` — Python version management
-- `04-fnm.fish` — Node.js version management
-- `05-fzf.fish` — Fuzzy finder with fd, bat, eza integration
-- `06-bat.fish` — Bat (cat replacement) configuration
-- `07-zoxide.fish` — Smart directory jumper
-- `08-aliases.fish` — Command aliases and helper functions
-- `09-theme.fish` — linked_data_dark_rainbow color theme
-- `10-starship.fish` — Starship prompt initialization
-- `99-rainbow_separator.fish` — Rainbow command separator
+- `00-xdg_redirects.fish`: XDG base directories
+- `01-local-bin.fish`: Local user binaries PATH
+- `02-homebrew.fish`: Homebrew environment
+- `03-pyenv.fish`: Python version management
+- `04-fnm.fish`: Node.js version management
+- `05-fzf.fish`: Fuzzy finder with fd, bat, eza integration
+- `06-bat.fish`: Bat (cat replacement) configuration
+- `07-zoxide.fish`: Smart directory jumper
+- `08-aliases.fish`: Command aliases and helper functions
+- `09-theme.fish`: linked_data_dark_rainbow color theme
+- `10-starship.fish`: Starship prompt initialization
+- `99-rainbow_separator.fish`: Rainbow command separator
 
 #### functions/ directory:
-- `fish_greeting.fish` — Compact welcome banner with lolcat rainbow
-- `fish_user_key_bindings.fish` — Custom key bindings
+- `fish_greeting.fish`: Compact welcome banner with lolcat rainbow
+- `fish_user_key_bindings.fish`: Custom key bindings
 
 ---
 
@@ -503,7 +503,7 @@ To keep personal hosts out of version control:
    ```
 
 2. `~/.ssh/config.private` holds your private/machine-specific hosts. `make link` creates it
-   automatically as an empty `0600` file; to create it by hand instead:
+   automatically as an empty `0600` file. To create it by hand instead:
 
    ```bash
    touch ~/.ssh/config.private
@@ -539,7 +539,7 @@ preferences are exported and tracked here:
 ---
 ### 🔊 Spoken Claude Code replies
 
-Dictating prompts is only half of a hands-free loop — this reads the answers back, out loud, through
+Dictating prompts is only half of a hands-free loop. This reads the answers back, out loud, through
 **[Piper](https://github.com/OHF-Voice/piper1-gpl)**: a neural TTS engine that runs on the machine.
 Offline, free, unlimited, no API key.
 
@@ -550,7 +550,7 @@ make speak-setup     # one-off: ~130 MB of voices + ~170 MB of venv, outside the
 
 **Nothing is ever read automatically.** When a console is on, each reply is cleaned and kept ready,
 and the two commands appear under its spoken block. You skim the answer and decide whether it is
-worth hearing — no audio you did not ask for, and no deciding in advance what "reading" should mean.
+worth hearing. No audio you did not ask for, and no deciding in advance what "reading" should mean.
 
 #### One switch per console
 
@@ -558,7 +558,7 @@ With several sessions open, a global switch is unusable: one console reading alo
 into another means the mic picks up the synthetic voice and your prompt comes out garbled. So each
 terminal tab decides for itself, and the status line shows which:
 
-A speaker icon appears in the status line while a console is on — replies prepared, commands offered. Off shows
+A speaker icon appears in the status line while a console is on: replies prepared, commands offered. Off shows
 nothing at all: the indicator is there to flag the exception, and off is the rule.
 
 Off by default in every new console. The switch is keyed on the iTerm2 pane UUID, so restarting
@@ -566,9 +566,9 @@ Off by default in every new console. The switch is keyed on the iTerm2 pane UUID
 
 #### Commands
 
-`/speak` from the Claude Code prompt, or `speak` from a terminal — same thing. It is a plain
+`/speak` from the Claude Code prompt, or `speak` from a terminal. Same thing. It is a plain
 executable rather than a fish function precisely so `! speak …` works from inside Claude Code, where
-`!` runs under bash. Both forms read aloud immediately; `! speak summary` also puts the command's own
+`!` runs under bash. Both forms read aloud immediately, and `! speak summary` also puts the command's own
 confirmation on screen instead of a line written by Claude.
 
 | Command | What it does |
@@ -582,31 +582,31 @@ confirmation on screen instead of a line written by Claude.
 
 The skill runs `` !`speak $ARGUMENTS` `` *before* the prompt reaches Claude, so the action happens
 immediately and only a one-line confirmation comes back. `disable-model-invocation: true` keeps it
-user-only — Claude cannot decide to start talking on its own.
+user-only. Claude cannot decide to start talking on its own.
 
-> **Not named `voice`**: Claude Code's built-in `/voice` is dictation — it *listens*. This is the
+> **Not named `voice`**: Claude Code's built-in `/voice` is dictation: it *listens*. This is the
 > opposite direction, and reusing the word for both would be a coin flip every time.
 
 Voice, speed and how much of a reply is read are global taste, hand-edited in `~/.claude/speak.conf`:
 
 ```ini
-voice=es_ES-davefx-medium     # or es_ES-sharvard-medium; see ~/.local/share/piper/voices
+voice=es_ES-davefx-medium     # or es_ES-sharvard-medium, see ~/.local/share/piper/voices
 speed=1.0                     # <1 faster, >1 slower
-max_chars=11600               # optional; caps both the summary and the full text
+max_chars=11600               # optional, caps both the summary and the full text
 ```
 
-The file does not exist until you create it — the defaults above are the built-in ones. `speed` and
+The file does not exist until you create it. The defaults above are the built-in ones. `speed` and
 `max_chars` are validated before use, so a typo falls back to the default instead of quietly breaking
 the hook.
 
 #### Summary or the whole reply
 
-Both are prepared for every reply, and both strip code, tables, links, paths and markup — whatever a
+Both are prepared for every reply, and both strip code, tables, links, paths and markup, whatever a
 voice cannot convey. The difference is length:
 
 - **`summary`** is a closing line Claude writes *to be heard*, about twenty seconds. It exists because
   a reply adapted from prose never sounds as good as one written for the ear.
-- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (11 600 chars — the default
+- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (11 600 chars, the default
   voice reads 19.4 chars/s, measured) so a runaway reply cannot hold the speaker hostage.
 
 In `full`, inline paths become the name a person would say (`claude/speak-lib.sh` → "speak lib")
@@ -644,18 +644,18 @@ flowchart LR
     lib -.-> cmd
 ```
 
-- **`speak-prompt.sh`** asks Claude for the `<speak>` line, and stops playback — sending a message
+- **`speak-prompt.sh`** asks Claude for the `<speak>` line, and stops playback. Sending a message
   means you are done listening. Because the instruction lives in a hook and not in `CLAUDE.md`, it
   vanishes the moment you run `speak off`. It bails out early on a prompt that *is* a `speak` command,
-  **before** silencing anything — a turn asking for a reading must not cancel the one its own command
-  just started. That order matters; the two lines are commented in the hook for a reason.
+  **before** silencing anything, because a turn asking for a reading must not cancel the one its own command
+  just started. That order matters, and the two lines are commented in the hook for a reason.
 - **`speak-display.sh`** rewrites the raw tags on screen into a grey speaker icon with grey italic text, and
   puts the two commands at the end of a `╰──▸` that descends from the icon's own column. `MessageDisplay` is
-  display-only, so the transcript keeps the real tags — which is what the Stop hook reads. Text
+  display-only, so the transcript keeps the real tags, which is what the Stop hook reads. Text
   arrives in `delta` chunks, so each tag is rewritten independently rather than as a pair: a block
   split mid-stream still renders. The opening tag only matches at the start of a line, so prose
-  mentioning it mid-sentence is left alone; a closing tag is rewritten wherever it appears, which is
-  the price of that independence — a chunk cannot know whether an opening tag arrived in an earlier
+  mentioning it mid-sentence is left alone, while a closing tag is rewritten wherever it appears, which is
+  the price of that independence, because a chunk cannot know whether an opening tag arrived in an earlier
   one. One newline either side of a tag is swallowed with the surrounding blanks, so tags written on
   lines of their own still render as a single unit.
 
@@ -668,7 +668,7 @@ flowchart LR
   audio: the command returns immediately and Piper keeps going.
 
 Playback is identified by the temp file it was handed, console id included, so `speak stop` in one
-pane cannot silence another. Starting a *new* reading does stop every other one — there is only one
+pane cannot silence another. Starting a *new* reading does stop every other one, because there is only one
 pair of speakers.
 
 The cleaning lives in its own Python file rather than a heredoc inside the hook: embedded Python
