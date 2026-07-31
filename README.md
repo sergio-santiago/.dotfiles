@@ -657,9 +657,9 @@ pair of speakers.
 > a reading. The queue also meant waiting for the whole model turn to end before hearing anything,
 > most of a minute for nothing. Fixing the order removed a hook, a state file and four helpers.
 
-The cleaning lives in its own Python file rather than a heredoc inside the hook: a heredoc in a shell
-script cannot contain an apostrophe without breaking the script, and logic this fiddly is worth being
-able to run and test on its own.
+The cleaning lives in its own Python file rather than a heredoc inside the hook: embedded Python
+cannot be compiled, linted or run on its own, and turning prose into speech is fiddly enough to be
+worth exercising directly against real payloads.
 
 Synthesis takes about a second per sentence. `make doctor` reports whether Piper, the models, the
 Python the cleaner needs and the per-console switches are all in place.

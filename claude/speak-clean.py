@@ -13,9 +13,9 @@ Exit codes:  0 wrote something · 3 nothing worth saving · 1-2 something broke.
 The hook logs anything that is neither 0 nor 3, so a bad config cannot stop
 replies being saved with nothing to show for it.
 
-Lives in its own file rather than inside the hook: a heredoc in the middle of a
-shell script cannot contain an apostrophe without breaking the script, and code
-this fiddly is worth being able to run on its own.
+Lives in its own file rather than in a heredoc inside the hook: embedded Python
+cannot be compiled, linted or run on its own, and text mangling this fiddly is
+worth exercising directly against real payloads.
 """
 
 import json
