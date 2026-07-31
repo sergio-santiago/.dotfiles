@@ -23,9 +23,9 @@ payload="$(cat)"
 prompt="$(printf '%s' "$payload" | jq -r '.prompt // ""' 2>/dev/null)"
 
 # A turn that asks for a reading must not cancel one, so this runs *before* the
-# silencing below. The other order kills the playback the turn's own command just
-# started, and the silence looks exactly like Claude Code tearing down the process
-# tree — a wrong diagnosis that cost a whole queue. Do not reorder these.
+# silencing below. DO NOT REORDER: the other way round kills the playback that this
+# very turn's command just started, and the symptom — silence, with a half-written
+# wav — looks like an external process killing Piper rather than us doing it.
 #
 # A leading `!` and any spaces after it are stripped so the bash-mode form is
 # recognised too, and a subcommand is required so an ordinary sentence starting

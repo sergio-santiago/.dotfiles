@@ -279,9 +279,12 @@ This will install:
 - **iTerm2** — terminal emulator for macOS
 - **Thaw** — menu bar manager for macOS
 
-> 🔄️ You can enable automatic updates for Homebrew itself, formulas, and casks with:  
-> `brew autoupdate start 86400 --upgrade --cleanup --immediate --ac-only`  
-> (runs daily, cleans old versions, starts at every system login, only on AC power)
+> 🔄️ Keeping Homebrew current is a deliberate step, not a background job: run `brew-maintenance`
+> (or `bm`), the fish function in `conf.d/08-aliases.fish` that chains `update`, `upgrade`,
+> `cleanup`, `autoremove` and `doctor`.
+>
+> Formulae from third-party taps need `brew trust <tap>` before Homebrew will manage them — see the
+> [manual steps](#-manual-steps-not-automatable).
 
 ---
 
@@ -633,8 +636,8 @@ flowchart LR
 - **`speak-prompt.sh`** asks Claude for the `<speak>` line, and stops playback — sending a message
   means you are done listening. Because the instruction lives in a hook and not in `CLAUDE.md`, it
   vanishes the moment you run `speak off`. It bails out early on a prompt that *is* a `speak` command,
-  before silencing anything: a turn asking for a reading must not cancel the one it just started.
-  Reordering those two lines is what caused the queue described below.
+  **before** silencing anything — a turn asking for a reading must not cancel the one its own command
+  just started. That order matters; the two lines are commented in the hook for a reason.
 - **`speak-display.sh`** rewrites the raw tags on screen into a grey 󰕾 with grey italic text, and
   tucks the two commands underneath. `MessageDisplay` is display-only, so the transcript keeps the
   real tags — which is what the Stop hook reads. Text arrives in `delta` chunks, so each tag is
@@ -648,14 +651,6 @@ flowchart LR
 Playback is identified by the temp file it was handed, console id included, so `speak stop` in one
 pane cannot silence another. Starting a *new* reading does stop every other one — there is only one
 pair of speakers.
-
-> **The queue that used to be here.** For a while the command could not play at all: it wrote down
-> what to read and an async `Stop` hook did it, on the belief that Claude Code tore down the process
-> tree of an inline `!command` and killed Piper mid-synthesis. Measured properly, it does not — a
-> detached job outlives the command indefinitely. The real culprit was this feature stopping its own
-> audio, because the prompt hook silenced playback before checking whether the turn was *asking* for
-> a reading. The queue also meant waiting for the whole model turn to end before hearing anything,
-> most of a minute for nothing. Fixing the order removed a hook, a state file and four helpers.
 
 The cleaning lives in its own Python file rather than a heredoc inside the hook: embedded Python
 cannot be compiled, linted or run on its own, and turning prose into speech is fiddly enough to be

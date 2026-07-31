@@ -205,10 +205,9 @@ speak_hush() {
 
 # Synthesise and play a text file, detached: nothing waits on audio.
 #
-# The handle is the temp file name, not a pid: the pid worth having is piper's and
-# the shell only hands back the subshell that launched it, so killing that would
-# leave piper reading to the end. The name carries the console id, which is what
-# keeps one pane from silencing another:
+# The handle is the temp file name, and it carries the console id so one pane can
+# never silence another. Not a pid: the one worth having is piper's, while the
+# shell only hands back the subshell that launched it.
 #
 #     ${TMPDIR:-/tmp}/claude-speak-<console-id>-<pid>.{txt,wav}
 speak_say_file() {

@@ -41,9 +41,7 @@ done
 
 # ── Symlinks ────────────────────────────────────────────────────────────────
 head "🔗 Symlinks"
-# Shared with install.sh, which creates what this verifies. Keeping a second copy
-# here is what let the two drift: doctor stopped checking the micro colorscheme
-# and still reported all-green over a list one entry short of the installer's.
+# Shared with install.sh, which creates exactly what this verifies. See links.sh.
 # shellcheck source=links.sh
 source "$(dirname "${BASH_SOURCE[0]}")/links.sh"
 for entry in "${LINKS[@]}"; do
@@ -51,8 +49,9 @@ for entry in "${LINKS[@]}"; do
   if [[ -L "$dest" && "$(readlink "$dest")" == "$src" && -e "$dest" ]]; then
     pass "${dest/#$HOME/~}"
   elif [[ -L "$dest" && ! -e "$dest" ]]; then
-    # readlink hands back the stored path whether or not it resolves, so without
-    # the -e above a dangling link passed while the feature was entirely broken.
+    # The -e above is what catches this: readlink hands back the stored path
+    # whether or not anything is there, so a broken link looks identical to a good
+    # one until you test the target.
     fail "${dest/#$HOME/~} → dangling, points at nothing ($(readlink "$dest"))"
   elif [[ -L "$dest" ]]; then
     warn "${dest/#$HOME/~} → points elsewhere ($(readlink "$dest"))"
@@ -115,8 +114,8 @@ if [[ -x "$PIPER_PY" ]]; then
   elif ((complete == ${#models[@]})); then
     pass "$complete voice model(s) installed"
   else
-    # A good voice next to a broken one used to pass in green while the broken one
-    # was the configured voice, so report the shortfall rather than the successes.
+    # Report the shortfall rather than the successes: a green count next to a voice
+    # that cannot speak is worse than no count at all.
     fail "$((${#models[@]} - complete)) of ${#models[@]} voice model(s) missing their .onnx.json — re-run 'make speak-setup'"
   fi
   # The Stop hook pipes every reply through python3 and swallows the failure, so

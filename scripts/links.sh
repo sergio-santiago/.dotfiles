@@ -4,10 +4,9 @@
 #
 # Description:
 #   Sourced by scripts/install.sh, which creates these links, and by
-#   scripts/doctor.sh, which verifies them. It lives in its own file because the
-#   two used to keep a copy each and they drifted: doctor quietly stopped
-#   checking the micro colorscheme and reported all-green over a list that was
-#   one entry short of what the installer created.
+#   scripts/doctor.sh, which verifies them. One map read by both, so what gets
+#   created and what gets checked cannot disagree — a copy in each would drift,
+#   and a doctor that checks a shorter list reports all-green over a gap.
 #
 #   Format: "<path relative to the repo>|<absolute destination>"
 #
