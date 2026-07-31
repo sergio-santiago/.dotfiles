@@ -8,7 +8,7 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link unlink default-shell doctor colors-check speak-setup
+.PHONY: help install brew link default-shell doctor colors-check speak-setup
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -20,7 +20,7 @@ install: brew link ## Full setup on a new machine: install packages + symlink co
 brew: ## Install all packages/apps from the Brewfile
 	brew bundle --file "$(DOTFILES)/Brewfile"
 
-link: ## Symlink configs into ~/.config, ~/.claude, ~/.ssh (idempotent, backs up existing)
+link: ## Symlink configs into ~/.config, ~/.claude, ~/.ssh, ~/.local/bin (idempotent, backs up existing)
 	@bash "$(DOTFILES)/scripts/install.sh"
 
 default-shell: ## Make Homebrew fish the default login shell

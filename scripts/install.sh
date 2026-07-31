@@ -3,8 +3,8 @@
 # Dotfiles Installer
 #
 # Description:
-#   Idempotent installer that symlinks every config into ~/.config, ~/.claude
-#   and ~/.ssh. Safe to re-run: existing files are backed up (with timestamp)
+#   Idempotent installer that symlinks every config into ~/.config, ~/.claude,
+#   ~/.ssh and ~/.local/bin. Safe to re-run: existing files are backed up (timestamped)
 #   before linking, and links already pointing to the right place are skipped.
 #   Also creates ~/.ssh/config.private (0600) and rebuilds the bat theme cache.
 #
@@ -77,11 +77,14 @@ head "🔐 Private SSH config"
 if [[ ! -e "$HOME/.ssh/config.private" ]]; then
   mkdir -p "$HOME/.ssh"
   touch "$HOME/.ssh/config.private"
-  chmod 600 "$HOME/.ssh/config.private"
-  ok "created ~/.ssh/config.private (0600) — add machine-specific hosts here"
+  ok "created ~/.ssh/config.private — add machine-specific hosts here"
 else
   ok "~/.ssh/config.private already exists"
 fi
+# Outside the branch above: the file holds private hostnames, and a mode set only
+# at creation is a mode nothing ever restores.
+chmod 600 "$HOME/.ssh/config.private"
+ok "mode 0600 enforced"
 
 # Bat theme cache: needs rebuilding for the custom theme to be selectable.
 head "🦇 Bat theme cache"
@@ -89,8 +92,8 @@ if command -v bat >/dev/null 2>&1; then
   if bat cache --build >/dev/null 2>&1; then
     ok "bat cache rebuilt"
   else
-    # A failure inside an && list is exempt from errexit, so without this branch
-    # the script sailed on to "Done" with no cache and a zero exit status.
+    # A failure inside an && list is exempt from errexit, so without this branch the
+    # script reaches "Done" with no cache and a zero exit status.
     warn "bat cache could not be rebuilt — run 'bat cache --build' by hand"
   fi
 else

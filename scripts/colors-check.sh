@@ -61,6 +61,11 @@ if [[ -f "$STARSHIP" ]]; then
       warn "$name = $hex in starship.toml but canon is $canon (drift)"
     fi
   done < <(awk '/\[palettes.linked_data_dark_rainbow\]/{f=1;next} /^\[/{f=0} f' "$STARSHIP")
+else
+  # Without this the whole comparison is skipped in silence and the summary below
+  # still reports no drift, which is the one answer this script must never give
+  # when it has checked nothing.
+  warn "starship.toml not found — the palette could not be checked"
 fi
 
 head "🔢 Color count in COLORS.md"

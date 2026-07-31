@@ -199,16 +199,20 @@ detect_language() {
 # Output format: "{color}:{content}" (colon-separated)
 ################################################################################
 get_git_info() {
-    if ! git rev-parse --git-dir &> /dev/null; then
+    # The session's directory, passed in and given to every git invocation. Run in
+    # the process cwd instead, these cells could describe a different repository
+    # from the folder cell beside them, which reads the same value from the payload.
+    local dir="${1:-.}"
+    if ! git -C "$dir" rev-parse --git-dir &> /dev/null; then
         echo ""
         return
     fi
 
     local git_dir
-    git_dir=$(git rev-parse --git-dir 2>/dev/null)
+    git_dir=$(git -C "$dir" rev-parse --git-dir 2>/dev/null)
 
     local branch branch_icon git_color
-    branch=$(git branch --show-current 2>/dev/null || echo "")
+    branch=$(git -C "$dir" branch --show-current 2>/dev/null || echo "")
     if (( ${#branch} > MAX_BRANCH_LENGTH )); then
         branch="${branch:0:MAX_BRANCH_LENGTH-1}…"
     fi
@@ -236,22 +240,22 @@ get_git_info() {
         [[ "$index_status" != " " && "$index_status" != "?" ]] && ((staged++))
         [[ "$work_tree_status" == "M" || "$work_tree_status" == "D" ]] && ((modified++))
         [[ "$index_status" == "?" && "$work_tree_status" == "?" ]] && ((untracked++))
-    done < <(git status --porcelain 2>/dev/null)
+    done < <(git -C "$dir" status --porcelain 2>/dev/null)
 
     local ahead=0 behind=0
     local upstream
-    upstream=$(git rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo "")
+    upstream=$(git -C "$dir" rev-parse --abbrev-ref '@{upstream}' 2>/dev/null || echo "")
     if [[ -n "$upstream" ]]; then
         local counts
-        counts=$(git rev-list --left-right --count HEAD..."$upstream" 2>/dev/null || echo "0	0")
+        counts=$(git -C "$dir" rev-list --left-right --count HEAD..."$upstream" 2>/dev/null || echo "0	0")
         read -r ahead behind <<< "$counts"
         ahead=${ahead:-0}
         behind=${behind:-0}
     fi
 
     local stash_count=0
-    if git rev-parse --verify refs/stash &>/dev/null; then
-        stash_count=$(git stash list 2>/dev/null | wc -l | tr -d ' ')
+    if git -C "$dir" rev-parse --verify refs/stash &>/dev/null; then
+        stash_count=$(git -C "$dir" stash list 2>/dev/null | wc -l | tr -d ' ')
     fi
 
     local status_parts=""
@@ -270,10 +274,11 @@ get_git_info() {
 # Output: "added:deleted"
 ################################################################################
 get_diff_stats() {
+    local dir="${1:-.}"
     local added=0 deleted=0
-    if git rev-parse --git-dir &>/dev/null; then
+    if git -C "$dir" rev-parse --git-dir &>/dev/null; then
         local stats
-        stats=$(git diff HEAD --shortstat 2>/dev/null || true)
+        stats=$(git -C "$dir" diff HEAD --shortstat 2>/dev/null || true)
         if [[ -n "$stats" ]]; then
             if [[ "$stats" =~ ([0-9]+)[[:space:]]+insertion ]]; then
                 added="${BASH_REMATCH[1]}"
@@ -634,10 +639,10 @@ main() {
     lang_icon=$(detect_language "$current_dir")
 
     local git_info
-    git_info=$(get_git_info)
+    git_info=$(get_git_info "$current_dir")
 
     local diff_stats
-    diff_stats=$(get_diff_stats)
+    diff_stats=$(get_diff_stats "$current_dir")
 
     format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent" "$session_pct" "$session_reset" "$diff_stats"
 }

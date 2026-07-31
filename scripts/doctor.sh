@@ -30,7 +30,10 @@ head() { printf "\n%s%s%s\n" "$BOLD" "$1" "$RESET"; }
 
 # ── Required CLI tools ──────────────────────────────────────────────────────
 head "🛠️  CLI tools (from Brewfile)"
-REQUIRED=(fish starship fzf fd bat eza zoxide micro btop jq gh git fnm pyenv lolcat)
+# One entry per formula the Brewfile declares, named by the binary it provides:
+# poppler's is pdftotext, every other name matches its formula. A formula absent
+# from here gets installed by `make brew` and then never checked again.
+REQUIRED=(bat btop eza fd fish fnm fzf gh jq lolcat micro mole node pdftotext pyenv starship terraform zoxide)
 for bin in "${REQUIRED[@]}"; do
   if command -v "$bin" >/dev/null 2>&1; then
     pass "$bin"
@@ -38,6 +41,14 @@ for bin in "${REQUIRED[@]}"; do
     fail "$bin not found — run 'make brew'"
   fi
 done
+
+# git arrives with the Xcode command line tools and is not in the Brewfile, so
+# `make brew` cannot be the remedy for it.
+if command -v git >/dev/null 2>&1; then
+  pass "git"
+else
+  fail "git not found — run 'xcode-select --install'"
+fi
 
 # ── Symlinks ────────────────────────────────────────────────────────────────
 head "🔗 Symlinks"
@@ -65,11 +76,17 @@ done
 # ── Machine-specific setup ──────────────────────────────────────────────────
 head "⚙️  Environment"
 
+# The account's login shell, read from the directory service rather than from
+# $SHELL: that variable is inherited from whatever launched this, so a doctor run
+# from a different shell reported a correctly configured machine as unconfigured.
 FISH_PATH="$(command -v fish || true)"
-if [[ -n "$FISH_PATH" && "$SHELL" == "$FISH_PATH" ]]; then
-  pass "default shell is fish ($SHELL)"
+LOGIN_SHELL="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+if [[ -z "$LOGIN_SHELL" ]]; then
+  warn "could not read the login shell — dscl returned nothing"
+elif [[ -n "$FISH_PATH" && "$LOGIN_SHELL" == "$FISH_PATH" ]]; then
+  pass "login shell is fish ($LOGIN_SHELL)"
 else
-  warn "default shell is '$SHELL', not fish — run 'make default-shell'"
+  warn "login shell is '$LOGIN_SHELL', not fish — run 'make default-shell'"
 fi
 
 OP_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
@@ -80,7 +97,14 @@ else
 fi
 
 if [[ -e "$HOME/.ssh/config.private" ]]; then
-  pass "~/.ssh/config.private exists"
+  # It holds private hostnames, and install.sh promises 0600 — so report the mode
+  # rather than mere existence, or a world-readable one passes unnoticed.
+  MODE="$(stat -f '%Lp' "$HOME/.ssh/config.private" 2>/dev/null)"
+  if [[ "$MODE" == "600" ]]; then
+    pass "~/.ssh/config.private exists (0600)"
+  else
+    warn "~/.ssh/config.private is mode ${MODE:-unknown}, not 0600 — run 'make link'"
+  fi
 else
   warn "~/.ssh/config.private missing — run 'make link'"
 fi
