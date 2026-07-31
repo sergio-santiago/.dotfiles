@@ -558,7 +558,7 @@ With several sessions open, a global switch is unusable: one console reading alo
 into another means the mic picks up the synthetic voice and your prompt comes out garbled. So each
 terminal tab decides for itself, and the status line shows which:
 
-A 󰕾 appears in the status line while a console is on — replies prepared, commands offered. Off shows
+A speaker icon appears in the status line while a console is on — replies prepared, commands offered. Off shows
 nothing at all: the indicator is there to flag the exception, and off is the rule.
 
 Off by default in every new console. The switch is keyed on the iTerm2 pane UUID, so restarting
@@ -633,14 +633,14 @@ through one shared helper (`claude/speak-lib.sh`), so the indicator can never di
 flowchart LR
     lib["speak-lib.sh<br/>state · config · playback"]
     prompt["UserPromptSubmit"] --> vp["speak-prompt.sh<br/>asks for a #60;speak#62; line"]
-    disp["MessageDisplay"] --> sd["speak-display.sh<br/>󰕾 instead of raw tags"]
+    disp["MessageDisplay"] --> sd["speak-display.sh<br/>speaker icon instead of raw tags"]
     stop["Stop"] --> sp["speak-reply.sh<br/>cleans · saves"]
     sp --> clean["speak-clean.py"]
     cmd["speak summary | full"] --> piper["Piper (local)"] --> af["afplay"]
     lib -.-> vp
     lib -.-> sd
     lib -.-> sp
-    lib -.-> sl["statusline.sh<br/>󰕾"]
+    lib -.-> sl["statusline.sh<br/>speaker icon"]
     lib -.-> cmd
 ```
 
@@ -649,7 +649,7 @@ flowchart LR
   vanishes the moment you run `speak off`. It bails out early on a prompt that *is* a `speak` command,
   **before** silencing anything — a turn asking for a reading must not cancel the one its own command
   just started. That order matters; the two lines are commented in the hook for a reason.
-- **`speak-display.sh`** rewrites the raw tags on screen into a grey 󰕾 with grey italic text, and
+- **`speak-display.sh`** rewrites the raw tags on screen into a grey speaker icon with grey italic text, and
   puts the two commands at the end of a `╰──▸` that descends from the icon's own column. `MessageDisplay` is
   display-only, so the transcript keeps the real tags — which is what the Stop hook reads. Text
   arrives in `delta` chunks, so each tag is rewritten independently rather than as a pair: a block
