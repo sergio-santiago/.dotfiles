@@ -72,6 +72,7 @@ This repository contains my personal macOS development environment configuration
 
 - [🗺️ Architecture](#️-architecture)
     - [📦 Repository layout & symlink map](#repository-layout--symlink-map)
+    - [🧪 Tests](#tests)
     - [⚙️ Fish load order](#fish-load-order-confd)
     - [🎨 Color theme propagation](#color-theme-propagation)
     - [🧠 Git identity resolution](#git-identity-resolution)
@@ -79,6 +80,7 @@ This repository contains my personal macOS development environment configuration
     - [⚡ Quick start](#-quick-start)
     - [🧬 Clone repository](#-clone-repository)
     - [📦 Install dependencies with Brewfile](#-install-dependencies-with-brewfile)
+    - [🍺 Homebrew maintenance](#-homebrew-maintenance)
     - [🔗 Symlink configs](#-symlink-configs)
     - [🐟 Set fish as the default shell](#-set-fish-as-the-default-shell)
     - [🧠 Git identities (multi-account)](#-git-identities-multi-account)
@@ -111,7 +113,7 @@ flowchart LR
         bat["bat/themes"]
         claude["claude/"]
         misc["btop · gh · finicky"]
-        scripts["scripts/<br/>install · doctor · speak"]
+        scripts["scripts/<br/>install · doctor · tests<br/>speak · brew-maintenance"]
         docs["docs/COLORS.md"]
         iterm["iterm/<br/>com.googlecode.iterm2.plist"]
     end
@@ -137,14 +139,25 @@ flowchart LR
 ```
 
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
-linked except `bin/speak`, which needs to be on your `PATH`: `install.sh` and `doctor.sh` run behind
-`make link` and `make doctor`, `speak-setup.sh` behind `make speak-setup`, and `docs/COLORS.md` is the
-source of truth for the palette. `links.sh` holds the symlink map itself, sourced by both `install.sh`
-and `doctor.sh` so that what gets created and what gets verified cannot drift apart.
+linked except the two commands under `bin/`, `speak` and `brew-maintenance`, which need to be on your
+`PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `speak-setup.sh` behind
+`make speak-setup`, `tests/` behind `make test`, and `docs/COLORS.md` is the source of truth for the
+palette. `links.sh` holds the symlink map itself, sourced by both `install.sh` and `doctor.sh` so that
+what gets created and what gets verified cannot drift apart.
 
 `iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
 plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
 custom folder** instead. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles).
+
+### Tests
+
+`make test` runs every `scripts/tests/test-*.sh` through a plain bash runner, no framework and no
+extra formula to install. Tests never touch the real Homebrew: `brew-maintenance` takes its brew
+executable, its stamp path and its gcloud state file from environment variables, so each case runs
+against a fake `brew` that logs what it was asked to do. That log is what lets a test prove a
+negative, such as no `upgrade` ever being invoked with `--greedy`.
+
+`make doctor` is the complement. It checks the machine, while `make test` checks the scripts.
 
 ### Fish load order (`conf.d/`)
 
@@ -231,6 +244,8 @@ The sections below explain each piece in detail.
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
 | `make speak-setup` | Install Piper + Spanish voices so Claude Code can speak its replies |
+| `make brew-maintenance` | Update, tidy up and review Homebrew (also `bm` in fish) |
+| `make test` | Run the test suite |
 
 > The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
 > file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`.
@@ -288,13 +303,90 @@ This will install:
 - **iTerm2**: terminal emulator for macOS
 - **Thaw**: menu bar manager for macOS
 
-> 🔄️ Keeping Homebrew current is a deliberate step: run `brew-maintenance`
-> (or `bm`), the fish function in `conf.d/08-aliases.fish` that chains `update`, `upgrade`,
-> `cleanup`, `autoremove` and `doctor`.
+> 🔄️ Keeping Homebrew current is a deliberate step you take by hand: run `brew-maintenance`
+> (or `bm`). See [Homebrew maintenance](#-homebrew-maintenance) for what it does and for the
+> reminder that suggests it.
 >
 > Homebrew will not load a formula from a tap it does not trust. `terraform` and
 > `claude-usage-tracker` come from third-party taps, so their `Brewfile` entries carry
 > `trusted: true` and are written with the tap-qualified name that the flag needs to apply.
+
+---
+
+### 🍺 Homebrew maintenance
+
+```bash
+bm                      # the usual run
+bm --check              # report what is pending, change nothing
+bm --with-external      # also run gcloud components update
+make brew-maintenance   # same thing, from the repo
+```
+
+`scripts/bin/brew-maintenance` runs the maintenance steps and prints one summary. `bm` is the
+fish alias, and `make link` puts the command on your `PATH`, so it also works from bash, zsh
+and anything else that can find a binary.
+
+**Actions decide the exit status, reports never do.** That split is the point of the script:
+
+| Step | Class | Effect |
+|------|-------|--------|
+| `brew update` | action | refreshes the package index |
+| `brew upgrade` | action | installs what is outdated |
+| `brew cleanup` | action | reclaims disk space |
+| `brew autoremove` | action | drops orphaned dependencies |
+| `brew doctor` | report | counted and shown, never fatal |
+| self-updating casks | report | listed with brew's record beside the version available |
+| `gcloud` pending work | report | read from the SDK's own state file |
+
+Two things follow from it. `brew doctor` exits 1 for any warning it has, and its own output asks
+you to ignore those warnings, so a run that inherited that status called a healthy machine broken.
+And because the steps are independent rather than chained with `&&`, a failed `brew update` no
+longer cancels cleanup, autoremove and the review: upgrade still has a cached index to work with.
+Exit 0 means every action succeeded, whatever doctor had to say.
+
+#### Casks that update themselves
+
+`thaw` and `gcloud-cli` carry their own updaters, so Homebrew's receipt records the version *it*
+installed rather than the one now on disk. Reported, and left alone on purpose:
+
+```
+Casks with their own updater, left alone:
+  thaw           brew records 1.1.0      latest known 1.2.0
+```
+
+The app is already current: its bundle reports 1.2.0, so what is behind is the bookkeeping, not the
+software. `brew upgrade --cask --greedy` would download a whole app to install a version already
+installed. The command to correct the record is printed if you ever want it, and never run for you.
+
+These lines stay green rather than yellow. They are not work to do, and a colour that appears on
+every single run stops being read.
+
+The drift does not repair itself. A cask with `auto_updates: true` is skipped by `brew upgrade`, so
+brew never rewrites its receipt unless you force it, which is what `--greedy-auto-updates` is for.
+That matters in one case only: if the receipt names a dependency you no longer have, `brew doctor`
+reports a missing dependency that nothing actually misses. Forcing the upgrade once regenerates the
+receipt and clears it.
+
+Third-party updaters work the same way. `gcloud components update` is reported by default, read
+free and offline from `~/.config/gcloud/.last_update_check.json`, where the SDK writes its own
+pending notices. It only runs behind `--with-external`, because doing it non-interactively means
+accepting every prompt sight unseen.
+
+#### The reminder
+
+A finished run is recorded in `~/.cache/brew-maintenance/last-run`, the only place that knows
+when maintenance last happened. Two surfaces read it:
+
+- **the fish greeting**, through `brew_nudge`, which prints one dim line once the last run is
+  7 days old or older. Two file reads and no subprocess: 0.2 ms against a 140 ms shell startup.
+  Tune it with `set -U brew_nudge_days 14`, or silence it with `0`.
+- **`make doctor`**, which can afford the expensive question the greeting cannot. It reports the
+  age of the last run, the age of the package index, and how many packages are outdated, read
+  offline in about half a second.
+
+It is a suggestion and nothing else. No daemon, no scheduled job, no background refresh, and
+nothing that updates a package without you asking. `bm --check` answers "what is pending" at any
+time, and `--check` writes no stamp, because looking is not maintaining.
 
 ---
 
@@ -324,6 +416,7 @@ It wires the repo into `$HOME` like this:
 | `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
 | `claude/{speak-lib.sh,speak-clean.py}` | `~/.claude/…` |
 | `scripts/bin/speak` | `~/.local/bin/speak` |
+| `scripts/bin/brew-maintenance` | `~/.local/bin/brew-maintenance` |
 
 <details>
 <summary>Prefer to link manually? (click to expand)</summary>
@@ -372,6 +465,7 @@ ln -sfh ~/.dotfiles/claude/skills/speak ~/.claude/skills/speak
 ln -sfh ~/.dotfiles/claude/speak-lib.sh ~/.claude/speak-lib.sh
 ln -sfh ~/.dotfiles/claude/speak-clean.py ~/.claude/speak-clean.py
 ln -sfh ~/.dotfiles/scripts/bin/speak ~/.local/bin/speak
+ln -sfh ~/.dotfiles/scripts/bin/brew-maintenance ~/.local/bin/brew-maintenance
 
 # btop
 mkdir -p ~/.config/btop
@@ -471,6 +565,7 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 #### functions/ directory:
 - `fish_greeting.fish`: Compact welcome banner with lolcat rainbow
 - `fish_user_key_bindings.fish`: Custom key bindings
+- `brew_nudge.fish`: Suggests `bm` when the last maintenance run is old enough
 
 ---
 
