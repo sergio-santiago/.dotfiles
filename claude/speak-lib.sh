@@ -60,8 +60,16 @@ SPEAK_DEFAULT_MAX_CHARS="11600"
 # The hint rides inside the block instead of coming from a hook systemMessage,
 # which the TUI prefixes with an unavoidable "Stop says:" and which would put a
 # second speaker icon on screen. One icon, one visual unit, no prefix.
+#
+# Two closing forms, because the text streams in chunks and the newline the model
+# writes before </speak> usually arrives in an earlier chunk than the tag — already
+# on screen, impossible to take back. TIGHT is for that case, which the hook
+# recognises by the tag starting its chunk; POST breaks the line itself, for a block
+# that arrives whole. Measured from real deltas, not assumed.
 SPEAK_PRE=$'\033[38;2;170;170;170m󰕾\033[0m \033[38;2;108;108;108m\033[3m'
-SPEAK_POST=$'\033[0m\n\033[38;2;108;108;108m╰──▸/speak summary · /speak full\033[0m'
+SPEAK_HINT=$'\033[38;2;108;108;108m╰──▸/speak summary · /speak full\033[0m'
+SPEAK_POST=$'\033[0m\n'"$SPEAK_HINT"
+SPEAK_POST_TIGHT=$'\033[0m'"$SPEAK_HINT"
 
 # ── State ───────────────────────────────────────────────────────────────────
 

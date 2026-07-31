@@ -15,9 +15,14 @@
 #   and is rewritten wherever it appears: a chunk cannot know whether an opening tag
 #   arrived in an earlier one, so anchoring it would drop the hint from real blocks.
 #
-#   One newline on either side of a tag is swallowed along with the surrounding
-#   blanks, so a block whose tags sit on lines of their own still renders as one
-#   unit — icon and first word together — while blank lines inside it survive.
+#   Blank space on either side of a tag is swallowed, so a block whose tags sit on
+#   lines of their own still renders as one unit — icon and first word together —
+#   while blank lines inside it survive.
+#
+#   A closing tag that *starts* its chunk gets the tight hint, without a line break:
+#   the newline the model wrote before it travelled in an earlier chunk and is
+#   already on screen, so breaking again would leave a blank line. Any other closing
+#   tag breaks the line itself. Both shapes come from measured deltas.
 #
 # Performance:
 #   Fires while text streams, so the common path is one string test and exit.
@@ -43,6 +48,7 @@ jq -c -n \
   --arg payload "$payload" \
   --arg pre "$SPEAK_PRE" \
   --arg post "$SPEAK_POST" \
+  --arg tight "$SPEAK_POST_TIGHT" \
   '($payload | fromjson) as $in
    | ($in.delta // "") as $t
    | if ($t | type) == "string" and ($t | test("(^|\n)<speak>|</speak>")) then
@@ -50,6 +56,7 @@ jq -c -n \
            hookEventName: "MessageDisplay",
            displayContent: ($t
              | gsub("(?<p>^|\n)<speak>[ \t\n]*"; .p + $pre)
+             | sub("^[ \t]*</speak>"; $tight)
              | gsub("[ \t\n]*</speak>"; $post))
          } }
      else
