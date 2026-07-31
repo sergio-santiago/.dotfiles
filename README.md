@@ -10,7 +10,7 @@ This repository contains my personal macOS development environment configuration
     - Compact welcome banner with rainbow effect (`lolcat`) and fixed seed for consistent colors.
 - 🧾 **Aliases**
     - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
-    - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `z` (zoxide), `tree` (eza --tree), `c`/`c-yolo` (claude)...
+    - Includes smart aliases for modern tools: `l`/`ll` (eza), `v` (bat), `tree` (eza --tree), `c`/`c-yolo` (claude), plus `z`/`zi` from `07-zoxide.fish`...
 - 🎯 **FZF (Fuzzy Finder)**
     - Comprehensive configuration with `fd` integration for fast file/directory search.
     - Responsive preview windows with `bat` (files) and `eza` (directories).
@@ -42,8 +42,8 @@ This repository contains my personal macOS development environment configuration
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
     - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 28-color palette with hex/RGB values and semantic usage across all tools.
 - 🔗 **Finicky**
-    - Smart browser routing (config in TypeScript). Sets Chrome as the default browser, opens Google Meet
-      links automatically in the **Tribbu** Chrome profile, and sends Zoom links straight to the native Zoom app.
+    - Smart browser routing (config in TypeScript). Sets Chrome as the default browser and opens Google Meet
+      links automatically in the **Tribbu** Chrome profile.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
@@ -51,6 +51,8 @@ This repository contains my personal macOS development environment configuration
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
     - Tuned for Opus 5: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
+    - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
+      hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
     - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks, skills and settings all tracked in
       `.dotfiles/claude/`, with a custom `statusline.sh`.
     - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS —
@@ -111,6 +113,7 @@ flowchart LR
         misc["btop · gh · finicky"]
         scripts["scripts/<br/>install · doctor · speak"]
         docs["docs/COLORS.md"]
+        iterm["iterm/<br/>com.googlecode.iterm2.plist"]
     end
     subgraph home["🏠 $HOME"]
         cfgfish["~/.config/fish/"]
@@ -130,6 +133,7 @@ flowchart LR
     misc --> cfgmisc
     claude --> dotclaude
     scripts --> localbin
+    iterm -.->|"read by iTerm2, not symlinked"| app["💻 iTerm2"]
 ```
 
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
@@ -137,6 +141,10 @@ linked except `bin/speak`, which needs to be on your `PATH`: `install.sh` and `d
 `make link` and `make doctor`, `speak-setup.sh` behind `make speak-setup`, and `docs/COLORS.md` is the
 source of truth for the palette. `links.sh` holds the symlink map itself, sourced by both `install.sh`
 and `doctor.sh` so that what gets created and what gets verified cannot drift apart.
+
+`iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
+plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
+custom folder** instead — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles).
 
 ### Fish load order (`conf.d/`)
 
@@ -208,7 +216,8 @@ make default-shell    # set fish as the default login shell
 make doctor           # verify tools, symlinks and environment
 ```
 
-Then finish the [manual steps](#-manual-steps-not-automatable) (1Password SSH agent, iTerm2 prefs).
+Then finish the [manual steps](#-manual-steps-not-automatable) — the handful of things no script can
+do for you, starting with the apps Homebrew does not manage.
 The sections below explain each piece in detail.
 
 #### Make targets
@@ -217,7 +226,7 @@ The sections below explain each piece in detail.
 |--------|--------------|
 | `make install` | `brew` + `link` — full setup on a new machine |
 | `make brew` | Install all packages/apps from the `Brewfile` |
-| `make link` | Symlink configs into `~/.config`, `~/.claude`, `~/.ssh` (idempotent, backs up existing files) |
+| `make link` | Symlink configs into `~/.config`, `~/.claude`, `~/.ssh`, `~/.local/bin` (idempotent, backs up existing files) |
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
@@ -279,12 +288,13 @@ This will install:
 - **iTerm2** — terminal emulator for macOS
 - **Thaw** — menu bar manager for macOS
 
-> 🔄️ Keeping Homebrew current is a deliberate step, not a background job: run `brew-maintenance`
+> 🔄️ Keeping Homebrew current is a deliberate step: run `brew-maintenance`
 > (or `bm`), the fish function in `conf.d/08-aliases.fish` that chains `update`, `upgrade`,
 > `cleanup`, `autoremove` and `doctor`.
 >
-> Formulae from third-party taps need `brew trust <tap>` before Homebrew will manage them — see the
-> [manual steps](#-manual-steps-not-automatable).
+> Homebrew will not load a formula from a tap it does not trust. `terraform` and
+> `claude-usage-tracker` come from third-party taps, so their `Brewfile` entries carry
+> `trusted: true` and are written with the tap-qualified name that the flag needs to apply.
 
 ---
 
@@ -419,23 +429,24 @@ GitHub HTTPS credentials are delegated to `gh auth git-credential`, so run `gh a
 
 A few things can't be symlinked and must be done by hand on a new machine:
 
-1. **Enable the 1Password SSH agent** (required for SSH auth **and** commit signing):
-   1Password → **Settings → Developer → Use the SSH agent**. Commit signing uses
-   `op-ssh-sign`, already configured in `git/config`.
-2. **Load iTerm2 preferences** — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
-3. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
+1. **Install 1Password and enable its SSH agent** (required for SSH auth **and** commit signing):
+   1Password → **Settings → Developer → Use the SSH agent**. Commit signing uses `op-ssh-sign`,
+   already configured in `git/config`, so every `git commit` fails with
+   `cannot exec op-ssh-sign` until the app is there. It is not in the `Brewfile` because it is
+   installed from 1password.com, outside Homebrew.
+2. **Install Google Chrome.** `finicky/finicky.ts` names it as the default browser and routes Meet
+   links to the **Tribbu** profile, so link routing does nothing useful without it. Also outside
+   Homebrew, and the profile itself has to be signed in by hand.
+3. **Load iTerm2 preferences** — see [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
+4. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
    `0600` file for you) — see [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
-4. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
+5. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
    `slack@claude-plugins-official`, but the plugin itself is cached under `~/.claude/plugins/` and is
    not part of this repo. Run `/plugin` in Claude Code to install it, then authenticate.
-5. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
+6. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
    through Context7, and that rule *is* symlinked — so without the server a new machine gets an
    instruction pointing at a tool that isn't there. MCP servers live in `~/.claude.json`, outside the
    repo: add it with `claude mcp add`.
-6. **Trust the third-party taps.** Homebrew refuses to load formulae from an untrusted tap, so
-   `terraform` (from `hashicorp/tap`) and `claude-usage-tracker` (from `hamed-elfayome/claude-usage`)
-   need `brew trust hashicorp/tap` and `brew trust hamed-elfayome/claude-usage` before
-   `brew bundle` can install them.
 
 ---
 
@@ -576,12 +587,12 @@ user-only — Claude cannot decide to start talking on its own.
 > **Not named `voice`**: Claude Code's built-in `/voice` is dictation — it *listens*. This is the
 > opposite direction, and reusing the word for both would be a coin flip every time.
 
-Voice, speed and how much `full` will read are global taste, hand-edited in `~/.claude/speak.conf`:
+Voice, speed and how much of a reply is read are global taste, hand-edited in `~/.claude/speak.conf`:
 
 ```ini
 voice=es_ES-davefx-medium     # or es_ES-sharvard-medium; see ~/.local/share/piper/voices
 speed=1.0                     # <1 faster, >1 slower
-max_chars=11600               # optional; how much of a reply `full` will read
+max_chars=11600               # optional; caps both the summary and the full text
 ```
 
 The file does not exist until you create it — the defaults above are the built-in ones. `speed` and
@@ -639,10 +650,18 @@ flowchart LR
   **before** silencing anything — a turn asking for a reading must not cancel the one its own command
   just started. That order matters; the two lines are commented in the hook for a reason.
 - **`speak-display.sh`** rewrites the raw tags on screen into a grey 󰕾 with grey italic text, and
-  tucks the two commands underneath. `MessageDisplay` is display-only, so the transcript keeps the
-  real tags — which is what the Stop hook reads. Text arrives in `delta` chunks, so each tag is
-  rewritten independently rather than as a pair: a block split mid-stream still renders. The opening
-  tag only matches at the start of a line, so prose mentioning the literal tag is left alone.
+  puts the two commands at the end of a `╰──▸` that descends from the icon's own column. `MessageDisplay` is
+  display-only, so the transcript keeps the real tags — which is what the Stop hook reads. Text
+  arrives in `delta` chunks, so each tag is rewritten independently rather than as a pair: a block
+  split mid-stream still renders. The opening tag only matches at the start of a line, so prose
+  mentioning it mid-sentence is left alone; a closing tag is rewritten wherever it appears, which is
+  the price of that independence — a chunk cannot know whether an opening tag arrived in an earlier
+  one. One newline either side of a tag is swallowed with the surrounding blanks, so tags written on
+  lines of their own still render as a single unit.
+
+  Only assistant text streams through this hook. Claude Code's end-of-turn recap is generated
+  separately and reaches the screen without passing any hook, so `speak-prompt.sh` tells Claude the
+  block belongs at the end of a reply and nowhere else.
 - **`speak-reply.sh`** cleans the reply via **`speak-clean.py`** and saves both versions. It prints
   nothing, plays nothing and never touches Piper.
 - **`speak`** does the reading itself, the moment you ask. Synthesis is detached, so nothing waits on

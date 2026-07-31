@@ -63,7 +63,7 @@ ANSI bright variants (slots 8-15):
 ## 🔧 Configuration by Tool
 
 ### Starship Prompt
-All 10 core colors. Config: `starship/starship.toml`
+The 9 core colors Starship declares — it has no pink. Config: `starship/starship.toml`
 
 - **black** = `#000000`
 - **white** = `#ffffff`
@@ -74,24 +74,29 @@ All 10 core colors. Config: `starship/starship.toml`
 - **cyan** = `#7fffd4`
 - **blue** = `#68d5ff`
 - **purple** = `#c6a7ff`
-- **pink** = `#ff6cd4`
 
 ### Claude Statusline
 Color set in RGB format with gradient bar. Config: `claude/statusline.sh`
 
 ```bash
-COLOR_BLUE='\033[38;2;104;213;255m'       # Folder name (matches #68d5ff)
-COLOR_CYAN='\033[38;2;127;255;212m'       # Fresh context zone (matches #7fffd4)
-COLOR_YELLOW='\033[38;2;255;236;153m'     # Git branch, normal (matches #ffec99)
-COLOR_ORANGE='\033[38;2;255;184;108m'     # Git special states (matches #ffb86c)
-COLOR_GREEN='\033[38;2;68;243;115m'       # Added lines, fallback model (matches #44f373)
-COLOR_PURPLE='\033[38;2;189;147;249m'     # Clock icon (matches #bd93f9)
-COLOR_RED='\033[38;2;255;85;85m'          # Deleted lines (matches #ff5555)
-COLOR_DIM='\033[38;2;108;108;108m'        # Borders, placeholders
-COLOR_DIM_BRIGHT='\033[38;2;170;170;170m' # Diff arrows when changes present
+readonly COLOR_BLUE=$'\033[38;2;104;213;255m'     # Folder name
+readonly COLOR_CYAN=$'\033[38;2;127;255;212m'     # Fresh context zone
+readonly COLOR_YELLOW=$'\033[38;2;255;236;153m'   # Git branch (normal)
+readonly COLOR_ORANGE=$'\033[38;2;255;184;108m'   # Git special states
+readonly COLOR_GREEN=$'\033[38;2;68;243;115m'     # Added lines / fallback model
+readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'   # Clock icon
+readonly COLOR_RED=$'\033[38;2;255;85;85m'        # Deleted lines
+readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Borders, placeholders
+readonly COLOR_DIM_BRIGHT=$'\033[38;2;170;170;170m' # Diff arrows when changes present
+readonly COLOR_RESET=$'\033[0m'
 ```
 
-The context/usage bar is **not** `COLOR_PURPLE` — it is painted from `GRADIENT_COLORS`, below.
+`$'…'` and not `'…'`: the former puts real ESC bytes in the variable, the latter a
+literal backslash, which prints as escape text.
+
+Five of these are the core palette in RGB. Four are the statusline's own, outside the
+28: the clock's purple `#BD93F9`, the deleted-lines red `#FF5555` and the two greys —
+Dracula values kept because they read better against a pure black terminal.
 
 **Gradient bar colors** (green → yellow → orange → red):
 - `#50FA7B` → `#F1FA8C` → `#FFB86C` → `#FF5555` (10 steps for context/usage bars)
@@ -110,7 +115,7 @@ Core + extended colors. Config: `bat/themes/linked-data-dark-rainbow.tmTheme`
 ### Micro editor
 Core + extended colors. Config: `micro/colorschemes/linked-data-dark-rainbow.micro`
 
-- **Text:** `#FFFFFF` / **Background:** `#000000`
+- **Text:** `#FFFFFF` / **Background:** inherited from the terminal (no `default` background set)
 - **Identifiers:** `#68D5FF` (blue) / **Classes:** `#CCA5FF` (mauve)
 - **Variables:** `#90E8FF` (sky) / **Constants:** `#68D5FF` (blue)
 - **Strings:** `#0066FF` (deep blue) / **Keywords:** `#FF4D4D` (red)
@@ -128,7 +133,8 @@ Core + extended + alt colors. Config: `fish/conf.d/09-theme.fish`
 - **Autosuggestions:** `#737994` (neutral low) / **CWD:** `#4AF0D1` (teal)
 
 ### iTerm2
-All ANSI colors + UI elements. Config: Manual setup via `Settings → Profiles → Colors`
+All ANSI colors + UI elements. Config: `iterm/com.googlecode.iterm2.plist` (profile
+`Default`, also saved as the preset "Linked Data Dark Rainbow")
 
 **ANSI Normal (0-7):**
 ```
@@ -156,15 +162,17 @@ All ANSI colors + UI elements. Config: Manual setup via `Settings → Profiles �
 | Cursor Guide | `#7FFFD4` | Cyan | 25% |
 | Badge | `#FF4D4D` | Red | 50% |
 | Underline | `#FF6CD4` | Pink | 100% |
+| Match Background | `#FFFF00` | — | 100% |
+
+Match Background is pure yellow and the one UI element outside the 28-color palette;
+the palette's yellow is `#FFEC99`. Changing it means editing the plist and
+re-importing the profile.
 
 **Settings:**
 - ✅ Enable: "Use Selected Text Color"
 - ✅ Enable: "Use Underline Color"
 - ❌ Disable: "Smart Cursor Color"
 - ❌ Disable: "Use Separate Colors for Light/Dark Mode"
-
-**Recent Changes:**
-- 2025-10-13: Introduced Deep Blue `#0066FF` to Extended Colors palette. Used for string literals (Bat, Micro) and hyperlinks (iTerm2). This darker, more saturated blue differentiates literal content from active code (functions/identifiers use Blue `#68D5FF`), creating better visual hierarchy.
 
 ### FZF (Fuzzy Finder)
 Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
@@ -194,13 +202,14 @@ Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
 
 ---
 
-## ✅ Verification Status
+## ✅ How this is checked
 
-**Last verified:** 2025-10-13 (Full audit completed)
-**Status:** ✅ 100% Synchronized
-**Semantic consistency:** ✅ 100% Perfect
-**Total unique colors:** 28 (10 core + 8 extended + 4 UI + 1 error bg + 8 bright - 3 overlaps)
-**Tools audited:** 7 (Starship, iTerm2, Bat, Micro, Fish, Claude, FZF)
+`make colors-check` compares every colour Starship declares against the canon above and
+confirms this file still counts 28. Everything else here is kept in step by hand.
+
+**Total unique colors:** 28 (10 core + 8 extended + 4 UI + 8 bright − 2 shared: `#FFFFFF`
+and `#737994`)
+**Tools:** 7 (Starship, iTerm2, Bat, Micro, Fish, Claude, FZF)
 
 ### Colors per Tool:
 - ✅ **Starship** (9 colors) - Core palette
@@ -211,15 +220,19 @@ Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
 - ✅ **iTerm2** (18 colors) - ANSI 0-15 + UI elements
 - ✅ **FZF** (12 elements) - 256-color codes synchronized
 
-### Semantic Consistency Check:
-- ✅ **Errors** → Red `#FF4D4D` (all tools)
-- ✅ **Success** → Green `#44F373` (all tools)
-- ✅ **Functions** → Blue `#68D5FF` (all tools)
-- ✅ **Git/Status** → Yellow `#FFEC99` (all tools)
-- ✅ **Types** → Purple `#C6A7FF` / Mauve `#CCA5FF` (all tools)
-- ✅ **Operators** → Pink `#FF6CD4` (all tools)
-- ✅ **Numbers** → Orange `#FFB86C` (all tools)
-- ✅ **Selection** → Purple `#C6A7FF` background (all tools)
-- ✅ **UI Backgrounds** → UI Dark `#24273A` (all tools)
+### Same meaning, same color
 
-**Result:** Zero inconsistencies. Same color = same meaning across all tools.
+- **Errors** → Red `#FF4D4D` — bat, micro, fish
+- **Success** → Green `#44F373`
+- **Functions / identifiers** → Blue `#68D5FF`
+- **Git branch** → Yellow `#FFEC99` — statusline
+- **Types** → Purple `#C6A7FF` / Mauve `#CCA5FF`
+- **Numbers** → Orange `#FFB86C`
+- **Strings** → Deep Blue `#0066FF` — bat and micro, and iTerm2's links: a darker,
+  more saturated blue that separates literal content from active code
+- **Selection** → Purple `#C6A7FF` background — micro, fish, iTerm2
+- **UI backgrounds** → UI Dark `#24273A` — bat and micro
+
+Three places diverge on purpose, and are documented above where they occur: fish paints
+operators soft green `#5EFC94` rather than pink, FZF's selected background is UI Dark
+`59` rather than purple, and the statusline carries four Dracula values of its own.
