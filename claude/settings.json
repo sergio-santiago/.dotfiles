@@ -60,6 +60,9 @@
     ],
     "defaultMode": "auto"
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
@@ -70,6 +73,10 @@
   "language": "spanish",
   "effortLevel": "high",
   "tui": "fullscreen",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "preferredNotifChannel": "iterm2_with_bell",
