@@ -1,5 +1,4 @@
 # --- Taps ---
-tap "domt4/autoupdate"          # keep Homebrew itself and formulae up to date
 tap "hamed-elfayome/claude-usage" # Claude API usage tracking
 tap "hashicorp/tap"             # HashiCorp tools (provides 'terraform')
 

@@ -248,7 +248,6 @@ brew bundle --file ~/.dotfiles/Brewfile
 This will install:
 
 #### 🔖 Taps
-- **domt4/autoupdate** — keep Homebrew itself and formulae up to date
 - **hamed-elfayome/claude-usage** — Claude API usage tracking
 - **hashicorp/tap** — HashiCorp tools (provides `terraform`)
 
