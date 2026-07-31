@@ -1,4 +1,4 @@
-# ~/.gitconfig
+# ~/.config/git/config
 # Global Git configuration with SSH-based commit signing via 1Password.
 # - Commits are signed automatically using an SSH key stored in 1Password.
 # - Default commit editor is Micro.

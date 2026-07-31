@@ -231,7 +231,7 @@ format = "[ $symbol$output ]($style)"
 # Inspired by vibrant "rainbow" color schemes with high contrast
 [palettes.linked_data_dark_rainbow]
 black = "#000000"   # Pure black for text over bright colors
-white = "#ffffff"   # Pure white for separators
+white = "#ffffff"
 red = "#ff4d4d"     # Bright red for errors
 orange = "#ffb86c"  # Warm orange for languages/runtimes
 yellow = "#ffec99"  # Soft yellow for git

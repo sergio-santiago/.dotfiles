@@ -3,7 +3,7 @@
 // Finicky configuration file.
 // - Sets Google Chrome as the default browser.
 // - Routes Google Meet links specifically to the "Tribbu" Chrome profile.
-// - Opens Zoom links directly in the Zoom app.
+// Everything else follows defaultBrowser.
 
 import type { FinickyConfig } from "/Applications/Finicky.app/Contents/Resources/finicky.d.ts";
 
@@ -16,11 +16,6 @@ export default {
         {
             match: finicky.matchHostnames(["meet.google.com"]),
             browser: { name: "Google Chrome", profile: "Tribbu" }
-        },
-        {
-            // @ts-expect-error - Finicky types are outdated, this syntax works correctly
-            match: ({ url }) => url.host.includes("zoom.us"),
-            browser: "us.zoom.xos"
         }
     ]
 } satisfies FinickyConfig;

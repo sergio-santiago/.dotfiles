@@ -14,11 +14,13 @@
 #
 # Notes:
 #   - This uses `brew shellenv` which prepends /opt/homebrew/bin to PATH.
-#   - Keep this very early in load order (01-) so other tools can rely on brew.
+#   - Keep this near the front of conf.d so other tools can rely on brew.
 #   - If PATH priority issues arise (e.g. with fnm), adjust load order accordingly.
 # ==============================================================================
 
 eval (/opt/homebrew/bin/brew shellenv)
 
-# Hide Homebrew environment hints
-set -Ux HOMEBREW_NO_ENV_HINTS 1
+# Hide Homebrew environment hints. Exported per session, not universal: a universal
+# variable is stored in fish_variables, which this repo does not track, so the
+# setting would outlive the line that asks for it.
+set -gx HOMEBREW_NO_ENV_HINTS 1
