@@ -21,10 +21,18 @@ set -gx BAT_THEME linked-data-dark-rainbow
 # Rebuild theme cache only when interactive and if bat exists
 if status --is-interactive
     if type -q bat
-        # If the custom theme isn't listed, rebuild the cache quietly
+        # If the custom theme isn't listed, rebuild the cache.
+        #
+        # The failure is reported rather than swallowed. Silenced, a build that can
+        # never succeed, because the theme is not symlinked yet on a fresh clone or
+        # because the cache directory is not writable, was retried on every single
+        # shell start and cost ~300 ms each time with nothing on screen to explain it.
+        # One line naming the remedy is worth more than a quiet tax.
         set -l themes (bat --list-themes 2>/dev/null)
         if not string match -q "*$BAT_THEME*" "$themes"
-            bat cache --build >/dev/null 2>&1
+            if not bat cache --build >/dev/null 2>&1
+                echo "bat: could not build the theme cache for '$BAT_THEME'. Run 'make link'" >&2
+            end
         end
     end
 end

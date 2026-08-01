@@ -18,7 +18,13 @@
 #   - If PATH priority issues arise (e.g. with fnm), adjust load order accordingly.
 # ==============================================================================
 
-eval (/opt/homebrew/bin/brew shellenv)
+# Guarded on the binary instead of run blind. Unguarded, a machine without
+# Homebrew at this path prints "command not found" at every shell start, including
+# the non-interactive ones that editors and scripts spawn, and the noise appears
+# where nobody is looking for it. `test -x` is a builtin, so the guard is free.
+if test -x /opt/homebrew/bin/brew
+    eval (/opt/homebrew/bin/brew shellenv)
+end
 
 # Hide Homebrew environment hints. Exported per session, not universal: a universal
 # variable is stored in fish_variables, which this repo does not track, so the

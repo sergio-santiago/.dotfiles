@@ -5,6 +5,9 @@
 #   - Ctrl+T → Fuzzy file search (inserts selected path into the command line)
 #   - Alt+C  → Fuzzy directory search (cd into selected folder)
 # These bindings respect any options set in FZF_*_OPTS (see fish/conf.d/05-fzf.fish).
+# Guarded with `type -q`, the way conf.d/05-fzf.fish is. Unguarded, a machine without
+# fzf greeted every new shell with "Unknown command: fzf" and a fish code frame,
+# which reads like a broken dotfiles install rather than one missing formula.
 function fish_user_key_bindings
-  fzf --fish | source
+    type -q fzf; and fzf --fish | source
 end

@@ -7,7 +7,9 @@
 #   - Initialize shims in interactive shells if pyenv is available.
 #
 # Load scope:
-#   - Interactive shells only.
+#   - The PYENV_ROOT export applies to all shells, interactive or not, so a script
+#     that shells out to pyenv finds the same root.
+#   - Shim initialization runs on interactive shells only.
 #
 # Dependencies:
 #   - pyenv (installed via Homebrew or other package manager).
