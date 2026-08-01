@@ -46,3 +46,10 @@ __pycache__/
 
 # Claude Code local settings (repo-specific)
 .claude/
+
+# ...but this repo's own CLAUDE.md is tracked on purpose. A rule in
+# ~/.config/git/ignore excludes CLAUDE.md from every repo, which is the right default
+# for client work and the wrong one here: the trigger map that keeps this repo's docs
+# honest is useless if it does not travel with the repo. A pattern in a .gitignore
+# outranks one in core.excludesFile, so this negation is what makes it trackable.
+!CLAUDE.md

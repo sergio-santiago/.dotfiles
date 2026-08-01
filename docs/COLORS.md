@@ -218,14 +218,21 @@ confirms this file still counts 28. Everything else here is kept in step by hand
 and `#737994`)
 **Tools:** 7 (Starship, iTerm2, Bat, Micro, Fish, Claude, FZF)
 
-### Colors per Tool:
-- ✅ **Starship** (9 colors) - Core palette
-- ✅ **Claude statusline** (9 colors + 10-step gradient) - Core palette in RGB with gradient bars
-- ✅ **Bat theme** (24 colors) - Core + extended + UI + diff
-- ✅ **Micro editor** (35 color definitions) - Most comprehensive
-- ✅ **Fish shell** (25 colors) - Includes shell-specific variants
-- ✅ **iTerm2** (18 colors) - ANSI 0-15 + UI elements
-- ✅ **FZF** (12 elements) - 256-color codes synchronized
+### Which part of the palette each tool uses
+
+No per-tool counts here on purpose. They used to be listed and they were wrong: the bat theme
+was given as 24 colours where the file declares 17 distinct values, and fish as 25 where 13 hex
+values back 30 colour settings. They disagreed because nobody could say what they counted,
+colours or settings or rules, so they are gone rather than restated. The total above is the one
+number worth trusting, and `make colors-check` is what keeps it honest.
+
+- ✅ **Starship** - Core palette
+- ✅ **Claude statusline** - Core palette in RGB, plus the 10-step gradient bars
+- ✅ **Bat theme** - Core + extended + UI + diff
+- ✅ **Micro editor** - Core + extended, across syntax groups
+- ✅ **Fish shell** - Core palette plus shell-specific variants
+- ✅ **iTerm2** - ANSI 0-15 plus UI elements
+- ✅ **FZF** - 256-color codes synchronized with the palette
 
 ### Same meaning, same color
 
