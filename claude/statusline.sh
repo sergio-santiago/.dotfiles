@@ -26,9 +26,9 @@
 # Output:
 #   5-line table with ANSI colors:
 #     ──────────────┬───────────────────────────╮
-#      folder        │ 󰧑 Model                    │
-#      branch        │ ctx% context-bar 󰖙 zone   │
-#     N+ 󰓢 -N        │ use% usage-bar 󱎫 reset    │
+#      folder       │ 󰧑 Model                  │
+#      branch       │ ctx% context-bar 󰖙 zone  │
+#      N+ 󰓢 -N     │ use% usage-bar 󱎫 reset   │
 #     ──────────────┴───────────────────────────╯
 #
 # External dependencies: jq, python3 (both typically pre-installed on macOS).
