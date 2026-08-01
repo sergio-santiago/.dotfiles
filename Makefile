@@ -10,7 +10,8 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link link-dry default-shell doctor colors-check speak-setup brew-maintenance test
+.PHONY: help install brew link link-dry default-shell doctor colors-check speak-setup brew-maintenance test \
+        private-init private-status private-push private-pull private-scan
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -47,6 +48,25 @@ test: ## Run the test suite
 
 colors-check: ## Lint the linked_data_dark_rainbow palette for drift
 	@bash "$(DOTFILES)/scripts/colors-check.sh"
+
+# ── The private half ────────────────────────────────────────────────────────
+# This repo is public, so the machine-private files live in a separate private one.
+# private-init stops at a local repo on purpose: creating the remote publishes a
+# host list, which is the one step here that cannot be taken back.
+private-init: ## Create the local private repo for machine-private config (no remote)
+	@bash "$(DOTFILES)/scripts/private-sync.sh" init
+
+private-status: ## Show what differs between $$HOME and the private repo
+	@bash "$(DOTFILES)/scripts/private-sync.sh" status
+
+private-scan: ## Screen the private files for credentials, changing nothing
+	@bash "$(DOTFILES)/scripts/private-sync.sh" scan
+
+private-push: ## Copy private config $$HOME -> private repo, commit and push
+	@bash "$(DOTFILES)/scripts/private-sync.sh" push
+
+private-pull: ## Restore private config from the private repo into $$HOME (backs up first)
+	@bash "$(DOTFILES)/scripts/private-sync.sh" pull
 
 speak-setup: ## Install Piper + Spanish voices so Claude Code can speak its replies
 	@bash "$(DOTFILES)/scripts/speak-setup.sh"
