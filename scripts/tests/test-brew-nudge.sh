@@ -91,7 +91,7 @@ OUT="$(env XDG_CACHE_HOME="$OLD" PATH="/usr/bin:/bin" \
 it "with no brew on PATH it stays silent instead of advertising a missing tool"
 assert_eq "" "$OUT"
 
-# ── It must not be the thing that slows the shell down ─────────────────────
+# ── It must not be the thing that slows the shell down ──────────────────────
 # 200 iterations, so the per-call cost is readable above process startup noise.
 # Budget is deliberately loose: the measured cost is 0.24 ms in a clean environment,
 # and the assertion only has to catch a regression that reintroduces a `brew` call or

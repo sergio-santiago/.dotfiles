@@ -83,7 +83,7 @@ it "init is idempotent"
 priv_run init
 assert_eq 0 "$RC"
 
-# ── A dry run changes nothing ──────────────────────────────────────────────
+# ── A dry run changes nothing ───────────────────────────────────────────────
 fresh_priv_home
 priv_run init --dry-run
 it "init --dry-run creates no repo at all"
@@ -108,7 +108,7 @@ assert_eq "" "$(git -C "$PRIV" log --oneline 2>/dev/null)"
 it "push --dry-run announces the copies in the future tense"
 assert_contains "$OUT" "would copy"
 
-# ── A real push copies, tightens the mode and commits ──────────────────────
+# ── A real push copies, tightens the mode and commits ───────────────────────
 priv_run push
 it "push exits 0"
 assert_eq 0 "$RC"
@@ -155,7 +155,7 @@ priv_run push
 it "a later push re-tightens a copy whose mode had been loosened"
 assert_eq 600 "$(stat -f '%Lp' "$PRIV/ssh/config.private" 2>/dev/null)"
 
-# ── The secret screen, from both sides ─────────────────────────────────────
+# ── The secret screen, from both sides ──────────────────────────────────────
 # Injected into the SSH config, one line at a time, on top of a known-clean file.
 # Every value below is a documented example or an obvious placeholder.
 screen_verdict() { # line-to-inject → "TRIP" or "CLEAN"
@@ -222,7 +222,7 @@ assert_eq CLEAN "$(screen_verdict '# the secret sauce is documented elsewhere')"
 it "a clean file scans clean"
 assert_eq CLEAN "$(screen_verdict '  Compression yes')"
 
-# ── A refused run refuses everything ──────────────────────────────────────
+# ── A refused run refuses everything ────────────────────────────────────────
 fresh_priv_home
 priv_run init >/dev/null
 priv_run push >/dev/null
@@ -249,7 +249,7 @@ assert_eq "$BEFORE_SUM" "$(cksum <"$PRIV/ssh/config.private")"
 it "and it says what to do about it"
 assert_contains "$OUT" "1Password"
 
-# ── pull moves anything in the way aside ──────────────────────────────────
+# ── pull moves anything in the way aside ────────────────────────────────────
 fresh_priv_home
 priv_run init >/dev/null
 priv_run push >/dev/null
@@ -280,7 +280,7 @@ assert_eq 0 "$(cmp -s "$CASE_HOME/.ssh/config.private" "$PRIV/ssh/config.private
 it "the restored file is 0600"
 assert_eq 600 "$(stat -f '%Lp' "$CASE_HOME/.ssh/config.private" 2>/dev/null)"
 
-# ── status ────────────────────────────────────────────────────────────────
+# ── status ──────────────────────────────────────────────────────────────────
 fresh_priv_home
 priv_run status
 it "status on a machine with no private repo says it is not set up"
@@ -303,7 +303,7 @@ assert_contains "$OUT" "differs from the pushed copy"
 it "status warns that a repo with no remote is not backed up anywhere"
 assert_contains "$OUT" "no remote"
 
-# ── Argument handling matches the other scripts' contract ─────────────────
+# ── Argument handling matches the other scripts' contract ───────────────────
 fresh_priv_home
 priv_run --help
 it "--help exits 0"
@@ -323,7 +323,7 @@ priv_run push pull
 it "two commands at once are rejected rather than silently picking one"
 assert_eq 2 "$RC"
 
-# ── The map is the single source of truth ─────────────────────────────────
+# ── The map is the single source of truth ───────────────────────────────────
 # doctor.sh reports this drift too. It has to read the same map, or the sync and
 # the health check end up disagreeing about which files are in scope, which is the
 # exact failure scripts/links.sh was factored out to avoid.

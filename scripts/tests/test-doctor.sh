@@ -83,7 +83,7 @@ assert_contains "$DOCTOR_OUT" "missing. Run 'make link'"
 it "the summary still prints after failures"
 assert_contains "$DOCTOR_OUT" "passed"
 
-# ── What it says about Homebrew ──────────────────────────────────────────────
+# ── What it says about Homebrew ─────────────────────────────────────────────
 # doctor.sh takes brew from PATH rather than from a variable, so a fake one goes in
 # front of it. Each case is a different answer from brew, and what is under test is
 # what doctor.sh concludes from it.

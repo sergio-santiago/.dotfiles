@@ -55,7 +55,7 @@ bm_run() {
   RC=$?
 }
 
-# ── The bug that started this: doctor's status is not the run's status ───────
+# ── The bug that started this: doctor's status is not the run's status ──────
 setup
 export FAKE_DOCTOR_RC=1
 export FAKE_DOCTOR_OUT='Warning: Some installed formulae or casks are missing dependencies.'
