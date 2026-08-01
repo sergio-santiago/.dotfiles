@@ -140,14 +140,37 @@ read_outdated() {
 # Casks with `auto_updates: true`. Listed, never upgraded: brew's receipt records
 # the version it installed, not the version now on disk, so --greedy downloads a
 # whole app to correct bookkeeping. What is behind is the ledger, not the app.
+#
+# The subtraction is the load-bearing part. `--greedy-auto-updates` does not return
+# only the self-updating casks, it returns the ordinary outdated ones too: in
+# Homebrew's Cask#outdated_version the flag merely disables the
+# `auto_updates && !greedy && !greedy_auto_updates` short circuit, so its output is
+# the plain list plus the auto-updating ones. Taken whole it reported a cask that is
+# genuinely behind as "already current, only brew's record trails", which is the one
+# thing this script must never say about work still to do. Requires read_outdated to
+# have run first, and returns the empty set rather than guessing if it has not.
 read_greedy() {
   have_jq || return 0
   brew_offline outdated --greedy-auto-updates --json >"$WORK/greedy.json" 2>/dev/null || return 0
+
+  local plain='[]'
+  if [[ -r "$WORK/outdated.json" ]]; then
+    plain="$(jq -c '[.casks[]?.name]' "$WORK/outdated.json" 2>/dev/null)"
+    [[ -n "$plain" ]] || plain='[]'
+  fi
+
   local name have want
   while IFS=$'\t' read -r name have want; do
     [[ -z "$name" ]] && continue
     GREEDY_LINES+=("$name|$have|$want")
-  done < <(jq -r '.casks[]? | [.name, (.installed_versions // [] | join(",")), .current_version] | @tsv' \
+  # The name is bound before the pipe on purpose: inside `$plain | index(...)` the
+  # input is the array, so `.name` there indexes the array and jq aborts with
+  # "Cannot index array with string", silently emptying the list.
+  done < <(jq -r --argjson plain "$plain" \
+    '.casks[]?
+     | .name as $n
+     | select(($plain | index($n)) == null)
+     | [$n, (.installed_versions // [] | join(",")), .current_version] | @tsv' \
     "$WORK/greedy.json" 2>/dev/null)
   N_GREEDY=${#GREEDY_LINES[@]}
 }
@@ -303,6 +326,11 @@ print_summary() {
         if [[ "$rc" -eq 0 ]]; then
           pass "$name" "$summary"
           ACTIONS_OK=$((ACTIONS_OK + 1))
+        elif ((QUIET)); then
+          # --quiet is the one mode that printed nothing, so pointing at output
+          # above it sends you looking for something that was never there, and the
+          # capture is gone too: the EXIT trap removes $WORK on the way out.
+          fail "$name" "exit $rc, re-run without --quiet to see why"
         else
           fail "$name" "exit $rc, see the output above"
         fi
@@ -330,9 +358,12 @@ print_summary() {
 }
 
 # ── Run ─────────────────────────────────────────────────────────────────────
-read_greedy
+# read_outdated always comes first: read_greedy subtracts its list, and with the
+# order reversed the subtraction had nothing to work with and every ordinary
+# outdated cask was filed under "left alone on purpose".
 if ((CHECK)); then
   read_outdated
+  read_greedy
   do_check
   do_reports
   print_summary
@@ -343,8 +374,11 @@ fi
 
 do_actions
 # Read after the actions, so the stamp records what is still outstanding rather
-# than what was outstanding before upgrade ran.
+# than what was outstanding before upgrade ran. Reading the greedy list here too
+# rather than up front: taken before the actions it named casks that upgrade had
+# already dealt with by the time the summary was printed.
 read_outdated
+read_greedy
 do_reports
 print_summary
 

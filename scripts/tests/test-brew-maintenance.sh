@@ -196,6 +196,59 @@ assert_contains "$OUT" "brew upgrade --cask --greedy-auto-updates <cask>"
 it "no upgrade is ever invoked with --greedy"
 assert_not_contains "$(grep '^upgrade' "$FAKE_LOG" || true)" "--greedy"
 
+# ── The greedy list is a superset, and has to be reduced ────────────────────
+# `brew outdated --greedy-auto-updates` returns the plain outdated casks as well as
+# the self-updating ones: the flag only disables the `auto_updates` short circuit in
+# Homebrew's Cask#outdated_version. Reported whole, a cask that is genuinely behind
+# was filed under "already current, brew's record just trails", which is the worst
+# possible thing to say about work still to do.
+setup
+export FAKE_OUTDATED_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"}]}'
+export FAKE_GREEDY_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"},{"name":"thaw","installed_versions":["1.1.0"],"current_version":"1.2.0"}]}'
+bm_run
+it "a cask in both lists is ordinary work, not a self-updating one"
+assert_contains "$OUT" "1 cask(s) with their own updater"
+
+it "the ordinary outdated cask is kept out of the left-alone detail block"
+assert_not_contains "$OUT" "iterm2         brew records"
+
+it "the genuinely self-updating cask is still listed there"
+assert_contains "$OUT" "thaw"
+
+# The reverse mistake is just as bad: subtracting must not empty the list when the
+# plain one happens to be empty.
+setup
+export FAKE_OUTDATED_JSON='{"formulae":[],"casks":[]}'
+export FAKE_GREEDY_JSON='{"formulae":[],"casks":[{"name":"thaw","installed_versions":["1.1.0"],"current_version":"1.2.0"}]}'
+bm_run
+it "with nothing ordinarily outdated the self-updating cask still surfaces"
+assert_contains "$OUT" "1 cask(s) with their own updater"
+
+it "and its versions are still shown side by side"
+assert_contains "$OUT" "brew records 1.1.0"
+
+# Every cask outdated for the ordinary reason means nothing is left alone at all.
+setup
+export FAKE_OUTDATED_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"}]}'
+export FAKE_GREEDY_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"}]}'
+bm_run
+it "a greedy list that is only the plain list reduces to no self-updating casks"
+assert_contains "$OUT" "no self-updating casks"
+
+it "and no left-alone detail block is printed at all"
+assert_not_contains "$OUT" "Casks with their own updater, left alone"
+
+# --check reads both lists in the order the subtraction needs.
+setup
+export FAKE_OUTDATED_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"}]}'
+export FAKE_GREEDY_JSON='{"formulae":[],"casks":[{"name":"iterm2","installed_versions":["3.5.0"],"current_version":"3.6.0"},{"name":"thaw","installed_versions":["1.1.0"],"current_version":"1.2.0"}]}'
+bm_run --check
+it "--check applies the same subtraction"
+assert_contains "$OUT" "1 cask(s) with their own updater"
+
+it "--check still counts the ordinary outdated cask as pending work"
+assert_contains "$OUT" "! casks       1 outdated"
+
 # ── Outdated counts reach the stamp ─────────────────────────────────────────
 setup
 export FAKE_OUTDATED_JSON='{"formulae":[{"name":"jq"},{"name":"fd"}],"casks":[{"name":"iterm2"}]}'
@@ -292,5 +345,22 @@ assert_not_contains "$OUT" "==> Updating Homebrew"
 
 it "--quiet keeps the summary"
 assert_contains "$OUT" "action(s) ok"
+
+# The remedy has to match the mode. Under --quiet there is no output above to look
+# at, and $WORK is gone by then, so the usual pointer sends you nowhere.
+setup
+export FAKE_UPGRADE_RC=1
+bm_run --quiet
+it "a failure under --quiet does not point at output that was never printed"
+assert_not_contains "$OUT" "see the output above"
+
+it "it names the flag to drop instead"
+assert_contains "$OUT" "re-run without --quiet"
+
+setup
+export FAKE_UPGRADE_RC=1
+bm_run
+it "without --quiet the pointer still refers to the output above"
+assert_contains "$OUT" "see the output above"
 
 unset BREW_MAINTENANCE_BREW BREW_MAINTENANCE_STAMP BREW_MAINTENANCE_GCLOUD FAKE_LOG

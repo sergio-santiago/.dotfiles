@@ -6,7 +6,11 @@
 #   Health check for the dotfiles environment. Verifies that required tools are
 #   installed, that the symlinks resolve, and that the machine-specific bits
 #   (default shell, 1Password agent, private SSH config) are in place.
-#   Read-only: it never changes anything.
+#
+#   Read-only where it counts: it creates, moves and rewrites nothing under
+#   ~/.config, ~/.claude, ~/.ssh or ~/.local/bin, which scripts/tests/test-doctor.sh
+#   asserts. It does ask brew for the outdated list, and brew writes its own caches
+#   while answering. That is brew's bookkeeping, not a change to anything here.
 #
 # Usage:
 #   ./scripts/doctor.sh   |   make doctor
@@ -96,6 +100,20 @@ else
   warn "1Password op-ssh-sign not found. Install 1Password & enable the SSH agent"
 fi
 
+# The directory as well as the file in it. install.sh enforces 0700 on every run, so
+# a looser mode means something outside this repo widened it, and the directory itself
+# lists your private hostnames.
+if [[ -d "$HOME/.ssh" ]]; then
+  SSH_DIR_MODE="$(stat -f '%Lp' "$HOME/.ssh" 2>/dev/null)"
+  if [[ "$SSH_DIR_MODE" == "700" ]]; then
+    pass "~/.ssh is 0700"
+  else
+    warn "~/.ssh is mode ${SSH_DIR_MODE:-unknown}, not 0700. Run 'make link'"
+  fi
+else
+  warn "~/.ssh missing. Run 'make link'"
+fi
+
 if [[ -e "$HOME/.ssh/config.private" ]]; then
   # It holds private hostnames, and install.sh promises 0600, so report the mode
   # rather than mere existence, or a world-readable one passes unnoticed.
@@ -149,23 +167,42 @@ if command -v brew >/dev/null 2>&1; then
   # in the shell greeting.
   if command -v jq >/dev/null 2>&1; then
     OUTDATED_JSON="$(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --json 2>/dev/null)"
-    N_FORMULAE="$(printf '%s' "$OUTDATED_JSON" | jq -r '.formulae | length' 2>/dev/null || echo 0)"
-    N_CASKS="$(printf '%s' "$OUTDATED_JSON" | jq -r '.casks | length' 2>/dev/null || echo 0)"
-    TOTAL=$(( ${N_FORMULAE:-0} + ${N_CASKS:-0} ))
-    if (( TOTAL == 0 )); then
-      pass "nothing outdated"
+    # Tested for emptiness before it is trusted. `printf '' | jq '.casks | length'`
+    # exits 0 with no output, so the `|| echo 0` fallback never fired and a brew that
+    # failed outright was reported as a machine with nothing outdated. Saying "all
+    # clear" on the strength of an answer that never arrived is the one outcome a
+    # health check must not produce.
+    if [[ -z "$OUTDATED_JSON" ]]; then
+      warn "could not read the outdated list, 'brew outdated' returned nothing"
     else
-      warn "$N_FORMULAE formula(e) and $N_CASKS cask(s) outdated. Run 'bm'"
-    fi
+      N_FORMULAE="$(printf '%s' "$OUTDATED_JSON" | jq -r '.formulae | length' 2>/dev/null)"
+      N_CASKS="$(printf '%s' "$OUTDATED_JSON" | jq -r '.casks | length' 2>/dev/null)"
+      TOTAL=$(( ${N_FORMULAE:-0} + ${N_CASKS:-0} ))
+      if (( TOTAL == 0 )); then
+        pass "nothing outdated"
+      else
+        warn "$N_FORMULAE formula(e) and $N_CASKS cask(s) outdated. Run 'bm'"
+      fi
 
-    # Reported apart, and never as work to do. These carry their own updaters, so
-    # brew's recorded version trails the one on disk. See brew-maintenance.
-    N_GREEDY="$(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --greedy-auto-updates --json 2>/dev/null \
-      | jq -r '.casks | length' 2>/dev/null || echo 0)"
-    if (( ${N_GREEDY:-0} > 0 )); then
-      pass "${N_GREEDY} cask(s) update themselves ${DIM}(brew's record trails on purpose)${RESET}"
-    else
-      pass "no self-updating casks"
+      # Reported apart, and never as work to do. These carry their own updaters, so
+      # brew's recorded version trails the one on disk. See brew-maintenance.
+      #
+      # The plain cask names are subtracted first, because
+      # `--greedy-auto-updates` returns them too: the flag only disables the
+      # `auto_updates` short circuit in Homebrew's Cask#outdated_version, so its
+      # output is the ordinary list plus the self-updating ones. Counted whole, this
+      # line contradicted the warning printed just above it, calling the very cask it
+      # had flagged as outdated a cask that needs nothing.
+      PLAIN_CASKS="$(printf '%s' "$OUTDATED_JSON" | jq -c '[.casks[]?.name]' 2>/dev/null)"
+      [[ -n "$PLAIN_CASKS" ]] || PLAIN_CASKS='[]'
+      N_GREEDY="$(HOMEBREW_NO_AUTO_UPDATE=1 brew outdated --greedy-auto-updates --json 2>/dev/null \
+        | jq -r --argjson plain "$PLAIN_CASKS" \
+          '[.casks[]? | .name as $n | select(($plain | index($n)) == null)] | length' 2>/dev/null)"
+      if (( ${N_GREEDY:-0} > 0 )); then
+        pass "${N_GREEDY} cask(s) update themselves ${DIM}(brew's record trails on purpose)${RESET}"
+      else
+        pass "no self-updating casks"
+      fi
     fi
   else
     warn "jq not found, skipping the outdated counts"
