@@ -129,6 +129,12 @@ def clear(prefix: str) -> None:
 
 
 def main() -> int:
+    # These two files hold the text of a reply, so they belong to the owner alone.
+    # On macOS $HOME is group-readable by staff and every local account is in staff,
+    # so the default 0644 made saved replies readable from another account. Set here
+    # rather than chmod-ed afterwards, which would leave a window where they are not.
+    os.umask(0o077)
+
     if len(sys.argv) < 3:
         return 2
     prefix = sys.argv[1]
@@ -179,6 +185,10 @@ def main() -> int:
         if text:
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(text + "\n")
+            # chmod as well as the umask above. Opening an existing file for writing
+            # keeps the mode it already had, so a file first written before the umask
+            # was set would stay world-readable for as long as that console lasted.
+            os.chmod(path, 0o600)
             wrote = True
         elif os.path.exists(path):
             os.remove(path)  # never leave a stale version behind

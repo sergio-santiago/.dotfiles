@@ -1,8 +1,16 @@
 # ~/.ssh/config
 # Central SSH configuration with public and private separation
+#
+# Private first, and the order is the point. ssh keeps the FIRST value it obtains for
+# any keyword, so whatever is read first wins. With the public file leading, its
+# catch-all `Host *` block claimed every keyword it sets before a per-host block in
+# the private file could ever be considered, which made the private half unable to
+# override anything. This way round a private host can override any option, and the
+# public `Host *` still supplies everything that host does not set.
 
-# Load version-controlled public config from .dotfiles repo
-Include ~/.dotfiles/ssh/config.public
-
-# Load private, machine-specific or sensitive config
+# Load private, machine-specific or sensitive config (untracked)
 Include ~/.ssh/config.private
+
+# Load version-controlled public config from .dotfiles repo. Last on purpose: its
+# `Host *` block is the default layer, not an override.
+Include ~/.dotfiles/ssh/config.public

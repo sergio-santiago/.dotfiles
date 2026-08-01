@@ -30,7 +30,11 @@ speak_is_on || exit 0
 # idle rather than how long ago it was switched on.
 speak_touch
 
-mkdir -p "$SPEAK_LAST_DIR"
+# Both directories, once per turn. speak_turn_on already creates the consoles one at
+# 0700, but a console switched on before that mode existed keeps whatever it had, and
+# nothing else would ever revisit it. Two chmods against a turn that just ran a model.
+speak_private_dir "$SPEAK_CONSOLES_DIR"
+speak_private_dir "$SPEAK_LAST_DIR"
 prefix="$SPEAK_LAST_DIR/$(speak_console_id)"
 
 err="$(printf '%s' "$payload" |

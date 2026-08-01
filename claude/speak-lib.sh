@@ -71,6 +71,23 @@ SPEAK_HINT=$'\033[38;2;108;108;108m╰──▸/speak summary · /speak full\033
 SPEAK_POST=$'\033[0m\n'"$SPEAK_HINT"
 SPEAK_POST_TIGHT=$'\033[0m'"$SPEAK_HINT"
 
+# ── Private storage ─────────────────────────────────────────────────────────
+#
+# The saved replies are content, not bookkeeping, so the directories holding them are
+# kept to the owner. On macOS $HOME is drwxr-x--- with group staff, and every local
+# account belongs to staff, so a 0755 directory of 0644 files here is readable by any
+# other account on the machine. `mkdir -m` only applies at creation, so the mode is
+# re-applied on every call, the same reason install.sh re-chmods ~/.ssh: a mode set
+# once is a mode nothing restores after something else widens it.
+#
+# Failures are swallowed and 0 returned throughout. This runs inside hooks, and a
+# permission problem must not take a turn down with it.
+speak_private_dir() {
+    mkdir -p -m 700 "$1" 2>/dev/null
+    chmod 700 "$1" 2>/dev/null
+    return 0
+}
+
 # ── State ───────────────────────────────────────────────────────────────────
 
 # Identifies the terminal tab/pane, not the Claude Code session: restarting
@@ -90,7 +107,7 @@ speak_is_on() {
 }
 
 speak_turn_on() {
-    mkdir -p "$SPEAK_CONSOLES_DIR"
+    speak_private_dir "$SPEAK_CONSOLES_DIR"
     : >"$SPEAK_CONSOLES_DIR/$(speak_console_id)"
     speak_prune
 }
@@ -177,7 +194,7 @@ speak_admin_path() {
 }
 
 speak_admin_mark() {
-    mkdir -p "$SPEAK_LAST_DIR"
+    speak_private_dir "$SPEAK_LAST_DIR"
     : >"$(speak_admin_path)"
 }
 
@@ -194,6 +211,11 @@ speak_admin_take() {
 }
 
 speak_log() {
+    # Restricted at creation only, so the common path stays a single append. The log
+    # quotes what was read aloud, so it is content too.
+    if [[ ! -e "$SPEAK_LOG" ]]; then
+        : >"$SPEAK_LOG" 2>/dev/null && chmod 600 "$SPEAK_LOG" 2>/dev/null
+    fi
     printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >>"$SPEAK_LOG" 2>/dev/null
     # Keep the log bounded.
     if [[ -f "$SPEAK_LOG" ]] && (($(wc -l <"$SPEAK_LOG") > 500)); then
@@ -254,7 +276,9 @@ speak_say_file() {
     pkill -f 'claude-speak-' 2>/dev/null
 
     tmp="${TMPDIR:-/tmp}/claude-speak-$(speak_console_id)-$$"
-    cp "$src" "$tmp.txt" 2>/dev/null || return 1
+    # Under a umask in a subshell: TMPDIR is a per-user 0700 directory on macOS, but
+    # the /tmp fallback is world-readable, and this file holds the text being spoken.
+    (umask 077; cp "$src" "$tmp.txt" 2>/dev/null) || return 1
 
     # The pair is removed by the last line inside the subshell rather than by an
     # EXIT trap: macOS ships bash 3.2, which replaces the final command of a
