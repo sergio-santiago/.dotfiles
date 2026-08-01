@@ -6,7 +6,7 @@ This repository contains my personal macOS development environment configuration
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
     - Modular configuration with 12 numbered conf.d files (00-99) for controlled load order.
-    - Custom functions: `fish_greeting`, `fish_user_key_bindings`.
+    - Custom functions: `fish_greeting`, `fish_user_key_bindings`, `brew_nudge`.
     - Compact welcome banner with rainbow effect (`lolcat`) and fixed seed for consistent colors.
 - 🧾 **Aliases**
     - Well-structured and documented with practical usage examples, autoloaded from `conf.d/08-aliases.fish`.
@@ -15,7 +15,8 @@ This repository contains my personal macOS development environment configuration
     - Comprehensive configuration with `fd` integration for fast file/directory search.
     - Responsive preview windows with `bat` (files) and `eza` (directories).
     - Colors synchronized with the `linked_data_dark_rainbow` palette.
-    - Custom keybindings and 80% height layout with rounded borders.
+    - Custom keybindings and 80% height layout with rounded borders. `zi` keeps zoxide's own
+      narrower layout, because it also keeps zoxide's flags: see the note in `05-fzf.fish`.
 - 🔐 **SSH**
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🧠 **Git**
@@ -100,7 +101,8 @@ This repository contains my personal macOS development environment configuration
 
 Configs live in this repo and are symlinked into their expected locations (`make link`).
 `git/config-personal` and `git/config-tribbu` are **not** symlinked. They are pulled in by
-`git/config` via absolute `includeIf` paths.
+`git/config` via `includeIf` paths rooted at `~`, which git expands itself, so the two files are
+found wherever the include is read from.
 
 ```mermaid
 flowchart LR
@@ -141,9 +143,10 @@ flowchart LR
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
 linked except the two commands under `bin/`, `speak` and `brew-maintenance`, which need to be on your
 `PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `speak-setup.sh` behind
-`make speak-setup`, `tests/` behind `make test`, and `docs/COLORS.md` is the source of truth for the
-palette. `links.sh` holds the symlink map itself, sourced by both `install.sh` and `doctor.sh` so that
-what gets created and what gets verified cannot drift apart.
+`make speak-setup`, `colors-check.sh` behind `make colors-check`, `tests/` behind `make test`, and
+`docs/COLORS.md` is the source of truth for the palette. `links.sh` holds the symlink map itself,
+sourced by `install.sh`, `doctor.sh` and the test suite, so what gets created, what gets verified and
+what the README documents cannot drift apart.
 
 `iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
 plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
@@ -152,10 +155,25 @@ custom folder** instead. See [iTerm2 Configuration](#-iterm2-configuration-theme
 ### Tests
 
 `make test` runs every `scripts/tests/test-*.sh` through a plain bash runner, no framework and no
-extra formula to install. Tests never touch the real Homebrew: `brew-maintenance` takes its brew
-executable, its stamp path and its gcloud state file from environment variables, so each case runs
-against a fake `brew` that logs what it was asked to do. That log is what lets a test prove a
-negative, such as no `upgrade` ever being invoked with `--greedy`.
+extra formula to install. Nothing in the suite touches the real Homebrew or the real `$HOME`: each
+case is handed a throwaway one.
+
+| File | What it pins down |
+|------|-------------------|
+| `test-brew-maintenance.sh` | The action/report split, against a fake `brew` that logs every call |
+| `test-brew-nudge.sh` | The reminder's thresholds, and that it stays under 5 ms per call |
+| `test-install.sh` | That `--dry-run` describes the real run exactly and creates nothing |
+| `test-doctor.sh` | That the `REQUIRED` list and the `Brewfile` have not drifted apart |
+
+Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
+executable, its stamp path and its gcloud state file from environment variables, so a fake `brew`
+can record what it was asked to do: that log is what shows `upgrade` is never invoked with
+`--greedy`. And `test-install.sh` plans one throwaway `$HOME` and installs into a second, so a dry
+run that quietly created a directory would fail the suite rather than be trusted.
+
+`test-doctor.sh` guards the one thing about `doctor.sh` that rots in silence. Its list of required
+binaries is written by hand, so a formula added to the `Brewfile` and forgotten there gets installed
+by `make brew` and then never checked again. Nothing breaks when that happens, which is the problem.
 
 `make doctor` is the complement. It checks the machine, while `make test` checks the scripts.
 
@@ -221,7 +239,12 @@ flowchart TD
 
 ### ⚡ Quick start
 
+Everything here builds on [Homebrew](https://brew.sh), which is the one thing that has to be
+installed by hand first. Nothing in the repo can install it, since `make brew` is what uses it.
+
 ```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
 git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 make install          # installs Brewfile packages + symlinks every config
@@ -240,6 +263,7 @@ The sections below explain each piece in detail.
 | `make install` | `brew` + `link`, full setup on a new machine |
 | `make brew` | Install all packages/apps from the `Brewfile` |
 | `make link` | Symlink configs into `~/.config`, `~/.claude`, `~/.ssh`, `~/.local/bin` (idempotent, backs up existing files) |
+| `make link-dry` | Print exactly what `make link` would do, changing nothing |
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
@@ -248,7 +272,8 @@ The sections below explain each piece in detail.
 | `make test` | Run the test suite |
 
 > The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
-> file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`.
+> file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`. `make link-dry`
+> prints the same run without performing any of it, so you can read the plan first.
 
 ---
 
@@ -378,7 +403,7 @@ A finished run is recorded in `~/.cache/brew-maintenance/last-run`, the only pla
 when maintenance last happened. Two surfaces read it:
 
 - **the fish greeting**, through `brew_nudge`, which prints one dim line once the last run is
-  7 days old or older. Two file reads and no subprocess: 0.2 ms against a 140 ms shell startup.
+  7 days old or older. Two file reads and no subprocess: 0.24 ms against a ~215 ms login shell.
   Tune it with `set -U brew_nudge_days 14`, or silence it with `0`.
 - **`make doctor`**, which can afford the expensive question the greeting cannot. It reports the
   age of the last run, the age of the package index, and how many packages are outdated, read
@@ -393,11 +418,16 @@ time, and `--check` writes no stamp, because looking is not maintaining.
 ### 🔗 Symlink configs
 
 The recommended way is the installer, which creates every symlink, backs up anything it would
-overwrite, creates `~/.ssh/config.private`, and rebuilds the bat cache:
+overwrite, creates `~/.ssh/config.private`, tightens the modes on `~/.ssh`, and rebuilds the bat cache:
 
 ```bash
-make link
+make link-dry    # read the plan first: every link, backup and chmod, nothing performed
+make link        # apply it
 ```
+
+`make link-dry` describes exactly the run that `make link` then performs, and creates nothing at
+all, not even a directory. `scripts/tests/test-install.sh` asserts both halves of that: it plans
+one throwaway `$HOME`, installs into a second, and fails if the two disagree.
 
 It wires the repo into `$HOME` like this:
 
@@ -567,6 +597,30 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 - `fish_user_key_bindings.fish`: Custom key bindings
 - `brew_nudge.fish`: Suggests `bm` when the last maintenance run is old enough
 
+#### Universal variables override this repo
+
+Everything above uses `set -g`, never `set -U`. A universal variable is stored in
+`~/.config/fish/fish_variables`, which is **not** tracked here and which `make link` does not manage,
+so it outlives the line that created it and shadows whatever `conf.d` sets afterwards. That makes a
+long-lived machine behave differently from a fresh one for reasons nothing in the repo can explain.
+
+To see what a machine has accumulated:
+
+```bash
+grep -oE '^SETUVAR (--export )?[^:]+' ~/.config/fish/fish_variables | awk '{print $NF}'
+```
+
+Anything on that list which `conf.d` also sets is stale state, and clearing it is safe because the
+repo sets it again on the next shell start:
+
+```bash
+set -eU <name>       # per variable, then open a new shell
+```
+
+`_ZO_FZF_OPTS` is the one worth checking first. If it is set, `zi` loses zoxide's own fzf flags
+including `--no-sort`, and the results come back ordered by fuzzy score instead of by frecency. See
+the comment in `05-fzf.fish` for what that costs.
+
 ---
 
 ### 🧩 Disable Starship in JetBrains IDEs Terminal
@@ -593,14 +647,23 @@ To keep personal hosts out of version control:
 1. The tracked `ssh/config` contains:
 
    ```ssh
-   Include ~/.dotfiles/ssh/config.public
    Include ~/.ssh/config.private
+   Include ~/.dotfiles/ssh/config.public
    ```
 
+   Private first, because ssh keeps the **first** value it obtains for any keyword. Read the other
+   way round, the public file's catch-all `Host *` block claimed each keyword before any per-host
+   block in the private file was considered, so the private half could add hosts but never override
+   an option. In this order a private host can override anything, and `Host *` still supplies
+   whatever that host leaves unset.
+
 2. `~/.ssh/config.private` holds your private/machine-specific hosts. `make link` creates it
-   automatically as an empty `0600` file. To create it by hand instead:
+   automatically as an empty `0600` file, and sets `~/.ssh` itself to `0700`. Both modes are
+   re-applied on every run, because a mode set only at creation is a mode nothing restores. To do
+   it by hand instead:
 
    ```bash
+   mkdir -p ~/.ssh && chmod 700 ~/.ssh
    touch ~/.ssh/config.private
    chmod 600 ~/.ssh/config.private
    ```

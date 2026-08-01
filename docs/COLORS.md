@@ -184,12 +184,19 @@ Synchronized 256-color codes. Config: `fish/conf.d/05-fzf.fish`
 
 **Color mapping:**
 - `fg:231` → White / `bg:16` → Black
-- `fg+:231` → White (selected) / `bg+:59` → UI Dark (selected bg)
+- `fg+:231` → White (selected) / `bg+:59` → neutral grey, outside the palette (selected bg)
 - `hl:117` → Blue (highlight) / `hl+:122` → Cyan (highlight selected)
 - `info:183` → Purple / `prompt:212` → Pink / `pointer:212` → Pink
 - `marker:84` → Green / `spinner:222` → Orange / `header:183` → Mauve
 
 *Note: 256-color codes are the closest matches to hex palette. Zoxide inherits these colors.*
+
+`bg+:59` is the one exception to that note, and it is listed as a grey rather than as
+UI Dark because that is what it is. Index 59 sits at cube level (1,1,1), so `#5F5F5F`:
+89 units from UI Dark `#24273A` in RGB, against 18 for index `236` (`#303030`), the
+nearest the 256-colour space gets. The selected row is a plain lighter grey, which
+reads fine on black. Switching to `236` would bring it into the palette and is the
+one change here that would alter what you see, so it is left as it is.
 
 ---
 
@@ -234,5 +241,5 @@ and `#737994`)
 - **UI backgrounds** → UI Dark `#24273A`: bat and micro
 
 Three places diverge on purpose, and are documented above where they occur: fish paints
-operators soft green `#5EFC94` rather than pink, FZF's selected background is UI Dark
-`59` rather than purple, and the statusline carries four Dracula values of its own.
+operators soft green `#5EFC94` rather than pink, FZF's selected background is a plain
+grey `59` rather than purple, and the statusline carries four Dracula values of its own.

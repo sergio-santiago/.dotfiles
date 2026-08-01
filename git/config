@@ -27,9 +27,15 @@
 # Override identity for personal projects under ~/Projects/personal/
 [includeIf "gitdir:~/Projects/personal/"]
 	path = ~/.dotfiles/git/config-personal
+
+# HTTPS credentials for GitHub, delegated to the gh CLI. Written by `gh auth login`.
+# The empty `helper =` is load-bearing and not a leftover: helper is a multi-valued
+# key, so an empty value resets the list and stops any helper inherited from a system
+# or earlier config from being consulted first. Absolute path because git runs helpers
+# through a shell that may not have Homebrew on PATH.
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential

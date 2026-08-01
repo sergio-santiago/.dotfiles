@@ -12,9 +12,14 @@
 #     Called from fish_greeting, which means once per new shell.
 #
 # Cost:
-#   - Two file reads, no subprocess, no network: 0.21 ms measured over 200
-#     iterations, against a 140 ms fish startup. `brew outdated` is deliberately
+#   - Two file reads, no subprocess, no network: 0.24 ms over 200 iterations,
+#     against a login shell of roughly 215 ms. `brew outdated` is deliberately
 #     not called here, it costs 480 ms even offline.
+#   - Measure from a real terminal, not from something spawned by an editor or an
+#     agent. Both the inherited environment and the parent process move the figure
+#     by 50% or more in either direction, which is how a number like this gets
+#     misread as having drifted when nothing changed. `make test` prints the
+#     per-call cost of this function on every run.
 #
 # Data source:
 #   - The stamp written by scripts/bin/brew-maintenance. Its mtime is the only
