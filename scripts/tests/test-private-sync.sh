@@ -39,10 +39,10 @@ fresh_priv_home() {
   cat >"$CASE_HOME/.ssh/config.private" <<'EOF'
 Host example-one
   HostName 203.0.113.10
-  User deploy
+  User example-user
 Host example-two
   HostName 203.0.113.11
-  User admin
+  User example-admin
   Port 2222
 EOF
   cat >"$CASE_HOME/.aws/config" <<'EOF'
@@ -162,7 +162,7 @@ screen_verdict() { # line-to-inject → "TRIP" or "CLEAN"
   cat >"$CASE_HOME/.ssh/config.private" <<'EOF'
 Host example-one
   HostName 203.0.113.10
-  User deploy
+  User example-user
 EOF
   printf '%s\n' "$1" >>"$CASE_HOME/.ssh/config.private"
   priv_run scan
