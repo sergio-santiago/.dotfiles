@@ -265,6 +265,55 @@ else
   warn "Piper not installed. Run 'make speak-setup' (optional feature)"
 fi
 
+# ── Private config sync ─────────────────────────────────────────────────────
+# The pull half of the private sync, for the same reason the Homebrew section
+# exists: knowing a file is 0600 says nothing about whether a copy of it survives
+# this laptop. Reads the same map scripts/private-sync.sh writes from, so the two
+# cannot disagree about which files are in scope. Offline and cheap: a cmp per file
+# and one `git status`, no network.
+head "🔐 Private config sync (optional)"
+PRIVATE_REPO="${DOTFILES_PRIVATE:-$HOME/.dotfiles-private}"
+
+if [[ ! -d "$PRIVATE_REPO/.git" ]]; then
+  warn "private config is not synced anywhere. Run 'make private-init' (optional feature)"
+else
+  # shellcheck source=./private-files.sh
+  source "$DOTFILES/scripts/private-files.sh"
+  for entry in "${PRIVATE_FILES[@]}"; do
+    P_SRC="${entry%%|*}"
+    P_DEST="$PRIVATE_REPO/${entry#*|}"
+    P_NAME="${P_SRC/#$HOME/~}"
+    if [[ ! -f "$P_SRC" && ! -f "$P_DEST" ]]; then
+      warn "$P_NAME exists in neither place"
+    elif [[ ! -f "$P_DEST" ]]; then
+      warn "$P_NAME has never been pushed. Run 'make private-push'"
+    elif [[ ! -f "$P_SRC" ]]; then
+      warn "$P_NAME is missing here. 'make private-pull' restores it"
+    elif cmp -s "$P_SRC" "$P_DEST"; then
+      pass "$P_NAME is in sync"
+    else
+      warn "$P_NAME differs from the pushed copy. Run 'make private-push'"
+    fi
+  done
+
+  # A perfectly matching pair still means nothing left this machine if the repo was
+  # never committed or has no remote.
+  if [[ -n "$(git -C "$PRIVATE_REPO" status --porcelain 2>/dev/null)" ]]; then
+    warn "the private repo has uncommitted changes. Run 'make private-push'"
+  elif ! git -C "$PRIVATE_REPO" remote get-url origin >/dev/null 2>&1; then
+    warn "the private repo has no remote, so nothing is backed up off this machine"
+  else
+    AHEAD="$(git -C "$PRIVATE_REPO" rev-list --count '@{u}..HEAD' 2>/dev/null)"
+    if [[ -z "$AHEAD" ]]; then
+      warn "the private repo has no upstream branch yet. Run 'make private-push'"
+    elif [[ "$AHEAD" == "0" ]]; then
+      pass "the private repo is committed and pushed"
+    else
+      warn "the private repo is $AHEAD commit(s) ahead of its remote"
+    fi
+  fi
+fi
+
 # ── Summary ─────────────────────────────────────────────────────────────────
 head "📋 Summary"
 printf "  %s%d passed%s · %s%d warnings%s · %s%d failed%s\n" \
