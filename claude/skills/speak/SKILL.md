@@ -1,7 +1,6 @@
 ---
 name: speak
 description: Read the last reply out loud, or turn this console on/off (on prints the available commands after each reply)
-disable-model-invocation: true
 argument-hint: "[on|off|summary|full|stop|test]"
 allowed-tools: Bash(speak) Bash(speak *)
 ---
