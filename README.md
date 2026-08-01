@@ -89,6 +89,7 @@ This repository contains my personal macOS development environment configuration
     - [🐟 Fish Shell Configuration Structure](#-fish-shell-configuration-structure)
     - [🧩 Disable Starship in JetBrains IDEs](#-disable-starship-in-jetbrains-ides-terminal)
     - [🔐 SSH Configuration (Public/Private Split)](#-ssh-configuration-publicprivate-split)
+    - [🗝️ Machine-private config (the second repo)](#️-machine-private-config-the-second-repo)
     - [💻 iTerm2 Configuration (Theme, Colors & Profiles)](#-iterm2-configuration-theme-colors--profiles)
     - [🔊 Spoken Claude Code replies](#-spoken-claude-code-replies)
 - [📋 Color palette reference](docs/COLORS.md)
@@ -146,7 +147,14 @@ linked except the two commands under `bin/`, `speak` and `brew-maintenance`, whi
 `make speak-setup`, `colors-check.sh` behind `make colors-check`, `tests/` behind `make test`, and
 `docs/COLORS.md` is the source of truth for the palette. `links.sh` holds the symlink map itself,
 sourced by `install.sh`, `doctor.sh` and the test suite, so what gets created, what gets verified and
-what the README documents cannot drift apart.
+what the README documents cannot drift apart. `private-files.sh` is the same idea for the private
+half: one list, read by `private-sync.sh` and by `doctor.sh`, so the sync and the health check cannot
+disagree about which files are in scope.
+
+`CLAUDE.md` at the root is not configuration either. It carries the repo-specific rules an agent
+session needs, chiefly the lookup that says which docs to check for a given code change. It exists
+because documentation going stale is this repo's most repeated defect, and a general instruction to
+"review the docs" proved too vague to act on.
 
 `iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
 plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
@@ -164,6 +172,7 @@ case is handed a throwaway one.
 | `test-brew-nudge.sh` | The reminder's thresholds, and that it stays under 5 ms per call |
 | `test-install.sh` | That `--dry-run` describes the real run exactly and creates nothing |
 | `test-doctor.sh` | That the `REQUIRED` list and the `Brewfile` have not drifted apart |
+| `test-private-sync.sh` | The secret screen, from both sides, and that a refused push copies nothing |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable, its stamp path and its gcloud state file from environment variables, so a fake `brew`
@@ -174,6 +183,13 @@ run that quietly created a directory would fail the suite rather than be trusted
 `test-doctor.sh` guards the one thing about `doctor.sh` that rots in silence. Its list of required
 binaries is written by hand, so a formula added to the `Brewfile` and forgotten there gets installed
 by `make brew` and then never checked again. Nothing breaks when that happens, which is the problem.
+
+`test-private-sync.sh` tests the secret screen from both sides, because both sides can fail. A
+screen that misses a credential lets one into a git history, which is the failure the whole script
+exists to prevent. A screen that fires on `PasswordAuthentication no` is worse in practice: a check
+that cries wolf on ordinary `ssh_config` gets bypassed within a week and then protects nothing. It
+also pins down that a refused push copies **nothing**, not even the files that passed, and that the
+screen reports line numbers without ever printing the secret it matched.
 
 `make doctor` is the complement. It checks the machine, while `make test` checks the scripts.
 
@@ -270,6 +286,11 @@ The sections below explain each piece in detail.
 | `make speak-setup` | Install Piper + Spanish voices so Claude Code can speak its replies |
 | `make brew-maintenance` | Update, tidy up and review Homebrew (also `bm` in fish) |
 | `make test` | Run the test suite |
+| `make private-init` | Create the local private repo for machine-private config (no remote) |
+| `make private-status` | Show what differs between `$HOME` and the private repo |
+| `make private-scan` | Screen the private files for credentials, changing nothing |
+| `make private-push` | Copy private config `$HOME` → private repo, commit and push |
+| `make private-pull` | Restore private config from the private repo into `$HOME` (backs up first) |
 
 > The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
 > file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`. `make link-dry`
@@ -403,7 +424,12 @@ A finished run is recorded in `~/.cache/brew-maintenance/last-run`, the only pla
 when maintenance last happened. Two surfaces read it:
 
 - **the fish greeting**, through `brew_nudge`, which prints one dim line once the last run is
-  7 days old or older. Two file reads and no subprocess: 0.24 ms against a ~215 ms login shell.
+  7 days old or older. Two file reads and no subprocess, which is what lets it run at every
+  shell start: 0.24 ms against a 215 ms login shell, both measured on one Apple Silicon Mac in
+  August 2026 and neither one a guarantee. Measure a login shell from a real terminal if you
+  need the figure, not from inside an editor or an agent session, which inherit exported
+  variables and report something else. The line actually enforced lives in
+  `test-brew-nudge.sh`: under 5 ms per call.
   Tune it with `set -U brew_nudge_days 14`, or silence it with `0`.
 - **`make doctor`**, which can afford the expensive question the greeting cannot. It reports the
   age of the last run, the age of the package index, and how many packages are outdated, read
@@ -669,6 +695,101 @@ To keep personal hosts out of version control:
    ```
 
 3. Put your private or machine-specific SSH hosts there (e.g., staging, personal VPS, etc.)
+
+`make link` creates that file empty and never syncs it anywhere. Keeping a copy off this laptop is
+the next section.
+
+---
+
+### 🗝️ Machine-private config (the second repo)
+
+**This repo is public.** So the handful of files that name real machines cannot live in it, and
+until they live somewhere they exist on exactly one laptop.
+
+They go in a separate **private** repo, `~/.dotfiles-private` by default, driven from here:
+
+| Command | What it does |
+|---------|--------------|
+| `make private-init` | Create the local private repo. No remote, no push |
+| `make private-status` | What differs between `$HOME` and the repo, and whether anything has left this machine |
+| `make private-scan` | Run the secret screen alone, changing nothing |
+| `make private-push` | Screen, copy, commit, and push if a remote exists |
+| `make private-pull` | Restore into `$HOME`, moving anything in the way to `~/.dotfiles-backup/<timestamp>/` first |
+
+Add `--dry-run` to any of them by calling the script directly:
+`./scripts/private-sync.sh push --dry-run`.
+
+#### What is in scope, and what it is worth
+
+`scripts/private-files.sh` is the map, and it lists **files, never directories**. That is the whole
+safety property rather than a style choice: `~/.aws/config` holds nothing but SSO profiles, and a
+single `aws configure` writes long-lived keys to `~/.aws/credentials` right beside it. A glob over
+`~/.aws` would have swept that into a commit on the next push. Adding a line to the map has to be a
+decision.
+
+| File | What it actually contains | Is it a credential? |
+|------|---------------------------|---------------------|
+| `~/.ssh/config.private` | Host aliases: hostnames, the user to log in as, the odd non-default port | **No.** The keys are in 1Password |
+| `~/.aws/config` | SSO profiles: account ids, role names, the start url | **No.** There is no `~/.aws/credentials` under SSO |
+
+Neither grants access to anything. Both are a **target list**, which is a different and smaller
+risk: publishing them would hand over the enumeration step, and if the hosts belong to a client it
+is their confidentiality and not only yours.
+
+#### Why plaintext in a private repo, and not encrypted in this one
+
+Encrypting a blob into this public repo was the obvious alternative and it loses on three counts.
+It costs a passphrase you can never lose, it turns every change into a diff you cannot read, and git
+keeps every old ciphertext forever, so rotating that passphrase would not protect the versions
+already pushed. For a target list with no credentials in it, that trade does not pay. The private
+repo gives real diffs, restoring is a `git clone`, and it adds no tool that is not already installed.
+
+GitHub Actions secrets are not an option for this at all, whatever they look like: they are
+write-only. `gh secret set` writes one and `gh secret list` shows names, but no API returns a value,
+and Actions redacts them from logs on purpose. You could push a config there and never get it back,
+and an update overwrites with no history.
+
+#### The screen
+
+Every file is screened before it is copied, because the ceiling of these files sits far above their
+current contents. `ssh_config` accepts `ProxyCommand`, which is exactly where people end up embedding
+tokens, and its comments are a note-taking surface. The screen looks for private key blocks, AWS
+keys and session tokens, GitHub, Slack and `sk-` style tokens, and assigned passwords, passphrases or
+secrets.
+
+Two behaviours worth knowing, both covered by `test-private-sync.sh`:
+
+- **A refused run refuses everything.** If one file trips, nothing is copied, not even the files that
+  passed. Screening per file and copying as it went would leave the clean half staged beside a
+  rejected run, and the next push would carry it without ever having said so.
+- **It reports line numbers, never the line.** A check that echoes the secret it caught has just
+  copied it into your scrollback and your terminal log.
+
+Ordinary configuration does not trip it. `PasswordAuthentication no`, `IdentityFile`, `ProxyJump` and
+the word "secret" in a comment are all tested as clean, because a check that cries wolf on real
+`ssh_config` gets bypassed within a week and then protects nothing.
+
+#### Creating the remote is a manual step
+
+`make private-init` stops at a local repo and prints the commands rather than running them. Creating
+the remote is what publishes the host list, and it is the one step here that cannot be taken back:
+
+```bash
+gh repo create dotfiles-private --private --source ~/.dotfiles-private --remote origin
+gh repo view dotfiles-private --json isPrivate   # confirm before pushing
+make private-push
+```
+
+`make doctor` reports this too. It warns when a mapped file has never been pushed, when the local
+copy has drifted from the pushed one, and when the repo has commits that never left the machine,
+because a file being `0600` says nothing about whether a copy of it survives this laptop.
+
+#### On a new machine
+
+```bash
+git clone git@github.com:<you>/dotfiles-private.git ~/.dotfiles-private
+make private-pull
+```
 
 ---
 
