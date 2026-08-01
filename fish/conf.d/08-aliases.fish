@@ -57,7 +57,11 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 if type -q bat
     function _view --wraps bat --description 'bat viewer with terminal width wrap'
-        set -l cols $COLUMNS; or set -l cols 120
+        # The width is tested rather than chained off `set`, which always succeeds:
+        # `set -l cols $COLUMNS; or set -l cols 120` never reached the fallback, so an
+        # unset COLUMNS handed bat a bare `--terminal-width=` instead of a number.
+        set -l cols $COLUMNS
+        test -n "$cols"; or set cols 120
         command bat --paging=never --style=plain --wrap=auto --terminal-width=$cols --tabs=4 $argv
     end
     alias view="_view"
@@ -83,8 +87,12 @@ end
 if type -q pbcopy
     alias copy="pbcopy"
 end
+# `pst`, not `paste`: that name belongs to /usr/bin/paste, and pbpaste ignores file
+# arguments rather than rejecting them. Shadowed, a line pasted from documentation
+# like `paste -d, ids.txt names.txt > out.csv` wrote the clipboard into out.csv and
+# exited 0, so the mistake only surfaced later in whatever read the file.
 if type -q pbpaste
-    alias paste="pbpaste"
+    alias pst="pbpaste"
 end
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -40,13 +40,21 @@ set -g fish_color_selection    '--background=#c6a7ff'
 set -g fish_color_search_match '--background=#ffb86c' --underline
 
 # ─── Pager (Tab completion & history search) ───────────────────────────────────
-# Selected item → lavender bg + black text
+# Selected item → lavender bg + black text.
+#
+# These four are the whole set fish honours for a selected row. Two more used to sit
+# here, fish_pager_color_selected_foreground and fish_pager_color_selected, and
+# neither is among the thirteen pager variables fish 4.8.1 documents in its man page
+# or its HTML reference. The second also carried a pink background that contradicted
+# the line above it.
+#
+# Confirmed by eye in a real terminal after removing them, since a pager cannot be
+# rendered from a script: `git <Tab><Tab>` highlights the selected row in lavender
+# with black text. They were inert, and the pink never reached the screen.
 set -g fish_pager_color_selected_background '--background=#c6a7ff'
 set -g fish_pager_color_selected_prefix      '#000000'
 set -g fish_pager_color_selected_completion  '#000000'
 set -g fish_pager_color_selected_description '#000000'
-set -g fish_pager_color_selected_foreground  black
-set -g fish_pager_color_selected             normal '--background=#ff6cd4'
 
 # Unselected items
 set -g fish_pager_color_prefix      '#cdd6f4'  # Typed prefix (neutral high)
