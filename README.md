@@ -775,10 +775,15 @@ the word "secret" in a comment are all tested as clean, because a check that cri
 the remote is what publishes the host list, and it is the one step here that cannot be taken back:
 
 ```bash
-gh repo create dotfiles-private --private --source ~/.dotfiles-private --remote origin
+gh repo create dotfiles-private --private --source ~/.dotfiles-private --remote origin \
+  --description "🔐 🗝️ The private half of my .dotfiles: SSH hosts, AWS profiles… and nothing that grants access"
 gh repo view dotfiles-private --json isPrivate   # confirm before pushing
 make private-push
 ```
+
+That last clause of the description is not decoration. It records the invariant this repo
+is built around, where the next person to wonder whether a key belongs in there will
+actually read it.
 
 `make doctor` reports this too. It warns when a mapped file has never been pushed, when the local
 copy has drifted from the pushed one, and when the repo has commits that never left the machine,
