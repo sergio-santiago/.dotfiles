@@ -50,6 +50,7 @@ This is deliberately a lookup and not an instruction to re-read the README.
 | any colour, anywhere | `docs/COLORS.md` and `make colors-check` |
 | `scripts/private-files.sh` | README *Machine-private config*, which lists what is in scope and what it is worth |
 | the `gh repo create` hint printed by `private-sync.sh init` | the same command in the README's *Creating the remote is a manual step*. The README's copy carries the repo description, the script's is the short form, and they have to stay compatible |
+| the README or `.gitignore` heredocs inside `private-sync.sh init` | the live copies in `~/.dotfiles-private`. `init` only writes them when the repo does not exist yet, so an existing clone keeps the old text: regenerate into a temp dir with `DOTFILES_PRIVATE=/tmp/x private-sync.sh init`, copy the file across, and commit it there too |
 | `claude/settings.json` hooks, or any `claude/speak-*` file | README *Spoken Claude Code replies* |
 | `ssh/config` include order | the rationale comment in the file itself, and the README's SSH section |
 | an alias in `fish/conf.d/08-aliases.fish` | only if it is one of the few the README names as examples. The README does **not** enumerate aliases, and it should stay that way |

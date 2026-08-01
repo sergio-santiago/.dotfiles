@@ -204,26 +204,53 @@ EOF
 # .dotfiles-private
 
 The private half of [`.dotfiles`](https://github.com/sergio-santiago/.dotfiles).
-Keep this repo **private**.
+**Keep this repo private.**
 
-Nothing here is a credential. It is machine-private configuration: SSH host
-aliases and AWS SSO profiles. The keys and tokens that actually grant access live
-in 1Password and are not synced by anything.
+Nothing here is a credential. It is machine-private configuration, SSH host
+aliases and AWS SSO profiles, which is a target list rather than a way in. The
+keys and tokens that actually grant access live in 1Password and are synced by
+nothing.
 
-## Do not edit these files here
+## These files are copies, do not edit them here
 
-They are copies. The originals are the live files in `$HOME`, and the sync is
-driven from the public repo:
+The live files are the ones in `$HOME`. Edit `~/.ssh/config.private` the way you
+always did, then push. A change made to the copy in this repo is silently
+overwritten by the next `private-push`.
+
+## Nothing syncs by itself
+
+There is no hook, no daemon and no scheduled job. Everything is driven from the
+public repo, by hand:
 
 ```sh
-make private-status   # what differs
-make private-push     # $HOME → here
-make private-pull     # here → $HOME, backing up first
+make private-status   # what differs, and whether anything left this machine
+make private-push     # $HOME → here: screen, copy, commit, push
+make private-pull     # here → $HOME, backing up anything in the way first
+make private-scan     # run the secret screen alone, change nothing
 ```
 
-`private-push` screens every file for credential-shaped content before copying it
-and refuses the whole run if anything trips. Which files are synced is decided by
-`~/.dotfiles/scripts/private-files.sh`, an explicit list and never a directory.
+`make doctor` is what tells you this repo has fallen behind, so you do not have
+to remember.
+
+## On a new machine
+
+```sh
+git clone git@github.com:sergio-santiago/dotfiles-private.git ~/.dotfiles-private
+make private-pull
+```
+
+`private-pull` sets the restored files to 0600. Git records only the executable
+bit, so the modes stored here read as 644 and mean nothing.
+
+## What gets synced, and the screen
+
+`~/.dotfiles/scripts/private-files.sh` decides, as an explicit list of files and
+never a directory: `~/.aws/config` is safe to sync and `~/.aws/credentials`,
+which one `aws configure` writes beside it, is not.
+
+`private-push` screens every file for credential-shaped content first. One hit
+refuses the entire run, including the files that passed, and the report gives
+line numbers without ever printing what it matched.
 EOF
   ok "wrote README.md and .gitignore"
 

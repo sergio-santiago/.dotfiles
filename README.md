@@ -19,6 +19,13 @@ This repository contains my personal macOS development environment configuration
       narrower layout, because it also keeps zoxide's flags: see the note in `05-fzf.fish`.
 - 🔐 **SSH**
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
+- 🗝️ **A linked private repo**
+    - This repo is public, so the files that name real machines live in a separate **private** one,
+      `dotfiles-private`. It holds SSH host aliases and AWS SSO profiles, and no credentials.
+    - Driven from here with `make private-push` / `make private-pull`. **Nothing syncs by itself**:
+      no hook, no daemon, no scheduled job. `make doctor` tells you when it has drifted.
+    - Every file is screened for credential-shaped content before it is copied, and a single hit
+      refuses the whole run. See [Machine-private config](#️-machine-private-config-the-second-repo).
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
     - **Directory-based identities** via `includeIf`: a base identity (`@secture.com`) with automatic
@@ -159,6 +166,19 @@ because documentation going stale is this repo's most repeated defect, and a gen
 `iterm/` is the one directory of real configuration that is not symlinked either: iTerm2 owns its
 plist and rewrites it on quit, so it is pointed at this folder through **Load preferences from a
 custom folder** instead. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles).
+
+There is also a **second repo**, and it is worth knowing about before reading any further. This one
+is public, so the files that name real machines are not here and never can be: they live in a
+separate private repo, `dotfiles-private`, cloned to `~/.dotfiles-private`. Nothing in it is
+symlinked and nothing in it syncs on its own. `scripts/private-files.sh` declares which files are in
+scope, and `make private-push` and `make private-pull` are the only things that move them. Full
+explanation in [Machine-private config](#️-machine-private-config-the-second-repo).
+
+```
+~/.dotfiles           public    configs, scripts, docs        → symlinked into $HOME
+~/.dotfiles-private   PRIVATE   ssh/config.private            → copied to and from $HOME
+                                aws/config                       by make private-push / pull
+```
 
 ### Tests
 
@@ -715,6 +735,32 @@ They go in a separate **private** repo, `~/.dotfiles-private` by default, driven
 
 Add `--dry-run` to any of them by calling the script directly:
 `./scripts/private-sync.sh push --dry-run`.
+
+The live copy is always the one in `$HOME`. The repo holds copies, so edit `~/.ssh/config.private`
+as you always did and push afterwards. Editing the copy inside `~/.dotfiles-private` instead gets
+you a change that the next `private-push` silently overwrites.
+
+#### No, it does not sync by itself
+
+Deliberately. There is **no git hook, no daemon, no scheduled job and no CI step** that copies
+these files, and `make private-push` is the only thing that ever writes to the private repo.
+
+A pre-push hook was the obvious way to automate it and it is the wrong shape here. It would read
+`~/.ssh` and commit on every push to *this* repo, so a routine documentation change would quietly
+publish whatever your SSH config happened to say at that moment, and the screen below would be
+deciding on its own whether that was acceptable. Copying private data is worth one deliberate
+command.
+
+What replaces the automation is being told. `make doctor` reports three separate kinds of drift:
+
+| Doctor says | It means |
+|-------------|----------|
+| `has never been pushed` | a file in the map has no copy in the repo at all |
+| `differs from the pushed copy` | you edited the live file and did not push |
+| `is N commit(s) ahead of its remote` | committed locally, still only on this laptop |
+| `has no remote` | nothing is backed up off this machine at all |
+
+So the routine is: edit the live file, and the next `make doctor` tells you it is out of step.
 
 #### What is in scope, and what it is worth
 
