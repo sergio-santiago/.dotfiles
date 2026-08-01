@@ -203,13 +203,18 @@ get_git_info() {
     # the process cwd instead, these cells could describe a different repository
     # from the folder cell beside them, which reads the same value from the payload.
     local dir="${1:-.}"
-    if ! git -C "$dir" rev-parse --git-dir &> /dev/null; then
+
+    # --absolute-git-dir, not --git-dir: the latter answers relative to $dir, so from
+    # the repo root it prints a bare ".git" and the rebase/merge/cherry-pick tests
+    # below resolved against this process's cwd instead. A conflicted rebase rendered
+    # as DETACHED whenever the status line ran from anywhere but the repo itself.
+    # It exits non-zero outside a repository just as --git-dir did, so one probe
+    # serves as both the guard and the value.
+    local git_dir
+    if ! git_dir=$(git -C "$dir" rev-parse --absolute-git-dir 2>/dev/null); then
         echo ""
         return
     fi
-
-    local git_dir
-    git_dir=$(git -C "$dir" rev-parse --git-dir 2>/dev/null)
 
     local branch branch_icon git_color
     branch=$(git -C "$dir" branch --show-current 2>/dev/null || echo "")
@@ -628,11 +633,21 @@ main() {
         .rate_limits.five_hour.used_percentage // "",
         .rate_limits.five_hour.resets_at // ""
     ] | @tsv')
-    model_name=$(echo "$json_output" | cut -f1)
-    current_dir=$(echo "$json_output" | cut -f2)
-    context_percent=$(echo "$json_output" | cut -f3)
-    session_pct=$(echo "$json_output" | cut -f4)
-    session_reset=$(echo "$json_output" | cut -f5)
+    # Split with parameter expansion rather than five `echo | cut` pipelines. This
+    # runs on every repaint, and those cost ten forks and 10.4 ms against 0.22 ms
+    # here, measured over 20 renders. @tsv escapes any tab inside a value, so no
+    # field can contain the separator and the split is exact.
+    #
+    # Not `read -r a b c d e`: the last two fields are `// ""` and can be empty, and
+    # IFS splitting collapses a run of trailing separators, which would leave
+    # session_pct holding what session_reset should. Peeling one field at a time
+    # keeps an empty field empty.
+    local rest="$json_output" tab=$'\t'
+    model_name="${rest%%$tab*}";      rest="${rest#*$tab}"
+    current_dir="${rest%%$tab*}";     rest="${rest#*$tab}"
+    context_percent="${rest%%$tab*}"; rest="${rest#*$tab}"
+    session_pct="${rest%%$tab*}";     rest="${rest#*$tab}"
+    session_reset="$rest"
     folder_name=$(basename "$current_dir")
 
     local lang_icon
