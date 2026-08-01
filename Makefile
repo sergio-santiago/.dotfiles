@@ -1,7 +1,7 @@
-# ─────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 #  Sergio's .dotfiles: common tasks
 #  Run `make` (or `make help`) to see available targets.
-# ─────────────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 
 # Derived from this file's own location rather than from `pwd`, so the targets keep
 # working under `make -f ~/.dotfiles/Makefile <target>` from another directory.
