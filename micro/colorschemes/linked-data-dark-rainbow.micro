@@ -16,12 +16,12 @@
 # Requirements:
 #   - Truecolor terminal support for accurate colors.
 
-# ── Base ────────────────────────────────────────────────────────────
+# ── Base ────────────────────────────────────────────────────────────────────
 color-link default                 "#ffffff"          # Primary text (white)
 # Optional: Highlight current line background (dark grayish-blue for subtle focus)
 color-link cursor-line             "#24273a"
 
-# ── Syntax (consistent with terminal palette) ───────────────────────
+# ── Syntax (consistent with terminal palette) ───────────────────────────────
 color-link comment                 "#a6adc8"          # Comment gray
 color-link identifier              "#68d5ff"          # Blue/sapphire for general identifiers
 color-link identifier.class        "#cca5ff"          # Mauve for class/type names
@@ -40,7 +40,7 @@ color-link underlined              "#90e8ff"          # Sky for underlined text
 color-link error                   "bold #ff4d4d"     # Bold red for errors
 color-link todo                    "bold #ffec99"     # Bold yellow for TODO/FIXME
 
-# ── UI ──────────────────────────────────────────────────────────────
+# ── UI ──────────────────────────────────────────────────────────────────────
 # Option A (solid background, recommended for translucent terminals):
 color-link statusline              "#c6a7ff,#24273a"  # Lavender foreground, dark UI background
 color-link tabbar                  "#c6a7ff,#24273a"  # Lavender foreground, dark UI background
@@ -54,15 +54,15 @@ color-link current-line-number     "#44f373"          # Green for active line nu
 color-link indent-char             "#90e8ff"          # Sky for indent guides
 color-link color-column            "#24273a"          # Dark guide for fixed column width (80/100)
 
-# ── Selection & caret ───────────────────────────────────────────────
+# ── Selection & caret ───────────────────────────────────────────────────────
 color-link selection               "#000000,#c6a7ff"  # Black text on lavender background
 
-# ── Diff / diagnostics ──────────────────────────────────────────────
+# ── Diff / diagnostics ──────────────────────────────────────────────────────
 color-link diff-added              "#44f373"          # Green for added lines
 color-link diff-modified           "#ffb86c"          # Orange/peach for modified lines
 color-link diff-deleted            "#ff4d4d"          # Red for deleted lines
 color-link gutter-error            "#ff4d4d"          # Red markers in gutter for errors
 color-link gutter-warning          "#ffb86c"          # Orange markers in gutter for warnings
 
-# ── Whitespace ──────────────────────────────────────────────────────
+# ── Whitespace ──────────────────────────────────────────────────────────────
 color-link trailingws              "#ff8fa1"          # Flamingo for trailing whitespace

@@ -15,7 +15,7 @@
 #   - Optional: fd (sources), bat (file preview), eza (dir preview)
 # ==============================================================================
 
-# ── 📦 Global style settings ─────────────────────────────────────────
+# ── 📦 Global style settings ────────────────────────────────────────────────
 # Colors synchronized with Linked Data Dark Rainbow palette (COLORS.md)
 # fg:231(white) bg:16(black) fg+:231(white) bg+:59(neutral grey, see COLORS.md)
 # hl:117(blue) hl+:122(cyan) info:183(purple) prompt:212(pink)
@@ -33,7 +33,7 @@ set -q COLORTERM; or set -gx COLORTERM truecolor
 status --is-interactive; or exit
 type -q fzf; or exit
 
-# ── 🔍 Default search sources (fd with fallback) ─────────────────────
+# ── 🔍 Default search sources (fd with fallback) ────────────────────────────
 if type -q fd
     set -gx FZF_DEFAULT_COMMAND  'fd --type f --hidden --follow --exclude .git'
     set -gx FZF_CTRL_T_COMMAND   $FZF_DEFAULT_COMMAND
@@ -44,7 +44,7 @@ else
     set -gx FZF_ALT_C_COMMAND    "find -L . -type d -not -path '*/.git/*' 2>/dev/null"
 end
 
-# ── 📐 Responsive preview handling ───────────────────────────────────
+# ── 📐 Responsive preview handling ──────────────────────────────────────────
 function __fzf_apply_responsive_opts
     # Width breakpoints (columns)
     set -l narrow 120
@@ -81,13 +81,13 @@ function __fzf_apply_responsive_opts
     end
 end
 
-# ── ⚡ Apply settings now and on terminal resize ──────────────────────
+# ── ⚡ Apply settings now and on terminal resize ────────────────────────────
 __fzf_apply_responsive_opts
 function __fzf_react_to_resize --on-variable COLUMNS
     __fzf_apply_responsive_opts
 end
 
-# ── 🎨 Zoxide integration ─────────────────────────────────────────────
+# ── 🎨 Zoxide integration ───────────────────────────────────────────────────
 # Nothing to set. `_ZO_FZF_OPTS` *replaces* zoxide's own fzf arguments rather than
 # adding to them, and setting it to FZF_DEFAULT_OPTS cost `zi` the sixteen flags
 # zoxide passes for a reason. Verified with an fzf stub that dumps its argv:

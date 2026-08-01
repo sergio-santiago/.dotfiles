@@ -60,12 +60,12 @@ $line_break\
 # BASE PROMPT COMPONENTS
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Line Break ─────────────────────────────────────────────────────────────────
+# ── Line Break ──────────────────────────────────────────────────────────────
 # Line breaks between prompt segments
 [line_break]
 disabled = false
 
-# ── Character (Prompt Symbol) ──────────────────────────────────────────────────
+# ── Character (Prompt Symbol) ───────────────────────────────────────────────
 # Input symbol that changes based on command status and vim mode
 [character]
 disabled = false
@@ -80,7 +80,7 @@ vimcmd_visual_symbol = '[❮](bold fg:yellow)'      # Vim visual mode
 # NAVIGATION AND DIRECTORY
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Directory ──────────────────────────────────────────────────────────────────
+# ── Directory ───────────────────────────────────────────────────────────────
 # Shows current directory with intelligent truncation
 [directory]
 style = "bg:green fg:black"
@@ -105,14 +105,14 @@ truncate_to_repo = true         # Truncates from git repo root
 # VERSION CONTROL (GIT)
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Git Branch ─────────────────────────────────────────────────────────────────
+# ── Git Branch ──────────────────────────────────────────────────────────────
 # Shows current git branch with icon
 [git_branch]
 symbol = ""
 style = "fg:black bg:yellow"
 format = '[ $symbol $branch ]($style)'
 
-# ── Git Status ─────────────────────────────────────────────────────────────────
+# ── Git Status ──────────────────────────────────────────────────────────────
 # Shows repository status (changes, untracked files, etc.)
 [git_status]
 style = "fg:black bg:yellow"
@@ -123,55 +123,55 @@ format = '[($all_status$ahead_behind )]($style)'
 # ══════════════════════════════════════════════════════════════════════════════
 # Automatically detect project language and display version
 
-# ── C ──────────────────────────────────────────────────────────────────────────
+# ── C ───────────────────────────────────────────────────────────────────────
 [c]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Go ─────────────────────────────────────────────────────────────────────────
+# ── Go ──────────────────────────────────────────────────────────────────────
 [golang]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Haskell ────────────────────────────────────────────────────────────────────
+# ── Haskell ─────────────────────────────────────────────────────────────────
 [haskell]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Java ───────────────────────────────────────────────────────────────────────
+# ── Java ────────────────────────────────────────────────────────────────────
 [java]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Kotlin ─────────────────────────────────────────────────────────────────────
+# ── Kotlin ──────────────────────────────────────────────────────────────────
 [kotlin]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Node.js ────────────────────────────────────────────────────────────────────
+# ── Node.js ─────────────────────────────────────────────────────────────────
 [nodejs]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── PHP ────────────────────────────────────────────────────────────────────────
+# ── PHP ─────────────────────────────────────────────────────────────────────
 [php]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Python ─────────────────────────────────────────────────────────────────────
+# ── Python ──────────────────────────────────────────────────────────────────
 [python]
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
-# ── Rust ───────────────────────────────────────────────────────────────────────
+# ── Rust ────────────────────────────────────────────────────────────────────
 [rust]
 symbol = ""
 style = "fg:black bg:orange"
@@ -181,7 +181,7 @@ format = '[ $symbol( $version) ]($style)'
 # TIME AND DURATION
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Time ───────────────────────────────────────────────────────────────────────
+# ── Time ────────────────────────────────────────────────────────────────────
 # Shows current time in 24-hour format
 [time]
 disabled = false
@@ -189,7 +189,7 @@ time_format = "%H:%M"
 style = "fg:black bg:purple"
 format = '[  $time ]($style)'
 
-# ── Command Duration ───────────────────────────────────────────────────────────
+# ── Command Duration ────────────────────────────────────────────────────────
 # Shows how long the last command took to execute
 [cmd_duration]
 min_time = 1000 # Show if the command took ≥ 1 second
@@ -204,7 +204,7 @@ min_time_to_notify = 30000 # Notify if took ≥ 30 seconds
 # CUSTOM MODULES
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Custom: Pretty Name ────────────────────────────────────────────────────────
+# ── Custom: Pretty Name ─────────────────────────────────────────────────────
 # Extracts first name from system user (macOS only)
 [custom.pretty_name]
 command = "id -F | awk '{print $1}'"  # Gets the full name and extracts first
@@ -212,7 +212,7 @@ when = "test $(uname) = Darwin"       # macOS only
 style = "bg:blue fg:black"
 format = "[ $output ]($style)"
 
-# ── Custom: Docker Running Containers ──────────────────────────────────────────
+# ── Custom: Docker Running Containers ───────────────────────────────────────
 # Counts and displays how many Docker containers are running
 # Only shows when at least one container is active
 [custom.docker_running]
@@ -226,7 +226,7 @@ format = "[ $symbol$output ]($style)"
 # COLOR PALETTES
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Linked Data Dark Rainbow ───────────────────────────────────────────────────
+# ── Linked Data Dark Rainbow ────────────────────────────────────────────────
 # Custom palette optimized for dark backgrounds
 # Inspired by vibrant "rainbow" color schemes with high contrast
 [palettes.linked_data_dark_rainbow]
