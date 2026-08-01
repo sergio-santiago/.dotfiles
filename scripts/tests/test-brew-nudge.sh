@@ -93,8 +93,10 @@ assert_eq "" "$OUT"
 
 # ── It must not be the thing that slows the shell down ─────────────────────
 # 200 iterations, so the per-call cost is readable above process startup noise.
-# Budget is deliberately loose: the measured cost is 0.21 ms and the assertion
-# only has to catch a regression that reintroduces a `brew` call or a network hop.
+# Budget is deliberately loose: the measured cost is 0.24 ms in a clean environment,
+# and the assertion only has to catch a regression that reintroduces a `brew` call or
+# a network hop. It runs under whatever environment the suite inherits, so the figure
+# it prints is an upper bound rather than the number quoted in brew_nudge.fish.
 ELAPSED_MS="$(env XDG_CACHE_HOME="$OLD" PATH="$FAKEBIN:$PATH" fish --no-config -c "
   source '$NUDGE'
   set -l t0 (python3 -c 'import time;print(int(time.time()*1000))')
