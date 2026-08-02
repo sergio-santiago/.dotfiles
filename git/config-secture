@@ -1,0 +1,4 @@
+# Identity override for Secture work (loaded via includeIf for ~/Projects/secture/).
+# SSH signing key and name are inherited from the main config.
+[user]
+	email = sergio@secture.com

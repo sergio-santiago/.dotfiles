@@ -28,9 +28,10 @@ This repository contains my personal macOS development environment configuration
       refuses the whole run. See [Machine-private config](#️-machine-private-config-the-second-repo).
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
-    - **Directory-based identities** via `includeIf`: a base identity (`@secture.com`) with automatic
-      email overrides for Tribbu (`~/Projects/tribbu/`) and personal (`~/Projects/personal/`) repos,
-      all sharing a single signing key. See [Git identities](#-git-identities-multi-account).
+    - **Directory-based identities** via `includeIf`: the personal address is the default and the
+      work ones are the exceptions, for Secture (`~/Projects/secture/`) and Tribbu
+      (`~/Projects/tribbu/`), all sharing a single signing key.
+      See [Git identities](#-git-identities-multi-account).
 - ✏️ **Micro editor**
     - Lightweight terminal-based editor with custom settings and a matching `linked-data-dark-rainbow` color scheme for
       a consistent look with Fish and Starship.
@@ -108,9 +109,9 @@ This repository contains my personal macOS development environment configuration
 ### Repository layout & symlink map
 
 Configs live in this repo and are symlinked into their expected locations (`make link`).
-`git/config-personal` and `git/config-tribbu` are **not** symlinked. They are pulled in by
-`git/config` via `includeIf` paths rooted at `~`, which git expands itself, so the two files are
-found wherever the include is read from.
+`git/config-personal`, `git/config-secture` and `git/config-tribbu` are **not** symlinked. They are
+pulled in by `git/config` via `includeIf` paths rooted at `~`, which git expands itself, so the
+three files are found wherever the include is read from.
 
 ```mermaid
 flowchart LR
@@ -193,6 +194,7 @@ case is handed a throwaway one.
 | `test-install.sh` | That `--dry-run` describes the real run exactly and creates nothing |
 | `test-doctor.sh` | That the `REQUIRED` list and the `Brewfile` have not drifted apart |
 | `test-private-sync.sh` | The secret screen, from both sides, and that a refused push copies nothing |
+| `test-git-identity.sh` | That the identity map in `git/config` and the one the README prints agree |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable, its stamp path and its gcloud state file from environment variables, so a fake `brew`
@@ -210,6 +212,14 @@ exists to prevent. A screen that fires on `PasswordAuthentication no` is worse i
 that cries wolf on ordinary `ssh_config` gets bypassed within a week and then protects nothing. It
 also pins down that a refused push copies **nothing**, not even the files that passed, and that the
 screen reports line numbers without ever printing the secret it matched.
+
+`test-git-identity.sh` guards a mistake that never announces itself. Which address a commit is
+authored with is decided by `git/config`, and an `includeIf` pointing at a path that is not there
+does not fail: it applies nothing and the default takes over. The commit is written, signed and
+pushed, and the only symptom appears much later, when GitHub stops matching that address to the
+account and the contributions quietly vanish. So the test asserts that every include resolves, that
+no identity file is orphaned, that the README's table and the config agree address by address, and
+that the default is the personal one rather than a work one.
 
 `make doctor` is the complement. It checks the machine, while `make test` checks the scripts.
 
@@ -259,12 +269,14 @@ are always inherited from the base identity.
 
 ```mermaid
 flowchart TD
-    start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @secture.com<br/>signingkey: ssh-ed25519 …"]
+    start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @gmail.com<br/>signingkey: ssh-ed25519 …"]
     base --> q{"repo path?"}
+    q -->|"~/Projects/secture/*"| s["config-secture<br/>→ @secture.com"]
     q -->|"~/Projects/tribbu/*"| t["config-tribbu<br/>→ @tribbuapp.com"]
-    q -->|"~/Projects/personal/*"| p["config-personal<br/>→ @gmail.com"]
-    q -->|"anywhere else"| d["keeps @secture.com"]
-    t --> sign["Sign with 1Password SSH key"]
+    q -->|"~/Projects/personal/*<br/>~/.dotfiles<br/>~/.dotfiles-private"| p["config-personal<br/>→ @gmail.com"]
+    q -->|"anywhere else"| d["keeps @gmail.com"]
+    s --> sign["Sign with 1Password SSH key"]
+    t --> sign
     p --> sign
     d --> sign
 ```
@@ -577,9 +589,24 @@ chsh -s /opt/homebrew/bin/fish
 
 | Repo location | Identity file | Email |
 |---------------|---------------|-------|
-| anywhere (default) | `git/config` | `sergio@secture.com` |
+| anywhere (default) | `git/config` | `@gmail.com` |
+| `~/Projects/secture/…` | `git/config-secture` | `sergio@secture.com` |
 | `~/Projects/tribbu/…` | `git/config-tribbu` | `sergiosantiago@tribbuapp.com` |
-| `~/Projects/personal/…` | `git/config-personal` | `@gmail.com` |
+| `~/Projects/personal/…`, `~/.dotfiles`, `~/.dotfiles-private` | `git/config-personal` | `@gmail.com` |
+
+**The personal address is the default on purpose.** It used to be the work one, with personal as
+the exception, and the failure mode came with it: a repository cloned anywhere outside the two
+listed directories silently inherited the work address. That is how some 380 commits across public
+personal repositories, this one included, came to be authored by `sergio@secture.com`.
+
+It is not only untidy. GitHub attributes a commit by matching its author address against the
+addresses registered on the account, so the day a work address is removed from that account, every
+commit authored with it stops counting as a contribution. Being wrong the other way round costs a
+client repository a gmail address, which is a shrug. The default should be the identity that does
+not hurt to get wrong.
+
+The last three rows are redundant with the default and are kept anyway, so that changing the
+default cannot silently change what those repositories sign with.
 
 The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
 being symlinked. To use them, just clone repos under the matching directory:

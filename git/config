@@ -3,9 +3,20 @@
 # - Commits are signed automatically using an SSH key stored in 1Password.
 # - Default commit editor is Micro.
 
+# The default is the personal address on purpose, and the work ones are the
+# exceptions below. It used to be the other way round, and the failure mode was
+# the wrong way round with it: a clone made anywhere outside the two listed
+# directories silently inherited the work address, which is how 380-odd commits
+# in public personal repositories came to be authored by sergio@secture.com.
+#
+# That matters beyond tidiness. GitHub links a commit to an account by matching
+# the author address against the addresses registered on it, so the day that one
+# is removed from the account, every one of those commits stops counting as a
+# contribution. Getting it wrong in the other direction costs a client repo a
+# gmail address, which is a shrug.
 [user]
 	name = Sergio Santiago
-	email = sergio@secture.com
+	email = sersanhen@gmail.com
 	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN3Uo9wcjJLsXcEcJ85BxA8ZHEJe670weClg+rOwSSWo
 
 [gpg]
@@ -20,12 +31,27 @@
 [core]
 	editor = micro
 
+# Override identity for Secture work under ~/Projects/secture/
+[includeIf "gitdir:~/Projects/secture/"]
+	path = ~/.dotfiles/git/config-secture
+
 # Override identity for Tribbu client repos under ~/Projects/tribbu/
 [includeIf "gitdir:~/Projects/tribbu/"]
 	path = ~/.dotfiles/git/config-tribbu
 
-# Override identity for personal projects under ~/Projects/personal/
+# The three below are redundant with the default above, and kept anyway: they
+# state the intent rather than leaving it to be inferred from the absence of a
+# rule, so changing the default cannot silently change what these sign with.
+# These two repositories are the reason the default was inverted in the first
+# place: they are personal and public, they live outside ~/Projects, and no rule
+# covered them.
 [includeIf "gitdir:~/Projects/personal/"]
+	path = ~/.dotfiles/git/config-personal
+
+[includeIf "gitdir:~/.dotfiles/"]
+	path = ~/.dotfiles/git/config-personal
+
+[includeIf "gitdir:~/.dotfiles-private/"]
 	path = ~/.dotfiles/git/config-personal
 
 # HTTPS credentials for GitHub, delegated to the gh CLI. Written by `gh auth login`.
