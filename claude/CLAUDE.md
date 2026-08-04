@@ -26,6 +26,20 @@
 - Avoid the related tells: rhetorical triplets, "not just X but Y", "it's worth noting", padded
   openers, and closing every answer with an offer to do more
 
+## Working Method
+
+- One pending item at a time: propose it, get it approved, execute it, close it, and only then
+  move on. Never a list of twenty things to review at once. I do not know in advance what each
+  item involves, so a long list means deciding on things I have not read yet
+- Keep the full backlog in memory and take a single item per turn, with its context and its cost
+- Before applying anything, show a table of current versus proposed
+
+## Tooling Choices
+
+- Hard constraint for anything in my own setup: free, no payment, no limits, no API keys.
+  Quota-limited free tiers count as limited
+- Lead with self-hosted, offline or free options. Do not offer a paid one as an equal candidate
+
 ## General Conventions
 
 - CI/CD: GitHub Actions, auto-deploys on push to `main`
