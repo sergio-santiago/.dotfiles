@@ -132,6 +132,11 @@ Core + extended + alt colors. Config: `fish/conf.d/09-theme.fish`
 - **Errors:** `#FF4D4D` (red) / **Selection:** `#C6A7FF` (purple) background
 - **Autosuggestions:** `#737994` (neutral low) / **CWD:** `#4AF0D1` (teal)
 
+The greeting's Homebrew reminder, in `fish/functions/brew_nudge.fish`, reuses three of
+these rather than adding any: `#FFB86C` (orange) for the `▌` rule, bright black for the
+body, `#7FFFD4` (cyan) for the `bm` command. `test-brew-nudge.sh` compares the two hex
+values, so this pair cannot drift silently.
+
 ### iTerm2
 All ANSI colors + UI elements. Config: `iterm/com.googlecode.iterm2.plist` (profile
 `Default`, also saved as the preset "Linked Data Dark Rainbow")

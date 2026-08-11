@@ -44,20 +44,27 @@ function brew_nudge --description 'Suggest brew maintenance when the last run is
 
     # `path mtime -R` returns the age in seconds directly, so neither `date` nor
     # `stat` has to be spawned. That is what keeps this under a millisecond.
-    # Colors are interpolated instead of set around the echo, so the reset lands
-    # before the newline. Emitted after it, it becomes a second line of output and
-    # the banner gains a blank row.
-    set -l dim (set_color -o brblack)
-    set -l off (set_color normal)
+    set -l body
 
     if not test -r $stamp
-        echo $dim"  🍺 Homebrew maintenance has never run here. Try: bm"$off
-        return 0
+        set body "🍺 Homebrew maintenance has never run here. Try: "
+    else
+        set -l age (path mtime -R $stamp)
+        set -l days (math -s0 "floor($age / 86400)")
+        test "$days" -lt "$threshold"; and return 0
+
+        set body "🍺 Last Homebrew maintenance: $days days ago. Suggested: "
     end
 
-    set -l age (path mtime -R $stamp)
-    set -l days (math -s0 "floor($age / 86400)")
-    test "$days" -lt "$threshold"; and return 0
+    # Printed after every quiet path has returned, so the leading blank row only
+    # appears when there is something to say. Colors are interpolated rather than
+    # set around the echo: a reset emitted after the newline becomes a second blank
+    # row. Palette in docs/COLORS.md.
+    set -l rule (set_color ffb86c)
+    set -l dim (set_color -o brblack)
+    set -l cmd (set_color 7fffd4)
+    set -l off (set_color normal)
 
-    echo $dim"  🍺 Last Homebrew maintenance: $days days ago. Suggested: bm"$off
+    echo
+    echo "  "$rule"▌"$off" "$dim$body$off$cmd"bm"$off
 end

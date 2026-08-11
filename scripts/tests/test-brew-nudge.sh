@@ -72,6 +72,26 @@ assert_contains "$OUT" "Suggested"
 it "the reminder is a single line, so the greeting stays compact"
 assert_eq 1 "$(printf '%s\n' "$OUT" | grep -c .)"
 
+# The blank row is the whole point of printing the message in one place: it gives
+# the reminder a margin under the banner without hardcoding it in fish_greeting,
+# where it would show up even on the quiet paths.
+it "the reminder opens with a blank row, so it sits clear of the banner"
+assert_eq "" "$(printf '%s\n' "$OUT" | head -1)"
+
+# The rule and the command colour are the two visual claims the README makes about
+# this line, so both are compared here rather than left to the eye.
+it "the reminder carries the ▌ rule in the left margin"
+assert_contains "$OUT" "▌"
+
+it "the rule uses the palette's orange and the command its cyan"
+COLORED="$(env XDG_CACHE_HOME="$OLD" PATH="$FAKEBIN:$PATH" TERM=xterm-256color \
+  fish --no-config -c "source '$NUDGE'; brew_nudge | cat -v" 2>/dev/null)"
+if [[ "$COLORED" == *"255;184;108"* && "$COLORED" == *"127;255;212"* ]]; then
+  _ok
+else
+  _bad "expected orange ffb86c on the rule and cyan 7fffd4 on bm, got: $COLORED"
+fi
+
 # ── The threshold is tunable, and zero switches it off ──────────────────────
 nudge_run "$OLD" "set -g brew_nudge_days 14"
 it "raising the threshold above the age silences it"

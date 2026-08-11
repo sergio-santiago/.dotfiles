@@ -455,10 +455,13 @@ accepting every prompt sight unseen.
 A finished run is recorded in `~/.cache/brew-maintenance/last-run`, the only place that knows
 when maintenance last happened. Two surfaces read it:
 
-- **the fish greeting**, through `brew_nudge`, which prints one dim line once the last run is
-  7 days old or older. Two file reads and no subprocess: 0.24 ms against a 215 ms login shell,
-  measured on one Mac in August 2026 rather than guaranteed. `test-brew-nudge.sh` is what holds
-  the line, at under 5 ms per call.
+- **the fish greeting**, through `brew_nudge`, which prints one line once the last run is
+  7 days old or older, set off from the banner by a blank row and an orange `▌` rule in the
+  left margin. The body stays dim so it never competes with the banner, and `bm` is painted
+  cyan as the only actionable token. Two file reads and no subprocess: 0.24 ms against a
+  215 ms login shell, measured on one Mac in August 2026 rather than guaranteed.
+  `test-brew-nudge.sh` is what holds the line, at under 5 ms per call, and it compares the
+  blank row, the rule and both colours too.
   Tune it with `set -U brew_nudge_days 14`, or silence it with `0`.
 - **`make doctor`**, which can afford the expensive question the greeting cannot. It reports the
   age of the last run, the age of the package index, and how many packages are outdated, read
