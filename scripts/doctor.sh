@@ -37,7 +37,7 @@ head "🛠️  CLI tools (from Brewfile)"
 # One entry per formula the Brewfile declares, named by the binary it provides:
 # poppler's is pdftotext, every other name matches its formula. A formula absent
 # from here gets installed by `make brew` and then never checked again.
-REQUIRED=(bat eza fd fish fzf gh jq lolcat micro mole node pdftotext pyenv starship zoxide)
+REQUIRED=(bat espeak-ng eza fd fish fzf gh jq lolcat micro mole node pdftotext pyenv starship zoxide)
 for bin in "${REQUIRED[@]}"; do
   if command -v "$bin" >/dev/null 2>&1; then
     pass "$bin"
@@ -213,37 +213,40 @@ fi
 
 # ── Spoken Claude Code replies (optional) ───────────────────────────────────
 head "🔊 Spoken replies (optional)"
-PIPER_PY="$HOME/.local/share/piper/venv/bin/python"
+KOKORO_HOME="$HOME/.local/share/kokoro"
+KOKORO_PY="$KOKORO_HOME/venv/bin/python"
 
-if [[ -x "$PIPER_PY" ]]; then
-  # Importing is the real test. The venv is created before piper-tts goes into it,
-  # so a failed pip leaves a python that runs perfectly and cannot speak a word.
-  if "$PIPER_PY" -c 'import piper' >/dev/null 2>&1; then
-    pass "Piper installed"
+if [[ -x "$KOKORO_PY" ]]; then
+  # Importing is the real test. The venv is created before kokoro-onnx goes into
+  # it, so a failed pip leaves a python that runs perfectly and cannot speak a word.
+  if "$KOKORO_PY" -c 'import kokoro_onnx' >/dev/null 2>&1; then
+    pass "Kokoro installed"
   else
-    fail "venv exists but piper-tts is not in it. Re-run 'make speak-setup'"
+    fail "venv exists but kokoro-onnx is not in it. Re-run 'make speak-setup'"
   fi
-  # A voice is two files: piper aborts without the sidecar .onnx.json, and the
-  # download is not atomic, so half-arrived voices are a real state.
-  shopt -s nullglob
-  models=("$HOME/.local/share/piper/voices/"*.onnx)
-  shopt -u nullglob
-  # The count guard is not decoration: in bash 3.2 an empty array expands to an
-  # unbound variable under `set -u`, which killed this script outright on the one
-  # machine state that matters most, a venv with no voices yet.
-  complete=0
-  if ((${#models[@]} > 0)); then
-    for m in "${models[@]}"; do [[ -r "$m.json" ]] && complete=$((complete + 1)); done
-  fi
-  if ((${#models[@]} == 0)); then
-    warn "no voice models. Run 'make speak-setup'"
-  elif ((complete == ${#models[@]})); then
-    pass "$complete voice model(s) installed"
+  # espeak-ng does the grapheme-to-phoneme step, and the copy inside the
+  # espeakng-loader wheel has its data path baked in at build time and cannot be
+  # redirected, so Homebrew's is the one that has to be there. Nothing speaks
+  # without it, and the failure surfaces deep inside a hook nobody reads.
+  if [[ -r /opt/homebrew/lib/libespeak-ng.dylib ]]; then
+    pass "libespeak-ng present"
   else
-    # Report the shortfall rather than the successes: a green count next to a voice
-    # that cannot speak is worse than no count at all.
-    fail "$((${#models[@]} - complete)) of ${#models[@]} voice model(s) missing their .onnx.json. Re-run 'make speak-setup'"
+    fail "espeak-ng missing. Run 'brew install espeak-ng', nothing will speak without it"
   fi
+  # Two files, both mandatory, neither downloaded atomically by anything but our
+  # own setup script. Size-checked rather than merely present: a truncated model
+  # fails deep inside onnxruntime with a message no one will ever see.
+  for pair in "kokoro-v1.0.onnx|300" "voices-v1.0.bin|20"; do
+    name="${pair%%|*}"; min="${pair##*|}"
+    f="$KOKORO_HOME/$name"
+    if [[ ! -r "$f" ]]; then
+      fail "$name missing. Re-run 'make speak-setup'"
+    elif (($(stat -f%z "$f") / 1048576 < min)); then
+      fail "$name is truncated (under ${min} MB). Re-run 'make speak-setup'"
+    else
+      pass "$name ${DIM}($(( $(stat -f%z "$f") / 1048576 )) MB)${RESET}"
+    fi
+  done
   # The Stop hook pipes every reply through python3 and swallows the failure, so
   # a broken interpreter means replies are silently never saved.
   if python3 -c 'import json, re' >/dev/null 2>&1; then
@@ -262,7 +265,7 @@ if [[ -x "$PIPER_PY" ]]; then
     pass "all consoles off ${DIM}(turn one on with 'speak on')${RESET}"
   fi
 else
-  warn "Piper not installed. Run 'make speak-setup' (optional feature)"
+  warn "Kokoro not installed. Run 'make speak-setup' (optional feature)"
 fi
 
 # ── Private config sync ─────────────────────────────────────────────────────

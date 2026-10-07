@@ -16,4 +16,4 @@ lists.
 
 The user cannot see the command output above, only your line reaches the screen,
 so state the outcome: now on, now off, reading, or nothing to read. If the output
-reports a problem, such as Piper missing, say that instead.
+reports a problem, such as Kokoro missing, say that instead.

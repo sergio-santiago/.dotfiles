@@ -19,9 +19,9 @@
 #
 # Voice and speed are hand-edited in ~/.claude/speak.conf, which does not exist
 # until you create it. These are the built-in defaults:
-#   voice=es_ES-davefx-medium     any model in ~/.local/share/piper/voices
-#   speed=1.0                     <1 faster, >1 slower
-#   max_chars=11600               caps both the summary and the full text
+#   voice=em_alex                 any of the 54 voices in the Kokoro model
+#   speed=1.0                     >1 faster, <1 slower
+#   max_chars=10700               caps both the summary and the full text
 ################################################################################
 
 set -uo pipefail
@@ -52,8 +52,8 @@ report_state() {
     printf "  %s○ this console is off%s\n" "$DIM" "$RESET"
   fi
 
-  [[ -x "$SPEAK_PIPER_PY" ]] ||
-    printf "  %s! Piper is not installed. Run 'make speak-setup' in ~/.dotfiles%s\n" "$YELLOW" "$RESET"
+  [[ -x "$SPEAK_KOKORO_PY" ]] ||
+    printf "  %s! Kokoro is not installed. Run 'make speak-setup' in ~/.dotfiles%s\n" "$YELLOW" "$RESET"
 }
 
 # Read one of the saved versions of the last reply, starting now.
@@ -130,8 +130,8 @@ case "${1:-}" in
     ;;
 
   test)
-    if [[ ! -x "$SPEAK_PIPER_PY" ]]; then
-      printf "  %s✗ Piper is not installed. Run 'make speak-setup'%s\n" "$RED" "$RESET"
+    if [[ ! -x "$SPEAK_KOKORO_PY" ]]; then
+      printf "  %s✗ Kokoro is not installed. Run 'make speak-setup'%s\n" "$RED" "$RESET"
       exit 0
     fi
     tmp="$(mktemp -t claude-speak-test)" || exit 0

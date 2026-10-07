@@ -68,5 +68,5 @@ private-push: ## Copy private config $$HOME -> private repo, commit and push
 private-pull: ## Restore private config from the private repo into $$HOME (backs up first)
 	@bash "$(DOTFILES)/scripts/private-sync.sh" pull
 
-speak-setup: ## Install Piper + Spanish voices so Claude Code can speak its replies
+speak-setup: ## Install Kokoro + the voice model so Claude Code can speak its replies
 	@bash "$(DOTFILES)/scripts/speak-setup.sh"

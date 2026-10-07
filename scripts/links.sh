@@ -31,6 +31,7 @@ LINKS=(
   "claude/rules|$HOME/.claude/rules"
   "claude/speak-lib.sh|$HOME/.claude/speak-lib.sh"
   "claude/speak-clean.py|$HOME/.claude/speak-clean.py"
+  "claude/speak-kokoro.py|$HOME/.claude/speak-kokoro.py"
   "claude/skills/speak|$HOME/.claude/skills/speak"
   "scripts/bin/speak|$HOME/.local/bin/speak"
   "scripts/bin/brew-maintenance|$HOME/.local/bin/brew-maintenance"

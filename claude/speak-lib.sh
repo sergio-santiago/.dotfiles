@@ -36,18 +36,20 @@ SPEAK_CONSOLES_DIR="$HOME/.claude/speak-consoles"
 SPEAK_LAST_DIR="$HOME/.claude/speak-last"
 SPEAK_LOG="$HOME/.claude/speak.log"
 
-SPEAK_PIPER_HOME="$HOME/.local/share/piper"
-SPEAK_PIPER_PY="$SPEAK_PIPER_HOME/venv/bin/python"
-SPEAK_VOICES_DIR="$SPEAK_PIPER_HOME/voices"
+SPEAK_KOKORO_HOME="$HOME/.local/share/kokoro"
+SPEAK_KOKORO_PY="$SPEAK_KOKORO_HOME/venv/bin/python"
+SPEAK_KOKORO_MODEL="$SPEAK_KOKORO_HOME/kokoro-v1.0.onnx"
+SPEAK_KOKORO_VOICES="$SPEAK_KOKORO_HOME/voices-v1.0.bin"
+SPEAK_SYNTH="$HOME/.claude/speak-kokoro.py"
 SPEAK_CLEAN="$HOME/.claude/speak-clean.py"
 
-SPEAK_DEFAULT_VOICE="es_ES-davefx-medium"
+SPEAK_DEFAULT_VOICE="em_alex"
 SPEAK_DEFAULT_SPEED="1.0"
 
 # Cap on what gets read in one go: ten minutes of audio. Measured, not guessed:
-# es_ES-davefx-medium at speed 1.0 reads 1000 characters in 51.5 s (19.4 chars/s),
-# so re-measure if the default voice or speed changes.
-SPEAK_DEFAULT_MAX_CHARS="11600"
+# em_alex at speed 1.0 reads 319 characters in 17.9 s (17.8 chars/s), so
+# re-measure if the default voice or speed changes.
+SPEAK_DEFAULT_MAX_CHARS="10700"
 
 # On-screen dress for the <speak> block: grey icon, grey italic text, and the
 # commands at the end of an arrow that descends from the icon's own column, so they
@@ -156,10 +158,13 @@ speak_voice() {
     printf '%s' "${v:-$SPEAK_DEFAULT_VOICE}"
 }
 
-# Speed and length are validated rather than passed through: one reaches piper as
-# --length-scale and the other python as an int, and a typo in either would fail
-# deep inside a hook whose output nobody sees. A bad voice needs no fallback: it
-# is named in the log, which is more useful than silently reading in another one.
+# Speed and length are validated rather than passed through: both reach python,
+# one as a float and the other as an int, and a typo in either would fail deep
+# inside a hook whose output nobody sees. A bad voice needs no fallback: it is
+# named in the log, which is more useful than silently reading in another one.
+#
+# Note the sense of speed changed with the engine. Piper took a --length-scale,
+# where larger meant slower; Kokoro takes a multiplier, where larger means faster.
 speak_speed() {
     local s
     s="$(speak_conf_get speed)"
@@ -233,8 +238,8 @@ speak_hush() {
     id="$(speak_console_id)"
     tmpdir="${TMPDIR:-/tmp}"
     pkill -f "claude-speak-$id-[0-9]" 2>/dev/null
-    # The wrapper removes its own pair on the way out, but a reading killed before
-    # piper ever started leaves the copy behind.
+    # The wrapper removes its own files on the way out, but a reading killed before
+    # the synthesiser ever started leaves the copy behind.
     rm -f "$tmpdir/claude-speak-$id-"* 2>/dev/null
     return 0
 }
@@ -242,31 +247,30 @@ speak_hush() {
 # Synthesise and play a text file, detached: nothing waits on audio.
 #
 # The handle is the temp file name, and it carries the console id so one pane can
-# never silence another. Not a pid: the one worth having is piper's, while the
-# shell only hands back the subshell that launched it.
+# never silence another. Not a pid: the one worth having belongs to the
+# synthesiser, while the shell only hands back the subshell that launched it.
 #
-#     ${TMPDIR:-/tmp}/claude-speak-<console-id>-<pid>.{txt,wav}
+#     ${TMPDIR:-/tmp}/claude-speak-<console-id>-<pid>.{txt,N.wav}
 speak_say_file() {
-    local src="$1" voice speed onnx tmp
+    local src="$1" voice speed tmp
     [[ -s "$src" ]] || return 1
 
     voice="$(speak_voice)"
     speed="$(speak_speed)"
-    onnx="$SPEAK_VOICES_DIR/$voice.onnx"
 
-    if [[ ! -x "$SPEAK_PIPER_PY" ]]; then
-        speak_log "piper missing. Run 'make speak-setup'"
+    if [[ ! -x "$SPEAK_KOKORO_PY" ]]; then
+        speak_log "kokoro missing. Run 'make speak-setup'"
         return 1
     fi
-    # A voice is two files. Piper aborts without the sidecar JSON, and the
-    # downloader writes the 63 MB model straight to its final path and fetches the
-    # JSON afterwards, so an interrupted setup leaves a model that never speaks.
-    if [[ ! -r "$onnx" ]]; then
-        speak_log "voice missing: $onnx. Check voice= in ~/.claude/speak.conf"
+    # One model holds every voice, so unlike the old per-voice files there is
+    # nothing here that can be half-downloaded into a voice that never speaks. A
+    # bad voice= name fails inside the synthesiser and lands in the log.
+    if [[ ! -r "$SPEAK_KOKORO_MODEL" ]]; then
+        speak_log "model missing: $SPEAK_KOKORO_MODEL. Re-run 'make speak-setup'"
         return 1
     fi
-    if [[ ! -r "$onnx.json" ]]; then
-        speak_log "voice incomplete: $onnx.json is missing. Re-run 'make speak-setup'"
+    if [[ ! -r "$SPEAK_KOKORO_VOICES" ]]; then
+        speak_log "voices missing: $SPEAK_KOKORO_VOICES. Re-run 'make speak-setup'"
         return 1
     fi
 
@@ -287,13 +291,15 @@ speak_say_file() {
     # stops that optimisation.
     {
         trap 'rm -f "$tmp".*; exit' INT TERM
-        if nohup "$SPEAK_PIPER_PY" -m piper -m "$onnx" --length-scale "$speed" \
-            -i "$tmp.txt" -f "$tmp.wav" >/dev/null 2>"$tmp.err"; then
-            nohup afplay "$tmp.wav" >/dev/null 2>&1
-        elif (($? <= 128)); then
+        # One command now, where there used to be two. The synthesiser plays as it
+        # goes, sentence by sentence, because Kokoro needs about 5 s to render the
+        # 18 s a long reply becomes: rendering it all before playing any of it would
+        # put five silent seconds in front of every reply.
+        if ! nohup "$SPEAK_KOKORO_PY" "$SPEAK_SYNTH" "$tmp" "$tmp.txt" "$voice" "$speed" \
+            >/dev/null 2>"$tmp.err" && (($? <= 128)); then
             # Above 128 means a signal, i.e. someone asked us to stop, and that is not
             # a failure and must not fill the log on every prompt submit.
-            speak_log "piper failed: $(tr '\n' ' ' <"$tmp.err" 2>/dev/null | tail -c 200)"
+            speak_log "kokoro failed: $(tr '\n' ' ' <"$tmp.err" 2>/dev/null | tail -c 200)"
         fi
         rm -f "$tmp".*
     } >/dev/null 2>&1 &

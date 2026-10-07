@@ -319,7 +319,7 @@ The sections below explain each piece in detail.
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
-| `make speak-setup` | Install Piper + Spanish voices so Claude Code can speak its replies |
+| `make speak-setup` | Install Kokoro + the voice model so Claude Code can speak its replies |
 | `make brew-maintenance` | Update, tidy up and review Homebrew (also `bm` in fish) |
 | `make test` | Run the test suite |
 | `make private-init` | Create the local private repo for machine-private config (no remote) |
@@ -358,6 +358,7 @@ This will install:
 
 #### 🛠️ CLI tools
 - **bat**: `cat` clone with syntax highlighting
+- **espeak-ng**: phonemizer behind the spoken replies (it also ships a `speak`, hence the PATH order above)
 - **eza**: improved `ls` with colors and icons
 - **fd**: fast and user-friendly alternative to `find`
 - **fish**: friendly interactive shell
@@ -492,7 +493,7 @@ It wires the repo into `$HOME` like this:
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
 | `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
-| `claude/{speak-lib.sh,speak-clean.py}` | `~/.claude/…` |
+| `claude/{speak-lib.sh,speak-clean.py,speak-kokoro.py}` | `~/.claude/…` |
 | `scripts/bin/speak` | `~/.local/bin/speak` |
 | `scripts/bin/brew-maintenance` | `~/.local/bin/brew-maintenance` |
 
@@ -542,6 +543,7 @@ mkdir -p ~/.claude/skills
 ln -sfh ~/.dotfiles/claude/skills/speak ~/.claude/skills/speak
 ln -sfh ~/.dotfiles/claude/speak-lib.sh ~/.claude/speak-lib.sh
 ln -sfh ~/.dotfiles/claude/speak-clean.py ~/.claude/speak-clean.py
+ln -sfh ~/.dotfiles/claude/speak-kokoro.py ~/.claude/speak-kokoro.py
 ln -sfh ~/.dotfiles/scripts/bin/speak ~/.local/bin/speak
 ln -sfh ~/.dotfiles/scripts/bin/brew-maintenance ~/.local/bin/brew-maintenance
 
@@ -895,11 +897,13 @@ preferences are exported and tracked here:
 ### 🔊 Spoken Claude Code replies
 
 Dictating prompts is only half of a hands-free loop. This reads the answers back, out loud, through
-**[Piper](https://github.com/OHF-Voice/piper1-gpl)**: a neural TTS engine that runs on the machine.
-Offline, free, unlimited, no API key.
+**[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**: an 82M-parameter neural TTS model, Apache
+2.0, that runs on the machine. Offline, free, unlimited, no API key. It runs on onnxruntime rather
+than torch, which is what keeps the load under a second instead of five and the venv at 155 MB
+instead of 993 MB.
 
 ```bash
-make speak-setup     # one-off: ~130 MB of voices + ~170 MB of venv, outside the repo
+make speak-setup     # one-off: ~340 MB of model + ~155 MB of venv, outside the repo
 /speak on            # arm this console
 ```
 
@@ -945,9 +949,9 @@ user-only. Claude cannot decide to start talking on its own.
 Voice, speed and how much of a reply is read are global taste, hand-edited in `~/.claude/speak.conf`:
 
 ```ini
-voice=es_ES-davefx-medium     # or es_ES-sharvard-medium, see ~/.local/share/piper/voices
-speed=1.0                     # <1 faster, >1 slower
-max_chars=11600               # optional, caps both the summary and the full text
+voice=em_alex                 # one model holds all 54: em_santa, ef_dora, af_heart, …
+speed=1.0                     # >1 faster, <1 slower
+max_chars=10700               # optional, caps both the summary and the full text
 ```
 
 The file does not exist until you create it. The defaults above are the built-in ones. `speed` and
@@ -991,7 +995,7 @@ flowchart LR
     disp["MessageDisplay"] --> sd["speak-display.sh<br/>speaker icon instead of raw tags"]
     stop["Stop"] --> sp["speak-reply.sh<br/>cleans · saves"]
     sp --> clean["speak-clean.py"]
-    cmd["speak summary | full"] --> piper["Piper (local)"] --> af["afplay"]
+    cmd["speak summary | full"] --> kok["Kokoro (local)"] --> af["afplay"]
     lib -.-> vp
     lib -.-> sd
     lib -.-> sp
@@ -1018,9 +1022,9 @@ flowchart LR
   separately and reaches the screen without passing any hook, so `speak-prompt.sh` tells Claude the
   block belongs at the end of a reply and nowhere else.
 - **`speak-reply.sh`** cleans the reply via **`speak-clean.py`** and saves both versions. It prints
-  nothing, plays nothing and never touches Piper.
+  nothing, plays nothing and never touches Kokoro.
 - **`speak`** does the reading itself, the moment you ask. Synthesis is detached, so nothing waits on
-  audio: the command returns immediately and Piper keeps going.
+  audio: the command returns immediately and Kokoro keeps going.
 
 Playback is identified by the temp file it was handed, console id included, so `speak stop` in one
 pane cannot silence another. Starting a *new* reading does stop every other one, because there is only one
@@ -1030,5 +1034,9 @@ The cleaning lives in its own Python file rather than a heredoc inside the hook:
 cannot be compiled, linted or run on its own, and turning prose into speech is fiddly enough to be
 worth exercising directly against real payloads.
 
-Synthesis takes about a second per sentence. `make doctor` reports whether Piper, the models, the
-Python the cleaner needs and the per-console switches are all in place.
+Synthesis is split by sentence and played as it goes, because rendering a whole reply before playing
+any of it would put about five silent seconds in front of every one. Measured on this machine: 1.8 s
+from a cold start to the first word, and the rest is rendered far faster than it is spoken.
+
+`make doctor` reports whether Kokoro, espeak-ng, the model, the Python the cleaner needs and the
+per-console switches are all in place.

@@ -8,6 +8,7 @@ tap "hamed-elfayome/claude-usage" # Claude API usage tracking
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "eza"                      # improved ls with icons and colors
+brew "espeak-ng"                # phonemizer for the spoken replies (also ships a `speak`)
 brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
 brew "fzf"                      # fuzzy finder for the terminal

@@ -25,7 +25,7 @@ prompt="$(printf '%s' "$payload" | jq -r '.prompt // ""' 2>/dev/null)"
 # A turn that asks for a reading must not cancel one, so this runs *before* the
 # silencing below. DO NOT REORDER: the other way round kills the playback that this
 # very turn's command just started, and the symptom, silence with a half-written
-# wav, looks like an external process killing Piper rather than us doing it.
+# wav, looks like an external process killing the synthesiser rather than us doing it.
 #
 # A leading `!` and any spaces after it are stripped so the bash-mode form is
 # recognised too. The subcommands are matched whole and not as prefixes: none of
