@@ -29,9 +29,8 @@ This repository contains my personal macOS development environment configuration
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
     - **Directory-based identities** via `includeIf`: the personal address is the default and the
-      work ones are the exceptions, for Secture (`~/Projects/secture/`) and Tribbu
-      (`~/Projects/tribbu/`), all sharing a single signing key.
-      See [Git identities](#-git-identities-multi-account).
+      work ones are the exceptions, all sharing a single signing key. The work rules live in the
+      private repo. See [Git identities](#-git-identities-multi-account).
 - ✏️ **Micro editor**
     - Lightweight terminal-based editor with custom settings and a matching `linked-data-dark-rainbow` color scheme for
       a consistent look with Fish and Starship.
@@ -51,8 +50,8 @@ This repository contains my personal macOS development environment configuration
     - All colors are optimized for pure black backgrounds as well as setups with subtle transparency and blurred effects, ensuring high contrast.
     - **📋 Full color palette documentation:** See [COLORS.md](docs/COLORS.md) for the complete 28-color palette with hex/RGB values and semantic usage across all tools.
 - 🔗 **Finicky**
-    - Smart browser routing (config in TypeScript). Sets Chrome as the default browser and opens Google Meet
-      links automatically in the **Tribbu** Chrome profile.
+    - Browser routing per link (config in TypeScript). The cask is installed from here, the rules are
+      restored from the private repo because they name work profiles.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
@@ -108,9 +107,8 @@ This repository contains my personal macOS development environment configuration
 ### Repository layout & symlink map
 
 Configs live in this repo and are symlinked into their expected locations (`make link`).
-`git/config-personal`, `git/config-secture` and `git/config-tribbu` are **not** symlinked. They are
-pulled in by `git/config` via `includeIf` paths rooted at `~`, which git expands itself, so the
-three files are found wherever the include is read from.
+`git/config-personal` is **not** symlinked. It is pulled in by `git/config` via `includeIf` paths
+rooted at `~`, which git expands itself, so the file is found wherever the include is read from.
 
 ```mermaid
 flowchart LR
@@ -122,7 +120,7 @@ flowchart LR
         micro["micro/"]
         bat["bat/themes"]
         claude["claude/"]
-        misc["gh · finicky"]
+        misc["gh"]
         scripts["scripts/<br/>install · doctor · tests<br/>speak · brew-maintenance"]
         docs["docs/COLORS.md"]
         iterm["iterm/<br/>com.googlecode.iterm2.plist"]
@@ -132,7 +130,7 @@ flowchart LR
         cfgstar["~/.config/starship.toml"]
         cfggit["~/.config/git/config"]
         sshcfg["~/.ssh/config"]
-        cfgmisc["~/.config/{micro,bat,gh,finicky}/"]
+        cfgmisc["~/.config/{micro,bat,gh}/"]
         dotclaude["~/.claude/"]
         localbin["~/.local/bin/"]
     end
@@ -178,6 +176,9 @@ explanation in [Machine-private config](#️-machine-private-config-the-second-r
 ~/.dotfiles           public    configs, scripts, docs        → symlinked into $HOME
 ~/.dotfiles-private   PRIVATE   ssh/config.private            → copied to and from $HOME
                                 aws/config                       by make private-push / pull
+                                git/config.private, identities
+                                finicky/finicky.ts
+                                fish/functions-private/
 ```
 
 ### Tests
@@ -193,7 +194,7 @@ case is handed a throwaway one.
 | `test-install.sh` | That `--dry-run` describes the real run exactly and creates nothing |
 | `test-doctor.sh` | That the `REQUIRED` list and the `Brewfile` have not drifted apart |
 | `test-private-sync.sh` | The secret screen, from both sides, and that a refused push copies nothing |
-| `test-git-identity.sh` | That the identity map in `git/config` and the one the README prints agree |
+| `test-git-identity.sh` | That the public identity map and the README agree, and that no work address leaks in |
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
@@ -218,7 +219,8 @@ authored with is decided by `git/config`, and an `includeIf` pointing at a path 
 does not fail: it applies nothing and the default takes over. The commit is written, signed and
 pushed, and the only symptom appears much later, when GitHub stops matching that address to the
 account and the contributions quietly vanish. So the test asserts that every include resolves, that
-no identity file is orphaned, that the README's table and the config agree address by address, and
+no identity file is orphaned, that the README's table and the config agree address by address, that
+no tracked file carries an address other than the personal one, and
 that the default is the personal one rather than a work one.
 
 `make doctor` is the complement. It checks the machine, while `make test` checks the scripts.
@@ -275,12 +277,10 @@ are always inherited from the base identity.
 flowchart TD
     start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @gmail.com<br/>signingkey: ssh-ed25519 …"]
     base --> q{"repo path?"}
-    q -->|"~/Projects/secture/*"| s["config-secture<br/>→ @secture.com"]
-    q -->|"~/Projects/tribbu/*"| t["config-tribbu<br/>→ @tribbuapp.com"]
+    q -->|"a work directory"| w["~/.config/git/config.private<br/>(private repo) → work address"]
     q -->|"~/Projects/personal/*<br/>~/.dotfiles<br/>~/.dotfiles-private"| p["config-personal<br/>→ @gmail.com"]
     q -->|"anywhere else"| d["keeps @gmail.com"]
-    s --> sign["Sign with 1Password SSH key"]
-    t --> sign
+    w --> sign["Sign with 1Password SSH key"]
     p --> sign
     d --> sign
 ```
@@ -492,7 +492,6 @@ It wires the repo into `$HOME` like this:
 | `git/config` | `~/.config/git/config` |
 | `micro/{settings.json,colorschemes/…}` | `~/.config/micro/…` |
 | `bat/themes` | `~/.config/bat/themes` |
-| `finicky/finicky.ts` | `~/.config/finicky/finicky.ts` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
 | `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
@@ -530,10 +529,6 @@ ln -sfh ~/.dotfiles/micro/colorschemes/linked-data-dark-rainbow.micro ~/.config/
 mkdir -p ~/.config/bat
 ln -sfh ~/.dotfiles/bat/themes ~/.config/bat/themes
 bat cache --build
-
-# Finicky
-mkdir -p ~/.config/finicky
-ln -sfh ~/.dotfiles/finicky/finicky.ts ~/.config/finicky/finicky.ts
 
 # Claude Code
 mkdir -p ~/.claude ~/.local/bin
@@ -584,14 +579,19 @@ chsh -s /opt/homebrew/bin/fish
 | Repo location | Identity file | Email |
 |---------------|---------------|-------|
 | anywhere (default) | `git/config` | `@gmail.com` |
-| `~/Projects/secture/…` | `git/config-secture` | `sergio@secture.com` |
-| `~/Projects/tribbu/…` | `git/config-tribbu` | `sergiosantiago@tribbuapp.com` |
 | `~/Projects/personal/…`, `~/.dotfiles`, `~/.dotfiles-private` | `git/config-personal` | `@gmail.com` |
+| each work directory | `~/.config/git/config.private` | the work address |
+
+The work rows are not in this repo, which is public. `git/config` pulls them in with an optional
+`[include]` of `~/.config/git/config.private`, which holds the `includeIf` per work directory and
+points at small `identity-*` files beside it. All of them are restored by `make private-pull`. git
+skips an include whose file is missing, so a machine without the private half signs everything with
+the personal address, which is the safe direction.
 
 **The personal address is the default on purpose.** It used to be the work one, with personal as
 the exception, and the failure mode came with it: a repository cloned anywhere outside the two
 listed directories silently inherited the work address. That is how some 380 commits across public
-personal repositories, this one included, came to be authored by `sergio@secture.com`.
+personal repositories, this one included, came to be authored by a work address.
 
 It is not only untidy. GitHub attributes a commit by matching its author address against the
 addresses registered on the account, so the day a work address is removed from that account, every
@@ -603,10 +603,10 @@ The last three rows are redundant with the default and are kept anyway, so that 
 default cannot silently change what those repositories sign with.
 
 The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
-being symlinked. To use them, just clone repos under the matching directory:
+being symlinked. To use them, just clone repos under the matching directory, and check with:
 
 ```bash
-git -C ~/Projects/tribbu/some-repo config user.email   # → sergiosantiago@tribbuapp.com
+git -C ~/Projects/<dir>/some-repo config user.email
 ```
 
 GitHub HTTPS credentials are delegated to `gh auth git-credential`, so run `gh auth login` once.
@@ -622,9 +622,9 @@ A few things can't be symlinked and must be done by hand on a new machine:
    already configured in `git/config`, so every `git commit` fails with
    `cannot exec op-ssh-sign` until the app is there. It is not in the `Brewfile` because it is
    installed from 1password.com, outside Homebrew.
-2. **Install Google Chrome.** `finicky/finicky.ts` names it as the default browser and routes Meet
-   links to the **Tribbu** profile, so link routing does nothing useful without it. Also outside
-   Homebrew, and the profile itself has to be signed in by hand.
+2. **Install Google Chrome.** The Finicky rules restored by `make private-pull` name it as the
+   default browser and route some links to specific Chrome profiles, so link routing does nothing
+   useful without it. Also outside Homebrew, and the profiles have to be signed in by hand.
 3. **Load iTerm2 preferences**. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
 4. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
    `0600` file for you). See [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
@@ -801,6 +801,8 @@ decision.
 | `~/.ssh/config.private` | Host aliases: hostnames, the user to log in as, the odd non-default port | **No.** The keys are in 1Password |
 | `~/.aws/config` | SSO profiles: account ids, role names, the start url | **No.** There is no `~/.aws/credentials` under SSO |
 | `~/.config/fish/functions-private/*.fish` | Four wrappers for a personal project: its name, its path, what each command does | **No.** Three lines each, no secret in them |
+| `~/.config/git/config.private`, `identity-*` | Which directories commit with which work address | **No.** But it names employers and clients |
+| `~/.config/finicky/finicky.ts` | Link routing rules, naming the work Chrome profiles | **No.** Same reason |
 
 Neither of the first two grants access to anything. Both are a **target list**, which is a different
 and smaller risk: publishing them would hand over the enumeration step, and if the hosts belong to a

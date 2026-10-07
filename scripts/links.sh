@@ -23,7 +23,6 @@ LINKS=(
   "micro/settings.json|$HOME/.config/micro/settings.json"
   "micro/colorschemes/linked-data-dark-rainbow.micro|$HOME/.config/micro/colorschemes/linked-data-dark-rainbow.micro"
   "bat/themes|$HOME/.config/bat/themes"
-  "finicky/finicky.ts|$HOME/.config/finicky/finicky.ts"
   "claude/CLAUDE.md|$HOME/.claude/CLAUDE.md"
   "claude/settings.json|$HOME/.claude/settings.json"
   "claude/statusline.sh|$HOME/.claude/statusline.sh"

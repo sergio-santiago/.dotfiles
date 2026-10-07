@@ -6,6 +6,10 @@
 # git/config-* files it pulls in, and the README restates that map in a table.
 # Two copies of the same fact, so this compares them.
 #
+# The work identities are not here at all: git/config pulls them from
+# ~/.config/git/config.private, which the private repo backs up. This repo is
+# public, so the test also checks that no other address has crept back in.
+#
 # It is worth pinning because getting it wrong is silent and permanent. GitHub
 # links a commit to an account by matching the author address against the
 # addresses on it, so a repository that quietly picks up the wrong identity ends
@@ -114,3 +118,18 @@ done
 
 it "~/.dotfiles and ~/.dotfiles-private have an identity rule of their own"
 assert_eq "" "$UNCOVERED"
+
+# ── Work identities come from the private include, and only from there ──────
+it "git/config pulls the work identities from ~/.config/git/config.private"
+assert_contains "$(awk '/^\[include\]/{i=1;next} /^\[/{i=0} i' "$GITCFG")" "path = ~/.config/git/config.private"
+
+# Every address in a tracked file is the personal one, GitHub's ssh user, or a
+# reserved example domain. A work address here would publish an employer.
+LEAKED="$(git -C "$DOTFILES" ls-files -z \
+  | (cd "$DOTFILES" && xargs -0 grep -ohIE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}') \
+  | sort -u \
+  | grep -vxF -e "$PERSONAL_EMAIL" -e 'git@github.com' \
+  | grep -vE '@example\.(invalid|com|org)$')"
+
+it "no tracked file carries an address other than the personal one"
+assert_eq "" "$LEAKED"

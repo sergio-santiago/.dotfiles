@@ -39,4 +39,15 @@ PRIVATE_FILES=(
   "$HOME/.config/fish/functions-private/cc-record-status.fish|fish/functions-private/cc-record-status.fish"
   "$HOME/.config/fish/functions-private/cc-record-stop.fish|fish/functions-private/cc-record-stop.fish"
   "$HOME/.config/fish/functions-private/cc-record-transcribe.fish|fish/functions-private/cc-record-transcribe.fish"
+
+  # Work git identities: which directories commit with which employer's address.
+  # Pulled in by the public git/config through an optional [include], so the public
+  # repo states the mechanism without naming the employers.
+  "$HOME/.config/git/config.private|git/config.private"
+  "$HOME/.config/git/identity-work|git/identity-work"
+  "$HOME/.config/git/identity-client|git/identity-client"
+
+  # Link routing. Its rules name the Chrome profiles, which are named after
+  # employers, so the whole file is private rather than symlinked from the repo.
+  "$HOME/.config/finicky/finicky.ts|finicky/finicky.ts"
 )

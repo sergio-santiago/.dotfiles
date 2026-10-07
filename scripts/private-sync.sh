@@ -206,10 +206,11 @@ EOF
 The private half of [`.dotfiles`](https://github.com/sergio-santiago/.dotfiles).
 **Keep this repo private.**
 
-Nothing here is a credential. It is machine-private configuration, SSH host
-aliases and AWS SSO profiles, which is a target list rather than a way in. The
-keys and tokens that actually grant access live in 1Password and are synced by
-nothing.
+Nothing here is a credential. It is configuration that names real machines,
+employers or personal projects: SSH host aliases and AWS SSO profiles, which are a
+target list rather than a way in, plus work git identities, link routing rules and
+a few fish wrappers. The keys and tokens that actually grant access live in
+1Password and are synced by nothing.
 
 ## These files are copies, do not edit them here
 

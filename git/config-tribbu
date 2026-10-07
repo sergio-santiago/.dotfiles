@@ -1,4 +1,0 @@
-# Identity override for Tribbu client (loaded via includeIf for ~/Projects/tribbu/).
-# SSH signing key and name are inherited from the main config.
-[user]
-	email = sergiosantiago@tribbuapp.com
