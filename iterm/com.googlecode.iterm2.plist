@@ -34,8 +34,39 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>AllowClipboardAccess</key>
 	<true/>
+	<key>ClaudeCodeTriggersInstalled</key>
+	<false/>
+	<key>ClaudeCodeWorkgroupUpsellSuppressed</key>
+	<true/>
 	<key>ClickToSelectCommand</key>
 	<false/>
+	<key>CodeReviewSavedPrompts</key>
+	<data>
+	W3sidXVpZCI6IkQ0QUQyNTlCLTgxRDctNEI3My05RUE4LUVEQTU4NTY3M0NFQiIsIm5h
+	bWUiOiJEZWZhdWx0IiwidGV4dCI6IlJldmlldyB0aGUgcGVuZGluZyBjaGFuZ2VzIGlu
+	IHRoaXMgcmVwby4gRmxhZyBpc3N1ZXMgYSBjYXJlZnVsIG1haW50YWluZXIgd291bGQg
+	YmxvY2sgb24gYmVmb3JlIG1lcmdlLCBpbiByb3VnaGx5IHRoaXMgb3JkZXI6XG4gIDEu
+	IENvcnJlY3RuZXNzIOKAlCBsb2dpYyBlcnJvcnMsIGJyb2tlbiBpbnZhcmlhbnRzLCBt
+	aXNzZWQgZWRnZSBjYXNlcywgb2ZmLWJ5LW9uZSwgcmFjZXMsIGxpZmV0aW1lXC9tZW1v
+	cnkgYnVncywgZXJyb3IgcGF0aHMgdGhhdCBzd2FsbG93IGZhaWx1cmVzLlxuICAyLiBT
+	ZWN1cml0eSDigJQgaW5qZWN0aW9uLCBhdXRoblwvYXV0aHogbWlzdGFrZXMsIHNlY3Jl
+	dCBoYW5kbGluZywgdW5zYWZlIGRlc2VyaWFsaXphdGlvbiwgdW5zYWZlIGRlZmF1bHRz
+	LCBUT0NUT1UuXG4gIDMuIFJlbGlhYmlsaXR5ICYgcGVyZm9ybWFuY2Ug4oCUIGJsb2Nr
+	aW5nIHRoZSB3cm9uZyB0aHJlYWQsIHVuYm91bmRlZCByZXNvdXJjZSB1c2UsIGFjY2lk
+	ZW50YWwgTyhOwrIpLCByZXRyaWVzIHdpdGhvdXQgYmFja29mZiwgc2lsZW50IGZhaWx1
+	cmUgcGF0aHMuXG4gIDQuIENvbnRyYWN0IHJpc2sg4oCUIGJlaGF2aW9yIGNoYW5nZXMg
+	Y2FsbGVycyByZWx5IG9uLCBzaWxlbnRseSBjaGFuZ2VkIGRlZmF1bHRzLCBicm9rZW4g
+	YmFja3dhcmQgY29tcGF0aWJpbGl0eSwgbWlzc2luZyBtaWdyYXRpb25zLlxuXG5Gb3Ig
+	ZWFjaCBmaW5kaW5nIGNpdGUgYGZpbGU6bGluZWAsIGV4cGxhaW4gKndoeSogaXQgaXMg
+	d3JvbmcgKG5vdCB3aGF0IHRoZSBjb2RlIGRvZXMpLCBhbmQgcHJvcG9zZSBhIGNvbmNy
+	ZXRlIGZpeCB3aGVuIG9uZSBpcyBvYnZpb3VzLiBCZSBjYWxpYnJhdGVkOiBpZiBhIGZp
+	bmRpbmcgaXMgbm90IGhpZ2gtY29uZmlkZW5jZSwgc2F5IHNvIG9yIHNraXAgaXQuIFZl
+	cmlmeSBjbGFpbXMgYWdhaW5zdCB0aGUgYWN0dWFsIGNvZGUgcmF0aGVyIHRoYW4gaW5m
+	ZXJyaW5nIGZyb20gbmFtZXMuXG5cblNraXAgcHVyZSBzdHlsZSwgZm9ybWF0dGluZywg
+	bmFtaW5nLCBhbmQgYW55dGhpbmcgYSBsaW50ZXIgb3IgQ0kgYWxyZWFkeSBlbmZvcmNl
+	cy5cblxuSWYgeW91IGZpbmQgbm90aGluZyB3b3J0aCBmaXhpbmcsIHNheSBzbyBwbGFp
+	bmx5LiJ9XQ==
+	</data>
 	<key>Custom Color Presets</key>
 	<dict>
 		<key>Linked Data Dark Rainbow</key>
@@ -416,6 +447,8 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>DimOnlyText</key>
 	<true/>
+	<key>EnableAPIServer</key>
+	<false/>
 	<key>EnableDivisionView</key>
 	<true/>
 	<key>FlashTabBarInFullscreen</key>
@@ -1963,6 +1996,8 @@ The script should do this: \(ai.prompt)</string>
 			<integer>513</integer>
 			<key>Transparency</key>
 			<real>0.25247391875633229</real>
+			<key>Triggers</key>
+			<array/>
 			<key>Underline Color</key>
 			<dict>
 				<key>Alpha Component</key>
@@ -2114,6 +2149,10 @@ The script should do this: \(ai.prompt)</string>
 	<true/>
 	<key>TerminalMargin</key>
 	<integer>5</integer>
+	<key>ToolbeltTools</key>
+	<array>
+		<string>Session Status</string>
+	</array>
 	<key>UseBorder</key>
 	<false/>
 	<key>UseRecommendedAIModel</key>
@@ -2122,6 +2161,10 @@ The script should do this: \(ai.prompt)</string>
 	<false/>
 	<key>WindowNumber</key>
 	<true/>
+	<key>Workgroups</key>
+	<data>
+	W10=
+	</data>
 	<key>com.apple.WebPrivacy.ResourceMonitorURLsVersion</key>
 	<string>qrsAAAGXnXBrwGxMO6s=</string>
 	<key>findMode_iTerm</key>
