@@ -7,7 +7,7 @@
 #   summary at the end. Steps come in two classes:
 #
 #     action  update · upgrade · cleanup · autoremove   → decide the exit status
-#     report  doctor · greedy casks · external updaters → never touch it
+#     report  doctor · greedy casks                    → never touch it
 #
 #   That split is the whole point. `brew doctor` exits 1 for any warning at all,
 #   and its own output asks you to ignore those warnings, so a maintenance run
@@ -20,22 +20,20 @@
 #   Nothing here runs in the background and nothing schedules itself.
 #
 # Usage:
-#   brew-maintenance [--check] [--quiet] [--verbose] [--with-external]
+#   brew-maintenance [--check] [--quiet] [--verbose]
 #   make brew-maintenance   |   bm   (fish alias)
 #
 # Environment (overridable, used by scripts/tests):
 #   BREW_MAINTENANCE_STAMP    stamp file path
 #   BREW_MAINTENANCE_BREW     brew executable
-#   BREW_MAINTENANCE_GCLOUD   gcloud state file (.last_update_check.json)
 ################################################################################
 
 set -uo pipefail
 
 STAMP="${BREW_MAINTENANCE_STAMP:-${XDG_CACHE_HOME:-$HOME/.cache}/brew-maintenance/last-run}"
 BREW="${BREW_MAINTENANCE_BREW:-brew}"
-GCLOUD_STATE="${BREW_MAINTENANCE_GCLOUD:-$HOME/.config/gcloud/.last_update_check.json}"
 
-CHECK=0 QUIET=0 VERBOSE=0 EXTERNAL=0
+CHECK=0 QUIET=0 VERBOSE=0
 
 # ── Pretty output ───────────────────────────────────────────────────────────
 # Same vocabulary as doctor.sh on purpose: two tools reporting on the same
@@ -58,7 +56,6 @@ ${BOLD}brew-maintenance${RESET} - update, tidy up and review Homebrew
   --check           report only, change nothing (no stamp is written)
   --quiet           print the summary alone, no command output
   --verbose         also print the raw output of the review steps
-  --with-external   also run third-party updaters (gcloud components update)
   -h, --help        this text
 
 Actions decide the exit status, reports never do. 0 means every action that ran
@@ -71,7 +68,6 @@ while (($#)); do
     --check) CHECK=1 ;;
     --quiet) QUIET=1 ;;
     --verbose) VERBOSE=1 ;;
-    --with-external) EXTERNAL=1 ;;
     -h|--help) usage; exit 0 ;;
     *) printf "unknown option: %s\n\n" "$1" >&2; usage >&2; exit 2 ;;
   esac
@@ -220,19 +216,6 @@ do_actions() {
   else
     record autoremove action "$rc" "nothing unneeded"
   fi
-
-  # Only ever runs when asked for, and then it is an action: a failure in
-  # something explicitly requested is a failure of the run. `--quiet` accepts
-  # every prompt sight unseen, which is precisely why this is behind a flag.
-  if ((EXTERNAL)); then
-    if command -v gcloud >/dev/null 2>&1; then
-      out="$WORK/gcloud.out"
-      run "$out" gcloud components update --quiet; rc=$?
-      record gcloud action "$rc" "SDK components updated"
-    else
-      record gcloud warn 0 "gcloud not installed, skipped"
-    fi
-  fi
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -289,22 +272,6 @@ do_reports() {
     record greedy ok 0 "$N_GREEDY cask(s) with their own updater"
   else
     record greedy ok 0 "no self-updating casks"
-  fi
-
-  # Free and offline: the SDK writes its own pending notices into this file, so
-  # finding out costs a read instead of a network round trip through gcloud.
-  if ((EXTERNAL)); then
-    return 0
-  fi
-  if [[ -r "$GCLOUD_STATE" ]] && have_jq; then
-    n=$(jq -r '.notifications | length' "$GCLOUD_STATE" 2>/dev/null)
-    n=${n:-0}
-    if [[ "$n" -gt 0 ]]; then
-      WARNINGS=$((WARNINGS + 1))
-      record external warn 0 "gcloud has $n pending notice(s), rerun with --with-external"
-    else
-      record external ok 0 "gcloud has no news"
-    fi
   fi
 }
 

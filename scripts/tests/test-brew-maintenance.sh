@@ -16,7 +16,6 @@ setup() {
   CASE_DIR="$(mktemp -d "$SCRATCH/case.XXXXXX")"
   export FAKE_LOG="$CASE_DIR/calls.log"
   export BREW_MAINTENANCE_STAMP="$CASE_DIR/stamp/last-run"
-  export BREW_MAINTENANCE_GCLOUD="$CASE_DIR/gcloud.json"
   : >"$FAKE_LOG"
 
   # Defaults describe a healthy machine with nothing to do. Each test overrides
@@ -297,25 +296,6 @@ bm_run --check
 it "--check exits 0 even when doctor warns"
 assert_eq 0 "$RC"
 
-# ── gcloud is reported from its own state file, never run ───────────────────
-setup
-printf '%s\n' '{"notifications":[{"id":"update"}]}' >"$BREW_MAINTENANCE_GCLOUD"
-bm_run
-it "a pending gcloud notice is surfaced"
-assert_contains "$OUT" "gcloud has 1 pending notice(s)"
-
-it "the pending notice names the flag that would act on it"
-assert_contains "$OUT" "--with-external"
-
-it "a pending gcloud notice does not fail the run"
-assert_eq 0 "$RC"
-
-setup
-printf '%s\n' '{"notifications":[]}' >"$BREW_MAINTENANCE_GCLOUD"
-bm_run
-it "an empty notification list reads as no news"
-assert_contains "$OUT" "gcloud has no news"
-
 # ── Argument handling ───────────────────────────────────────────────────────
 setup
 bm_run --nope
@@ -363,4 +343,4 @@ bm_run
 it "without --quiet the pointer still refers to the output above"
 assert_contains "$OUT" "see the output above"
 
-unset BREW_MAINTENANCE_BREW BREW_MAINTENANCE_STAMP BREW_MAINTENANCE_GCLOUD FAKE_LOG
+unset BREW_MAINTENANCE_BREW BREW_MAINTENANCE_STAMP FAKE_LOG

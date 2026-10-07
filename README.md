@@ -201,7 +201,7 @@ case is handed a throwaway one.
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
-executable, its stamp path and its gcloud state file from environment variables, so a fake `brew`
+executable and its stamp path from environment variables, so a fake `brew`
 can record what it was asked to do: that log is what shows `upgrade` is never invoked with
 `--greedy`. And `test-install.sh` plans one throwaway `$HOME` and installs into a second, so a dry
 run that quietly created a directory would fail the suite rather than be trusted.
@@ -400,7 +400,6 @@ This will install:
 ```bash
 bm                      # the usual run
 bm --check              # report what is pending, change nothing
-bm --with-external      # also run gcloud components update
 make brew-maintenance   # same thing, from the repo
 ```
 
@@ -418,7 +417,6 @@ and anything else that can find a binary.
 | `brew autoremove` | action | drops orphaned dependencies |
 | `brew doctor` | report | counted and shown, never fatal |
 | self-updating casks | report | listed with brew's record beside the version available |
-| `gcloud` pending work | report | read from the SDK's own state file |
 
 Two things follow from it. `brew doctor` exits 1 for any warning it has, and its own output asks
 you to ignore those warnings, so a run that inherited that status called a healthy machine broken.
@@ -448,11 +446,6 @@ brew never rewrites its receipt unless you force it, which is what `--greedy-aut
 That matters in one case only: if the receipt names a dependency you no longer have, `brew doctor`
 reports a missing dependency that nothing actually misses. Forcing the upgrade once regenerates the
 receipt and clears it.
-
-Third-party updaters work the same way. `gcloud components update` is reported by default, read
-free and offline from `~/.config/gcloud/.last_update_check.json`, where the SDK writes its own
-pending notices. It only runs behind `--with-external`, because doing it non-interactively means
-accepting every prompt sight unseen.
 
 #### The reminder
 
