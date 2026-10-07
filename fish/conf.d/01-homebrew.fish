@@ -1,4 +1,4 @@
-# ~/.config/fish/conf.d/02-homebrew.fish
+# ~/.config/fish/conf.d/01-homebrew.fish
 # ==============================================================================
 # 🍺 Homebrew environment
 # ------------------------------------------------------------------------------
@@ -15,7 +15,9 @@
 # Notes:
 #   - This uses `brew shellenv` which prepends /opt/homebrew/bin to PATH.
 #   - Keep this near the front of conf.d so other tools can rely on brew.
-#   - If PATH priority issues arise (e.g. with fnm), adjust load order accordingly.
+#   - It prepends on every run, so anything that must outrank Homebrew has to be
+#     sourced after this file, not before. 02-local-bin.fish is the reason this one
+#     moved from 02- to 01-, and carries the incident that prompted it.
 # ==============================================================================
 
 # Guarded on the binary instead of run blind. Unguarded, a machine without

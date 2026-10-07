@@ -228,10 +228,14 @@ that the default is the personal one rather than a work one.
 Fragments are sourced in lexical order. Environment first, then version managers and tools,
 then appearance, and finally a cosmetic separator hook.
 
+Within the environment group the order of the two PATH fragments is load-bearing: `brew
+shellenv` prepends on every run, so `~/.local/bin` has to come after it to stay ahead of
+`/opt/homebrew/bin`.
+
 ```mermaid
 flowchart TD
     subgraph env["⚙️ Environment (00–02)"]
-        x["00 · XDG redirects"] --> b["01 · ~/.local/bin"] --> h["02 · Homebrew"]
+        x["00 · XDG redirects"] --> h["01 · Homebrew"] --> b["02 · ~/.local/bin"]
     end
     subgraph ver["📦 Version manager (03)"]
         py["03 · pyenv"]
@@ -635,8 +639,9 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 
 #### conf.d/ files (autoloaded in order):
 - `00-xdg_redirects.fish`: XDG base directories
-- `01-local-bin.fish`: Local user binaries PATH
-- `02-homebrew.fish`: Homebrew environment
+- `01-homebrew.fish`: Homebrew environment
+- `02-local-bin.fish`: Local user binaries PATH, sourced after Homebrew so it outranks it, plus
+  `functions-private/` on the function path
 - `03-pyenv.fish`: Python version management
 - `05-fzf.fish`: Fuzzy finder with fd, bat, eza integration
 - `06-bat.fish`: Bat (cat replacement) configuration
@@ -785,10 +790,22 @@ decision.
 |------|---------------------------|---------------------|
 | `~/.ssh/config.private` | Host aliases: hostnames, the user to log in as, the odd non-default port | **No.** The keys are in 1Password |
 | `~/.aws/config` | SSO profiles: account ids, role names, the start url | **No.** There is no `~/.aws/credentials` under SSO |
+| `~/.config/fish/functions-private/*.fish` | Four wrappers for a personal project: its name, its path, what each command does | **No.** Three lines each, no secret in them |
 
-Neither grants access to anything. Both are a **target list**, which is a different and smaller
-risk: publishing them would hand over the enumeration step, and if the hosts belong to a client it
-is their confidentiality and not only yours.
+Neither of the first two grants access to anything. Both are a **target list**, which is a different
+and smaller risk: publishing them would hand over the enumeration step, and if the hosts belong to a
+client it is their confidentiality and not only yours.
+
+The fish wrappers are a third kind again, and the reason they are here is worth stating because it
+is easy to get wrong. They hold nothing secret. What they hold is a **description of their owner**:
+a project name, a path under `~/Projects`, and a `--description` line saying what the command does.
+That is not machine-private, it is person-private, and a public repo is exactly the wrong place for
+it.
+
+They live in `~/.config/fish/functions-private`, a real directory, and `02-local-bin.fish` adds it
+to `$fish_function_path`. That indirection is not decoration: `~/.config/fish/functions` is a
+**symlink into this repo**, so a function dropped there is one `git add .` away from being
+published, and it will not look like a mistake until it is one.
 
 #### Why plaintext in a private repo, and not encrypted in this one
 

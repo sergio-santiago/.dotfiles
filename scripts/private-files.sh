@@ -28,4 +28,15 @@ PRIVATE_FILES=(
   # the organisation. AWS does not treat account ids as secret, but publishing
   # them enables targeted role enumeration.
   "$HOME/.aws/config|aws/config"
+
+  # Four fish wrappers for a personal project. Three lines each and no secret in
+  # them, but the name of the project, the path it lives at and what the commands
+  # do are together a description of the owner rather than of the machine, and this
+  # repo is public. They load from ~/.config/fish/functions-private, which is a real
+  # directory: ~/.config/fish/functions is a symlink into this repo, so leaving them
+  # there would have published them on the next `git add .`.
+  "$HOME/.config/fish/functions-private/cc-record-start.fish|fish/functions-private/cc-record-start.fish"
+  "$HOME/.config/fish/functions-private/cc-record-status.fish|fish/functions-private/cc-record-status.fish"
+  "$HOME/.config/fish/functions-private/cc-record-stop.fish|fish/functions-private/cc-record-stop.fish"
+  "$HOME/.config/fish/functions-private/cc-record-transcribe.fish|fish/functions-private/cc-record-transcribe.fish"
 )

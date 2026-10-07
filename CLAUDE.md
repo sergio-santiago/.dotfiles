@@ -10,6 +10,17 @@ it: no hostnames, no usernames for real hosts, no account ids, no tokens, no pat
 identify a client. The private half lives in a separate private repo, driven by
 `make private-push` and declared in `scripts/private-files.sh`.
 
+Person-private counts too, not only machine-private: a function whose name, path or
+description says what you are working on belongs on the private side even with no secret
+in it.
+
+**The trap, and it has already caught one agent.** `~/.config/fish/functions` is a symlink
+*into this repo*, so a file written there is inside the public repo no matter how it got
+there, and `git status` shows it as untracked rather than as a problem. Writing to
+`~/.config/...` is not the same as writing outside the repo. Private fish functions go in
+`~/.config/fish/functions-private/`, a real directory added to `$fish_function_path` by
+`02-local-bin.fish` and backed up through `scripts/private-files.sh`.
+
 ## Documentation drift is this repo's recurring defect
 
 Docs here go stale faster than anything else, and the reason is structural rather than a
