@@ -19,10 +19,10 @@
 DOCTOR="$DOTFILES/scripts/doctor.sh"
 BREWFILE="$DOTFILES/Brewfile"
 
-# The one formula whose binary is not named after it. doctor.sh names every entry
-# by the binary it provides, so the two lists differ by exactly this mapping. Add
-# to it only when a new formula genuinely ships a differently named command.
-declare -a BIN_FOR_FORMULA=("poppler=pdftotext")
+# Formulae whose binary is not named after them. doctor.sh names every entry by the
+# binary it provides, so the two lists differ by exactly this mapping. Add to it
+# only when a new formula genuinely ships a differently named command.
+declare -a BIN_FOR_FORMULA=("poppler=pdftotext" "whisper-cpp=whisper-cli")
 
 binary_for() { # formula → the command it provides, one per line
   local pair

@@ -361,6 +361,7 @@ This will install:
 - **espeak-ng**: phonemizer behind the spoken replies (it also ships a `speak`, hence the PATH order above)
 - **eza**: improved `ls` with colors and icons
 - **fd**: fast and user-friendly alternative to `find`
+- **ffmpeg**: audio and video conversion toolkit
 - **fish**: friendly interactive shell
 - **fzf**: fuzzy finder for the terminal
 - **gh**: GitHub CLI tool
@@ -372,9 +373,11 @@ This will install:
 - **poppler**: PDF rendering library
 - **pyenv**: manage multiple Python versions
 - **starship**: fast and customizable prompt
+- **whisper-cpp**: local speech-to-text, provides `whisper-cli`
 - **zoxide**: smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
+- **BlackHole 2ch**: virtual audio device, for routing system sound
 - **Claude Usage Tracker**: Claude API usage dashboard
 - **Finicky**: control which browser/profile opens links
 - **Fira Code Nerd Font**: a developer-friendly font with ligatures and Nerd Font icons
