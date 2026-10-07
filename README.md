@@ -59,6 +59,9 @@ This repository contains my personal macOS development environment configuration
     - Custom statusline configuration with comprehensive git, system, and environment info.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
+      Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
+      command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
+      only for `--hard`, `--merge` or `--keep`, and `rm` only outside the temporary directories.
     - Tuned for Opus 5: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
@@ -195,6 +198,7 @@ case is handed a throwaway one.
 | `test-doctor.sh` | That the `REQUIRED` list and the `Brewfile` have not drifted apart |
 | `test-private-sync.sh` | The secret screen, from both sides, and that a refused push copies nothing |
 | `test-git-identity.sh` | That the identity map in `git/config` and the one the README prints agree |
+| `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable, its stamp path and its gcloud state file from environment variables, so a fake `brew`

@@ -32,16 +32,35 @@
       "Bash(gh pr diff:*)",
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
-      "Bash(gh issue status:*)"
+      "Bash(gh issue status:*)",
+      "Bash(gh search:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh workflow list:*)",
+      "Bash(gh workflow view:*)",
+      "Bash(gh repo list:*)",
+      "Bash(gh label list:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh gist list:*)",
+      "Bash(gh gist view:*)",
+      "Bash(gh cache list:*)",
+      "Bash(gh secret list:*)",
+      "Bash(gh variable list:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git blame:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git describe:*)",
+      "Bash(git shortlog:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git stash list:*)",
+      "Bash(git stash show:*)",
+      "Bash(git remote -v)"
     ],
     "ask": [
-      "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git reset:*)",
       "Bash(git rebase:*)",
       "Bash(git clean:*)",
-      "Bash(gh api:*)",
       "Bash(gh repo create:*)",
       "Bash(gh repo delete:*)",
       "Bash(gh run cancel:*)",
@@ -55,8 +74,7 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue close:*)",
       "Bash(gh issue edit:*)",
-      "Bash(gh issue comment:*)",
-      "Bash(rm:*)"
+      "Bash(gh issue comment:*)"
     ],
     "defaultMode": "auto"
   },
@@ -90,6 +108,18 @@
             "type": "command",
             "command": "~/.claude/hooks/speak-reply.sh",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/bash-guard.py",
+            "timeout": 5
           }
         ]
       }
