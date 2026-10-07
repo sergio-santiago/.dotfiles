@@ -320,14 +320,22 @@ do_status() {
   elif ! git -C "$PRIVATE_REPO" remote get-url origin >/dev/null 2>&1; then
     warn "the private repo has no remote, so nothing is backed up off this machine"
   else
-    local ahead
-    ahead="$(git -C "$PRIVATE_REPO" rev-list --count @{u}..HEAD 2>/dev/null || echo "?")"
-    if [[ "$ahead" == "?" ]]; then
+    # Both directions, read from the last fetch. Counting only the local side called
+    # a diverged repo "ahead" and suggested a push the remote would reject.
+    local counts behind ahead
+    if ! counts="$(git -C "$PRIVATE_REPO" rev-list --left-right --count '@{u}...HEAD' 2>/dev/null)"; then
       warn "the private repo has a remote but no upstream branch yet. Run 'make private-push'"
-    elif [[ "$ahead" == "0" ]]; then
-      ok "the private repo is committed and pushed"
     else
-      warn "the private repo is $ahead commit(s) ahead of its remote"
+      read -r behind ahead <<<"$counts"
+      if ((behind && ahead)); then
+        warn "the private repo has diverged from its remote ($ahead local, $behind remote commit(s)). Reconcile it by hand"
+      elif ((behind)); then
+        warn "the private repo is $behind commit(s) behind its remote. Run 'git pull' in it"
+      elif ((ahead)); then
+        warn "the private repo is $ahead commit(s) ahead of its remote"
+      else
+        ok "the private repo is committed and pushed"
+      fi
     fi
   fi
 

@@ -307,13 +307,21 @@ else
   elif ! git -C "$PRIVATE_REPO" remote get-url origin >/dev/null 2>&1; then
     warn "the private repo has no remote, so nothing is backed up off this machine"
   else
-    AHEAD="$(git -C "$PRIVATE_REPO" rev-list --count '@{u}..HEAD' 2>/dev/null)"
-    if [[ -z "$AHEAD" ]]; then
+    # Both directions, as in private-sync.sh status: counting only the local side
+    # called a diverged repo "ahead" and suggested a push the remote would reject.
+    if ! COUNTS="$(git -C "$PRIVATE_REPO" rev-list --left-right --count '@{u}...HEAD' 2>/dev/null)"; then
       warn "the private repo has no upstream branch yet. Run 'make private-push'"
-    elif [[ "$AHEAD" == "0" ]]; then
-      pass "the private repo is committed and pushed"
     else
-      warn "the private repo is $AHEAD commit(s) ahead of its remote"
+      read -r BEHIND AHEAD <<<"$COUNTS"
+      if ((BEHIND && AHEAD)); then
+        warn "the private repo has diverged from its remote ($AHEAD local, $BEHIND remote commit(s)). Reconcile it by hand"
+      elif ((BEHIND)); then
+        warn "the private repo is $BEHIND commit(s) behind its remote. Run 'git pull' in it"
+      elif ((AHEAD)); then
+        warn "the private repo is $AHEAD commit(s) ahead of its remote"
+      else
+        pass "the private repo is committed and pushed"
+      fi
     fi
   fi
 fi

@@ -303,6 +303,54 @@ assert_contains "$OUT" "differs from the pushed copy"
 it "status warns that a repo with no remote is not backed up anywhere"
 assert_contains "$OUT" "no remote"
 
+# ── status and doctor see both directions against the remote ────────────────
+# A bare repo stands in for GitHub, and a second clone commits to it, so the
+# private repo can be put behind and then diverged without any network.
+git_test() { # repo args...
+  local repo="$1"; shift
+  env GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid \
+    GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid \
+    git -C "$repo" "$@" >/dev/null 2>&1
+}
+doctor_run() {
+  OUT="$(env HOME="$CASE_HOME" XDG_CACHE_HOME="$CASE_HOME/.cache" \
+    DOTFILES_PRIVATE="$PRIV" bash "$DOTFILES/scripts/doctor.sh" 2>&1)"
+}
+
+fresh_priv_home
+priv_run init >/dev/null
+priv_run push >/dev/null
+REMOTE="$CASE_HOME/remote.git"
+git init -q --bare "$REMOTE"
+git_test "$PRIV" remote add origin "$REMOTE"
+git_test "$PRIV" push -u origin HEAD
+
+priv_run status
+it "status calls a repo level with its remote committed and pushed"
+assert_contains "$OUT" "committed and pushed"
+
+OTHER="$CASE_HOME/other"
+git clone -q "$REMOTE" "$OTHER" 2>/dev/null
+git_test "$OTHER" commit --allow-empty -m "remote only"
+git_test "$OTHER" push
+git_test "$PRIV" fetch
+
+priv_run status
+it "status reports a repo that is behind its remote as behind, not as pushed"
+assert_contains "$OUT" "1 commit(s) behind"
+
+git_test "$PRIV" commit --allow-empty -m "local only"
+priv_run status
+it "status reports local and remote commits on both sides as diverged"
+assert_contains "$OUT" "diverged"
+
+it "and does not call that state merely ahead, which invites a rejected push"
+assert_not_contains "$OUT" "ahead of its remote"
+
+doctor_run
+it "doctor reports the same divergence"
+assert_contains "$OUT" "diverged from its remote (1 local, 1 remote"
+
 # ── Argument handling matches the other scripts' contract ───────────────────
 fresh_priv_home
 priv_run --help

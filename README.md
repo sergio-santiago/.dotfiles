@@ -772,14 +772,19 @@ publish whatever your SSH config happened to say at that moment, and the screen 
 deciding on its own whether that was acceptable. Copying private data is worth one deliberate
 command.
 
-What replaces the automation is being told. `make doctor` reports three separate kinds of drift:
+What replaces the automation is being told. `make doctor` and `make private-status` report each
+kind of drift separately:
 
 | Doctor says | It means |
 |-------------|----------|
 | `has never been pushed` | a file in the map has no copy in the repo at all |
 | `differs from the pushed copy` | you edited the live file and did not push |
 | `is N commit(s) ahead of its remote` | committed locally, still only on this laptop |
+| `is N commit(s) behind its remote` | the remote has commits this clone has not pulled |
+| `has diverged from its remote` | both sides have commits the other lacks, so a push would be rejected. Reconcile by hand |
 | `has no remote` | nothing is backed up off this machine at all |
+
+Both read the remote as of the last fetch, so they stay offline.
 
 So the routine is: edit the live file, and the next `make doctor` tells you it is out of step.
 
