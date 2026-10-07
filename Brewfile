@@ -10,7 +10,6 @@ brew "bat"                      # cat clone with syntax highlighting
 brew "eza"                      # improved ls with icons and colors
 brew "espeak-ng"                # phonemizer for the spoken replies (also ships a `speak`)
 brew "fd"                       # fast and user-friendly find
-brew "ffmpeg"                   # audio and video conversion toolkit
 brew "fish"                     # friendly interactive shell
 brew "fzf"                      # fuzzy finder for the terminal
 brew "gh"                       # GitHub CLI tool
@@ -22,12 +21,10 @@ brew "node"                     # JavaScript runtime
 brew "poppler"                  # PDF rendering library
 brew "pyenv"                    # manage multiple Python versions
 brew "starship"                 # fast and customizable prompt
-brew "whisper-cpp"              # local speech-to-text, provides `whisper-cli`
 brew "zoxide"                   # smarter cd command with jump history
 
 # --- Casks ---
 cask "hamed-elfayome/claude-usage/claude-usage-tracker", trusted: true # Claude API usage dashboard
-cask "blackhole-2ch"            # virtual audio device, routes system sound
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
 cask "iterm2"                   # terminal emulator
