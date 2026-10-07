@@ -56,6 +56,14 @@
       "Bash(git stash show:*)",
       "Bash(git remote -v)"
     ],
+    "deny": [
+      "mcp__plugin_slack_slack__slack_send_message",
+      "mcp__plugin_slack_slack__slack_send_message_draft",
+      "mcp__plugin_slack_slack__slack_schedule_message",
+      "mcp__plugin_slack_slack__slack_add_reaction",
+      "mcp__plugin_slack_slack__slack_create_canvas",
+      "mcp__plugin_slack_slack__slack_update_canvas"
+    ],
     "ask": [
       "Bash(git commit:*)",
       "Bash(git push:*)",
@@ -137,6 +145,7 @@
   },
   "language": "spanish",
   "effortLevel": "high",
+  "awaySummaryEnabled": false,
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
@@ -145,7 +154,15 @@
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "preferredNotifChannel": "iterm2_with_bell",
+  "autoContinueAtUsageLimit": true,
+  "remoteControlAtStartup": true,
   "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Bash(pbcopy:*)"
+    ]
+  },
   "voiceEnabled": true,
-  "awaySummaryEnabled": false
+  "agentPushNotifEnabled": true
 }
