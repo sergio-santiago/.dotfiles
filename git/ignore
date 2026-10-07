@@ -1,0 +1,8 @@
+# Global gitignore, read by git from ~/.config/git/ignore in every repo.
+# Keeps personal Claude Code and IDE files out of client repositories. A repo
+# that does want one of them tracked negates it in its own .gitignore, the way
+# this repo does for CLAUDE.md.
+**/.claude/settings.local.json
+CLAUDE.md
+.claude/
+.idea/

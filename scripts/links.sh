@@ -20,6 +20,7 @@ LINKS=(
   "fish/config.fish|$HOME/.config/fish/config.fish"
   "starship/starship.toml|$HOME/.config/starship.toml"
   "git/config|$HOME/.config/git/config"
+  "git/ignore|$HOME/.config/git/ignore"
   "micro/settings.json|$HOME/.config/micro/settings.json"
   "micro/colorschemes/linked-data-dark-rainbow.micro|$HOME/.config/micro/colorschemes/linked-data-dark-rainbow.micro"
   "bat/themes|$HOME/.config/bat/themes"

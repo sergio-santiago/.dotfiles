@@ -492,7 +492,7 @@ It wires the repo into `$HOME` like this:
 | `ssh/config` | `~/.ssh/config` |
 | `fish/{conf.d,functions,config.fish}` | `~/.config/fish/…` |
 | `starship/starship.toml` | `~/.config/starship.toml` |
-| `git/config` | `~/.config/git/config` |
+| `git/{config,ignore}` | `~/.config/git/…` |
 | `micro/{settings.json,colorschemes/…}` | `~/.config/micro/…` |
 | `bat/themes` | `~/.config/bat/themes` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
@@ -522,6 +522,7 @@ ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 # Git
 mkdir -p ~/.config/git
 ln -sfh ~/.dotfiles/git/config ~/.config/git/config
+ln -sfh ~/.dotfiles/git/ignore ~/.config/git/ignore
 
 # Micro
 mkdir -p ~/.config/micro/colorschemes
@@ -613,6 +614,10 @@ git -C ~/Projects/<dir>/some-repo config user.email
 ```
 
 GitHub HTTPS credentials are delegated to `gh auth git-credential`, so run `gh auth login` once.
+
+`git/ignore` is the global gitignore. It keeps `CLAUDE.md`, `.claude/` and `.idea/` out of every
+repository, client ones included, so a personal agent file is never committed by accident. A repo
+that wants one of them tracked negates it in its own `.gitignore`, as this one does for `CLAUDE.md`.
 
 ---
 
