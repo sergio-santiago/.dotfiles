@@ -50,4 +50,9 @@ PRIVATE_FILES=(
   # Link routing. Its rules name the Chrome profiles, which are named after
   # employers, so the whole file is private rather than symlinked from the repo.
   "$HOME/.config/finicky/finicky.ts|finicky/finicky.ts"
+
+  # manual-duplex settings: the printer queue, which carries part of its MAC, the
+  # calibrated pass order and a hand-written FLIP_HINT. Restore it before running
+  # the tool's install.sh, which keeps a config it finds. See docs/NEW-MACHINE.md.
+  "$HOME/.config/manual-duplex/config|manual-duplex/config"
 )

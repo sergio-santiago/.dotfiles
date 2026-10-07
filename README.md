@@ -100,6 +100,7 @@ This repository contains my personal macOS development environment configuration
     - [🗝️ Machine-private config (the second repo)](#️-machine-private-config-the-second-repo)
     - [💻 iTerm2 Configuration (Theme, Colors & Profiles)](#-iterm2-configuration-theme-colors--profiles)
     - [🔊 Spoken Claude Code replies](#-spoken-claude-code-replies)
+- [💻 Setting up a new Mac](docs/NEW-MACHINE.md)
 - [📋 Color palette reference](docs/COLORS.md)
 
 ---
@@ -179,7 +180,7 @@ explanation in [Machine-private config](#️-machine-private-config-the-second-r
 ~/.dotfiles-private   PRIVATE   ssh/config.private            → copied to and from $HOME
                                 aws/config                       by make private-push / pull
                                 git/config.private, identities
-                                finicky/finicky.ts
+                                finicky/finicky.ts, manual-duplex/config
                                 fish/functions-private/
 ```
 
@@ -296,19 +297,23 @@ flowchart TD
 Everything here builds on [Homebrew](https://brew.sh), which is the one thing that has to be
 installed by hand first. Nothing in the repo can install it, since `make brew` is what uses it.
 
+**The full restore, in order and with every download link, is in
+[docs/NEW-MACHINE.md](docs/NEW-MACHINE.md).** 1Password comes first, because it holds the SSH key.
+The core of it:
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-git clone git@github.com:sergio-santiago/.dotfiles.git ~/.dotfiles
+# HTTPS on purpose: SSH only works once `make link` has pointed ~/.ssh/config at 1Password
+git clone https://github.com/sergio-santiago/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 make install          # installs Brewfile packages + symlinks every config
 make default-shell    # set fish as the default login shell
 make doctor           # verify tools, symlinks and environment
 ```
 
-Then finish the [manual steps](#-manual-steps-not-automatable), the handful of things no script can
-do for you, starting with the apps Homebrew does not manage.
-The sections below explain each piece in detail.
+Then the [manual steps](#-manual-steps-not-automatable), the handful of things no script can do
+for you. The sections below explain each piece in detail.
 
 #### Make targets
 
@@ -355,9 +360,6 @@ brew bundle --file ~/.dotfiles/Brewfile
 
 This will install:
 
-#### 🔖 Taps
-- **hamed-elfayome/claude-usage**: Claude API usage tracking
-
 #### 🛠️ CLI tools
 - **bat**: `cat` clone with syntax highlighting
 - **espeak-ng**: phonemizer behind the spoken replies (it also ships a `speak`, hence the PATH order above)
@@ -377,10 +379,13 @@ This will install:
 - **zoxide**: smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
-- **Claude Usage Tracker**: Claude API usage dashboard
 - **Finicky**: control which browser/profile opens links
 - **Fira Code Nerd Font**: a developer-friendly font with ligatures and Nerd Font icons
-- **iTerm2**: terminal emulator for macOS
+
+Only these two, because neither updates itself, so Homebrew is what keeps them current. Every
+other app has its own updater or comes from the App Store, where a cask would only add a version
+record that drifts. Those are installed by hand, listed with their links in
+[docs/NEW-MACHINE.md](docs/NEW-MACHINE.md#4-apps-installed-by-hand).
 
 > Only what this repo's own configuration uses, or a tool used directly, belongs here. A project's
 > dependencies go in that project's own `Brewfile`, so a new machine installs them with the project
@@ -389,10 +394,6 @@ This will install:
 > 🔄️ Keeping Homebrew current is a deliberate step you take by hand: run `brew-maintenance`
 > (or `bm`). See [Homebrew maintenance](#-homebrew-maintenance) for what it does and for the
 > reminder that suggests it.
->
-> Homebrew will not load a formula from a tap it does not trust. `claude-usage-tracker` comes
-> from a third-party tap, so its `Brewfile` entry carries `trusted: true` and is written with the
-> tap-qualified name that the flag needs to apply.
 
 ---
 
@@ -623,17 +624,18 @@ that wants one of them tracked negates it in its own `.gitignore`, as this one d
 
 ### 🪄 Manual steps (not automatable)
 
-A few things can't be symlinked and must be done by hand on a new machine:
+A few things can't be symlinked and must be done by hand on a new machine. They are folded into
+[docs/NEW-MACHINE.md](docs/NEW-MACHINE.md) in the order that works, and explained here:
 
 1. **Install 1Password and enable its SSH agent** (required for SSH auth **and** commit signing):
    1Password → **Settings → Developer → Use the SSH agent**. Commit signing uses `op-ssh-sign`,
    already configured in `git/config`, so every `git commit` fails with
-   `cannot exec op-ssh-sign` until the app is there. It is not in the `Brewfile` because it is
-   installed from 1password.com, outside Homebrew.
+   `cannot exec op-ssh-sign` until the app is there. Installed from 1password.com, since it
+   updates itself.
 2. **Install Google Chrome.** The Finicky rules restored by `make private-pull` name it as the
    default browser and route some links to specific Chrome profiles, so link routing does nothing
    useful without it. Also outside Homebrew, and the profiles have to be signed in by hand.
-3. **Load iTerm2 preferences**. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
+3. **Install iTerm2 and load its preferences**. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
 4. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
    `0600` file for you). See [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
 5. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
@@ -642,7 +644,7 @@ A few things can't be symlinked and must be done by hand on a new machine:
 6. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
    through Context7, and that rule *is* symlinked, so without the server a new machine gets an
    instruction pointing at a tool that isn't there. MCP servers live in `~/.claude.json`, outside the
-   repo: add it with `claude mcp add`.
+   repo: add it with `claude mcp add --scope user --transport http context7 https://mcp.context7.com/mcp`.
 
 ---
 
@@ -811,6 +813,7 @@ decision.
 | `~/.config/fish/functions-private/*.fish` | Four wrappers for a personal project: its name, its path, what each command does | **No.** Three lines each, no secret in them |
 | `~/.config/git/config.private`, `identity-*` | Which directories commit with which work address | **No.** But it names employers and clients |
 | `~/.config/finicky/finicky.ts` | Link routing rules, naming the work Chrome profiles | **No.** Same reason |
+| `~/.config/manual-duplex/config` | The printer queue (part of its MAC), the calibrated pass order and a hand-written flip message | **No.** Machine-specific, restored before reinstalling the tool |
 
 Neither of the first two grants access to anything. Both are a **target list**, which is a different
 and smaller risk: publishing them would hand over the enumeration step, and if the hosts belong to a
