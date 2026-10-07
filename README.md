@@ -61,6 +61,8 @@ This repository contains my personal macOS development environment configuration
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
       command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
       only for `--hard`, `--merge` or `--keep`, and `rm` only outside the temporary directories.
+      A `$VAR` in an `rm` target counts when the same command assigned it a literal
+      unconditionally, and heredoc bodies are read as data rather than as commands.
     - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.

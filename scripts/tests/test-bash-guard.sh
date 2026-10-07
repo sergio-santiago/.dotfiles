@@ -71,6 +71,32 @@ expect ask 'rm -rf $DIR/build'
 expect ask 'rm -rf -- -weird' /Users/x
 expect ask 'cd /tmp && cd ~/project && rm x'
 expect ask 'echo $(rm /tmp/x)'
+expect ask '(cd /tmp); rm -rf ~/x'
+
+# ── rm: a variable is expanded only when its value is certain ───────────────
+expect allow 'S=/private/tmp/claude-1/scratch; rm -f $S/pag*'
+expect allow 'S=/tmp/work && rm -rf ${S}/build'
+expect allow 'A=/tmp/a; B=/tmp/b; rm $A/x $B/y'
+expect allow 'D=out; cd /tmp/w && rm -r $D'
+expect ask 'cd /tmp/w && D=out; rm -r $D'
+expect ask 'false && S=/tmp/x; rm -rf $S/*'
+expect ask 'test -d x || S=/tmp/x; rm -rf $S/*'
+expect ask 'S=/tmp/x | true; rm -rf $S/*'
+expect ask 'S=/tmp/x & rm -rf $S/*'
+expect ask '(S=/tmp/x); rm -rf $S/*'
+expect ask 'S=/tmp/x; read S; rm -rf $S/y'
+expect ask 'S=/tmp/x; export S=/; rm -rf $S/y'
+expect ask 'S=/tmp/x; false && S=/etc; rm -rf $S/y'
+expect ask 'S=$HOME/tmp; rm -rf $S/y'
+expect ask 'S=/tmp/x; rm -rf $T/y'
+expect ask 'rm -rf $S/y; S=/tmp/x'
+expect ask 'S=/tmp; rm -rf $S/*'
+
+# Heredoc bodies are data: their parentheses and words are not commands. The
+# check for $( ) still reads the original, since an unquoted heredoc runs it.
+expect - $'python3 - x <<\'EOF\'\nprint(open("a").read())\nEOF\nS=/tmp/s; rm -f $S/p*'
+expect allow $'cat <<EOF\nrm -rf ~\nEOF'
+expect ask $'cat <<EOF\n$(rm -rf ~)\nEOF\nrm /tmp/x'
 
 # ── everything else is left to the normal rules ─────────────────────────────
 expect - 'git status'

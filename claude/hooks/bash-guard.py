@@ -14,7 +14,10 @@
 #                         GraphQL `mutation`
 #              git reset  --hard, --merge or --keep, the modes that touch the
 #                         working tree
-#              rm         any target outside /tmp, /private/tmp or $TMPDIR
+#              rm         any target outside /tmp, /private/tmp or $TMPDIR. A
+#                         $VAR in a target is expanded only when the same
+#                         command assigned it a literal unconditionally (see
+#                         known_vars), otherwise it asks
 #     allow  every part is a safe form of the above, a filter from
 #            SAFE_FILTERS or a `cd`, with no substitution and no redirect
 #            other than to /dev/null or between stdout and stderr.
@@ -49,20 +52,103 @@ def answer(decision, reason):
     sys.exit(0)
 
 
-def split(command):
+def tokens(lexer):
+    """shlex glues adjacent punctuation, so `);` arrives as one token that is
+    neither a separator nor a redirect, and the command after it went unread.
+    Unknown runs of punctuation are split into single characters."""
+    for token in lexer:
+        if token and set(token) <= set("();<>|&") \
+                and token not in SEPARATORS and token not in REDIRECTS:
+            yield from token
+        else:
+            yield token
+
+
+def split_with_separators(command):
+    """Each segment with the separator before and after it (None at either end)."""
     lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
     lexer.whitespace = " \t\r"  # keep newlines: they separate commands
     lexer.commenters = ""
     lexer.wordchars += "$`=,.:/@%+~*?[]{}^!-"
-    segments, current = [], []
-    for token in lexer:
+    out, current, before = [], [], None
+    for token in tokens(lexer):
         if token in SEPARATORS:
-            segments.append(current)
-            current = []
+            if current:
+                out.append((current, before, token))
+            current, before = [], token
         else:
             current.append(token)
-    segments.append(current)
-    return [s for s in segments if s]
+    if current:
+        out.append((current, before, None))
+    return out
+
+
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_]\w*)\1")
+
+
+def strip_heredocs(command):
+    """The command without heredoc bodies, which are data and not commands.
+
+    Only for reading the command's structure. Whether it substitutes anything is
+    still decided on the original text, since an unquoted heredoc runs its $( ).
+    """
+    out, delimiter, strip_tabs = [], None, False
+    for line in command.split("\n"):
+        if delimiter is not None:
+            if (line.lstrip("\t") if strip_tabs else line) == delimiter:
+                delimiter = None
+            continue
+        m = HEREDOC.search(line)
+        if m:
+            delimiter, strip_tabs = m.group(2), line[m.start():].startswith("<<-")
+            line = line[:m.start()] + line[m.end():]
+        out.append(line)
+    return "\n".join(out)
+
+
+def split(command):
+    return [seg for seg, _, _ in split_with_separators(command)]
+
+
+ASSIGNMENT = re.compile(r"([A-Za-z_]\w*)=(.*)", re.S)
+# Words that can change a variable behind an assignment's back, or run code that
+# could. Any of them anywhere and no assignment is trusted at all.
+REBINDERS = {"read", "for", "export", "declare", "typeset", "local", "unset",
+             "eval", "source", ".", "while", "until", "readonly", "mapfile"}
+
+
+def known_vars(parts, command):
+    """Variables whose value at each segment is certain, as one dict per segment.
+
+    Only an assignment of a literal that runs unconditionally counts: at the start
+    or after `;` or a newline, and followed by `;`, a newline, `&&` or the end.
+    `false && S=/tmp/x; rm -rf $S/*` would otherwise expand to `rm -rf /*`, and an
+    assignment inside ( ), { }, a pipe or `&` lives in a subshell. A variable
+    assigned any other way is forgotten, never guessed.
+    """
+    trusted = not re.search(r"[()]", command) and \
+        not any(t in REBINDERS for seg, _, _ in parts for t in seg)
+    env, snapshots = {}, []
+    for seg, before, after_sep in parts:
+        snapshots.append(dict(env))
+        matches = [ASSIGNMENT.fullmatch(t) for t in seg]
+        if not all(matches):
+            continue
+        certain = trusted and before in (None, ";", "\n") \
+            and after_sep in (None, ";", "\n", "&&")
+        for m in matches:
+            name, value = m.group(1), m.group(2)
+            if certain and not re.search(r"[$`]", value):
+                env[name] = value
+            else:
+                env.pop(name, None)
+    return snapshots
+
+
+def expand(path, env):
+    def sub(m):
+        return env.get(m.group(1) or m.group(2), m.group(0))
+    return re.sub(r"\$\{([A-Za-z_]\w*)\}|\$([A-Za-z_]\w*)", sub, path)
 
 
 def words(seg):
@@ -133,7 +219,9 @@ def main():
     if not re.search(r"\b(gh\s+api|reset|rm)\b", command):
         return
     try:
-        segments = split(command)
+        structure = strip_heredocs(command)
+        parts = split_with_separators(structure)
+        segments = [seg for seg, _, _ in parts]
     except ValueError:
         answer("ask", "a command that could not be parsed")
 
@@ -147,7 +235,7 @@ def main():
     # allow: only when every part is known to be safe
     substituted = bool(re.search(r"\$\(|`|<\(", command))
     safe, cwd = not substituted, data.get("cwd") or os.getcwd()
-    for seg in segments:
+    for seg, env in zip(segments, known_vars(parts, structure)):
         for i, t in enumerate(seg):
             target = seg[i + 1] if i + 1 < len(seg) else ""
             if (t in (">", ">>", "&>") and target != "/dev/null") or t == "<" \
@@ -158,7 +246,8 @@ def main():
             continue
         if w[0] == "rm":
             targets = rm_targets(w[1:])
-            if substituted or not targets or not all(in_scratch(t, cwd) for t in targets):
+            if substituted or not targets or \
+                    not all(in_scratch(expand(t, env), cwd) for t in targets):
                 answer("ask", "rm outside the temporary directories")
         elif w[0] == "cd" and len(w) == 2 and "$" not in w[1]:
             cwd = os.path.normpath(os.path.join(cwd, os.path.expanduser(w[1])))
