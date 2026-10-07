@@ -84,6 +84,10 @@ are in the `Brewfile` instead and arrived with `make install`.
 
 Chrome's web apps (YouTube Music, Calendar, Meet) come back on their own once Chrome sync is on.
 
+Raycast is used with Store extensions only, no custom hotkeys, snippets or quicklinks, so there is
+nothing to export. Reinstall these from the Raycast Store: **Brew**, **Clean Keyboard**,
+**Google Chrome**, **Kill Process**, **Notion** and **Visual Studio Code**.
+
 ## 5. Claude Code, the parts outside this repo
 
 ```bash
