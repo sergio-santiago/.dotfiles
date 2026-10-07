@@ -5,7 +5,7 @@ This repository contains my personal macOS development environment configuration
 - 🐟 **Fish shell**
     - Clean setup with modular functions, aliases, color configuration, and a Starship prompt theme aligned to the
       terminal palette.
-    - Modular configuration with 12 numbered conf.d files (00-99) for controlled load order.
+    - Modular configuration with numbered conf.d files (00-99) for controlled load order.
     - Custom functions: `fish_greeting`, `fish_user_key_bindings`, `brew_nudge`.
     - Compact welcome banner with rainbow effect (`lolcat`) and fixed seed for consistent colors.
 - 🧾 **Aliases**
@@ -61,7 +61,7 @@ This repository contains my personal macOS development environment configuration
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
       command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
       only for `--hard`, `--merge` or `--keep`, and `rm` only outside the temporary directories.
-    - Tuned for Opus 5: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
+    - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
     - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks, skills and settings all tracked in
@@ -976,8 +976,8 @@ voice cannot convey. The difference is length:
 
 - **`summary`** is a closing line Claude writes *to be heard*, about twenty seconds. It exists because
   a reply adapted from prose never sounds as good as one written for the ear.
-- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (11 600 chars, the default
-  voice reads 19.4 chars/s, measured) so a runaway reply cannot hold the speaker hostage.
+- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (10 700 chars, the default
+  voice reads 17.8 chars/s, measured) so a runaway reply cannot hold the speaker hostage.
 
 In `full`, inline paths become the name a person would say (`claude/speak-lib.sh` → "speak lib")
 rather than being deleted, which would leave sentences dangling mid-clause.

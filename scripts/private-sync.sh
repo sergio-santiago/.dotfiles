@@ -5,9 +5,9 @@
 # Description:
 #   Copies the few machine-private files this setup needs between $HOME and a
 #   separate PRIVATE git repo (~/.dotfiles-private by default). They cannot live in
-#   this repo because this one is public: ~/.ssh/config.private names ten hosts with
-#   the user to log in as, and ~/.aws/config names the account ids and roles behind
-#   six SSO profiles. Neither is a credential, the keys that grant access are in
+#   this repo because this one is public: ~/.ssh/config.private names real hosts
+#   with the user to log in as, and ~/.aws/config names the account ids and roles
+#   behind the SSO profiles. Neither is a credential, the keys that grant access are in
 #   1Password. Both are a target list, which is worth not publishing, and if the
 #   hosts belong to a client it is their confidentiality and not only yours.
 #

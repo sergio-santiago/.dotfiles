@@ -20,11 +20,11 @@
 ################################################################################
 
 PRIVATE_FILES=(
-  # Ten hosts with the user to log in as. Not a credential, the keys live in
+  # Host aliases with the user to log in as. Not a credential, the keys live in
   # 1Password, but it removes an attacker's enumeration step entirely.
   "$HOME/.ssh/config.private|ssh/config.private"
 
-  # Six SSO profiles: account ids, role names and the start url that identifies
+  # SSO profiles: account ids, role names and the start url that identifies
   # the organisation. AWS does not treat account ids as secret, but publishing
   # them enables targeted role enumeration.
   "$HOME/.aws/config|aws/config"
