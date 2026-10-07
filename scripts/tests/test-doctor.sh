@@ -33,7 +33,7 @@ binary_for() { # formula → the command it provides, one per line
 }
 
 # Tap-qualified names are reduced to the bare formula, since that is what the
-# binary is called: `hashicorp/tap/terraform` provides `terraform`.
+# binary is called: `some/tap/tool` provides `tool`.
 brewfile_binaries() {
   sed -nE 's/^brew "([^"]+)".*/\1/p' "$BREWFILE" | sed 's#.*/##' |
     while IFS= read -r formula; do binary_for "$formula"; done | sort -u

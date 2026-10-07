@@ -12,7 +12,6 @@
 
 # --- NPM ---
 # Config and cache redirected to XDG paths.
-# Note: PREFIX is intentionally not set to avoid conflicts with fnm.
 set -x NPM_CONFIG_USERCONFIG "$HOME/.config/npm/npmrc"
 set -x NPM_CONFIG_CACHE "$HOME/.cache/npm"
 

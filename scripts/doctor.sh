@@ -37,7 +37,7 @@ head "🛠️  CLI tools (from Brewfile)"
 # One entry per formula the Brewfile declares, named by the binary it provides:
 # poppler's is pdftotext, every other name matches its formula. A formula absent
 # from here gets installed by `make brew` and then never checked again.
-REQUIRED=(bat btop eza fd fish fnm fzf gh jq lolcat micro mole node pdftotext pyenv starship terraform zoxide)
+REQUIRED=(bat eza fd fish fzf gh jq lolcat micro mole node pdftotext pyenv starship zoxide)
 for bin in "${REQUIRED[@]}"; do
   if command -v "$bin" >/dev/null 2>&1; then
     pass "$bin"

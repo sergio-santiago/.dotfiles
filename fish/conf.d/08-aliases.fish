@@ -103,9 +103,6 @@ if type -q claude
     alias c="claude"
     alias c-yolo="claude --dangerously-skip-permissions"
 end
-if type -q fnm
-    alias nvm="fnm"
-end
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 🧰 Git & VCS
@@ -127,13 +124,6 @@ if type -q git
         pbpaste | git apply $argv
     end
     alias gp="git-patch"
-end
-
-# ──────────────────────────────────────────────────────────────────────────────
-# 📊 System
-# ──────────────────────────────────────────────────────────────────────────────
-if type -q btop
-    alias monitor="btop"
 end
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -69,10 +69,6 @@ This repository contains my personal macOS development environment configuration
       `.dotfiles/claude/`, with a custom `statusline.sh`.
     - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS.
       Offline, free, one switch per terminal. See [Spoken Claude Code replies](#-spoken-claude-code-replies).
-- 📊 **btop**
-    - Modern system resource monitor with custom configuration.
-    - Truecolor support, braille graphs, rounded corners, and transparent background.
-    - Fast 100ms refresh rate for real-time monitoring.
 - 🐙 **GitHub CLI (gh)**
     - GitHub command-line tool configured with SSH protocol.
 
@@ -126,7 +122,7 @@ flowchart LR
         micro["micro/"]
         bat["bat/themes"]
         claude["claude/"]
-        misc["btop · gh · finicky"]
+        misc["gh · finicky"]
         scripts["scripts/<br/>install · doctor · tests<br/>speak · brew-maintenance"]
         docs["docs/COLORS.md"]
         iterm["iterm/<br/>com.googlecode.iterm2.plist"]
@@ -136,7 +132,7 @@ flowchart LR
         cfgstar["~/.config/starship.toml"]
         cfggit["~/.config/git/config"]
         sshcfg["~/.ssh/config"]
-        cfgmisc["~/.config/{micro,bat,btop,gh,finicky}/"]
+        cfgmisc["~/.config/{micro,bat,gh,finicky}/"]
         dotclaude["~/.claude/"]
         localbin["~/.local/bin/"]
     end
@@ -237,8 +233,8 @@ flowchart TD
     subgraph env["⚙️ Environment (00–02)"]
         x["00 · XDG redirects"] --> b["01 · ~/.local/bin"] --> h["02 · Homebrew"]
     end
-    subgraph ver["📦 Version managers (03–04)"]
-        py["03 · pyenv"] --> fnm["04 · fnm"]
+    subgraph ver["📦 Version manager (03)"]
+        py["03 · pyenv"]
     end
     subgraph tools["🛠️ Interactive tools (05–08)"]
         fzf["05 · fzf"] --> batf["06 · bat"] --> zo["07 · zoxide"] --> al["08 · aliases"]
@@ -355,15 +351,12 @@ This will install:
 
 #### 🔖 Taps
 - **hamed-elfayome/claude-usage**: Claude API usage tracking
-- **hashicorp/tap**: HashiCorp tools (provides `terraform`)
 
 #### 🛠️ CLI tools
 - **bat**: `cat` clone with syntax highlighting
-- **btop**: modern system resource monitor
 - **eza**: improved `ls` with colors and icons
 - **fd**: fast and user-friendly alternative to `find`
 - **fish**: friendly interactive shell
-- **fnm**: fast Node.js version manager
 - **fzf**: fuzzy finder for the terminal
 - **gh**: GitHub CLI tool
 - **jq**: JSON processor for command line
@@ -374,24 +367,21 @@ This will install:
 - **poppler**: PDF rendering library
 - **pyenv**: manage multiple Python versions
 - **starship**: fast and customizable prompt
-- **terraform**: infrastructure as code tool
 - **zoxide**: smarter `cd` command with jump history
 
 #### 💻 Apps (casks)
 - **Claude Usage Tracker**: Claude API usage dashboard
 - **Finicky**: control which browser/profile opens links
 - **Fira Code Nerd Font**: a developer-friendly font with ligatures and Nerd Font icons
-- **Google Cloud CLI**: `gcloud` command-line interface
 - **iTerm2**: terminal emulator for macOS
-- **Thaw**: menu bar manager for macOS
 
 > 🔄️ Keeping Homebrew current is a deliberate step you take by hand: run `brew-maintenance`
 > (or `bm`). See [Homebrew maintenance](#-homebrew-maintenance) for what it does and for the
 > reminder that suggests it.
 >
-> Homebrew will not load a formula from a tap it does not trust. `terraform` and
-> `claude-usage-tracker` come from third-party taps, so their `Brewfile` entries carry
-> `trusted: true` and are written with the tap-qualified name that the flag needs to apply.
+> Homebrew will not load a formula from a tap it does not trust. `claude-usage-tracker` comes
+> from a third-party tap, so its `Brewfile` entry carries `trusted: true` and is written with the
+> tap-qualified name that the flag needs to apply.
 
 ---
 
@@ -426,15 +416,15 @@ Exit 0 means every action succeeded, whatever doctor had to say.
 
 #### Casks that update themselves
 
-`thaw` and `gcloud-cli` carry their own updaters, so Homebrew's receipt records the version *it*
-installed rather than the one now on disk. Reported, and left alone on purpose:
+Some casks, `iterm2` among them, carry their own updaters, so Homebrew's receipt records the version
+*it* installed rather than the one now on disk. Reported, and left alone on purpose:
 
 ```
 Casks with their own updater, left alone:
-  thaw           brew records 1.1.0      latest known 1.2.0
+  iterm2         brew records 3.5.0      latest known 3.6.0
 ```
 
-The app is already current: its bundle reports 1.2.0, so what is behind is the bookkeeping, not the
+The app is already current: its bundle reports 3.6.0, so what is behind is the bookkeeping, not the
 software. `brew upgrade --cask --greedy` would download a whole app to install a version already
 installed. The command to correct the record is printed if you ever want it, and never run for you.
 
@@ -495,7 +485,6 @@ It wires the repo into `$HOME` like this:
 | `micro/{settings.json,colorschemes/…}` | `~/.config/micro/…` |
 | `bat/themes` | `~/.config/bat/themes` |
 | `finicky/finicky.ts` | `~/.config/finicky/finicky.ts` |
-| `btop/btop.conf` | `~/.config/btop/btop.conf` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
 | `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
@@ -551,10 +540,6 @@ ln -sfh ~/.dotfiles/claude/speak-lib.sh ~/.claude/speak-lib.sh
 ln -sfh ~/.dotfiles/claude/speak-clean.py ~/.claude/speak-clean.py
 ln -sfh ~/.dotfiles/scripts/bin/speak ~/.local/bin/speak
 ln -sfh ~/.dotfiles/scripts/bin/brew-maintenance ~/.local/bin/brew-maintenance
-
-# btop
-mkdir -p ~/.config/btop
-ln -sfh ~/.dotfiles/btop/btop.conf ~/.config/btop/btop.conf
 
 # GitHub CLI (gh)
 mkdir -p ~/.config/gh
@@ -653,7 +638,6 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 - `01-local-bin.fish`: Local user binaries PATH
 - `02-homebrew.fish`: Homebrew environment
 - `03-pyenv.fish`: Python version management
-- `04-fnm.fish`: Node.js version management
 - `05-fzf.fish`: Fuzzy finder with fd, bat, eza integration
 - `06-bat.fish`: Bat (cat replacement) configuration
 - `07-zoxide.fish`: Smart directory jumper
