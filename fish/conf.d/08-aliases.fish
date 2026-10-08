@@ -39,14 +39,14 @@ if type -q eza
     alias ll="__list_long"
 
     function __list_tree
-        # Add exclusions with: -I='.git|node_modules'
-        eza -a --tree --group --icons=auto --git --group-directories-first $argv
+        # Hidden files are shown, but not the inside of .git or node_modules
+        eza -a --tree -I '.git|node_modules' --group --icons=auto --git --group-directories-first $argv
     end
     alias list-tree="__list_tree"
     alias tree="__list_tree"
 
     function __list_tree_long
-        eza -lah --tree --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
+        eza -lah --tree -I '.git|node_modules' --group --icons=auto --git --group-directories-first --time-style=long-iso $argv
     end
     alias list-tree-long="__list_tree_long"
     alias treelong="__list_tree_long"
