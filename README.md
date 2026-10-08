@@ -60,7 +60,8 @@ This repository contains my personal macOS development environment configuration
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
       command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
-      only for `--hard`, `--merge` or `--keep`, and `rm` only outside the temporary directories.
+      only for `--hard`, `--merge` or `--keep` (past global options such as `-C`), and `rm` only
+      outside the temporary directories or behind a wrapper such as `sudo`, `env` or `xargs`.
       A `$VAR` in an `rm` target counts when the same command assigned it a literal
       unconditionally, and heredoc bodies are read as data rather than as commands.
     - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.

@@ -13,11 +13,12 @@
 #                         a body turns gh's default method into POST, or a
 #                         GraphQL `mutation`
 #              git reset  --hard, --merge or --keep, the modes that touch the
-#                         working tree
+#                         working tree, past any global option such as -C
 #              rm         any target outside /tmp, /private/tmp or $TMPDIR. A
 #                         $VAR in a target is expanded only when the same
 #                         command assigned it a literal unconditionally (see
-#                         known_vars), otherwise it asks
+#                         known_vars), otherwise it asks. Behind a wrapper
+#                         (sudo, env, command, xargs...) it always asks
 #     allow  every part is a safe form of the above, a filter from
 #            SAFE_FILTERS or a `cd`, with no substitution and no redirect
 #            other than to /dev/null or between stdout and stderr.
@@ -38,6 +39,13 @@ SEPARATORS = {"|", "||", "&&", ";", "&", "(", ")", "\n"}
 REDIRECTS = {">", ">>", ">&", "<", "&>"}
 BODY_FLAGS = ("-f", "-F", "--field", "--raw-field", "--input")
 RESET_DESTRUCTIVE = ("--hard", "--merge", "--keep")
+# Commands that run the command after them. An rm behind one asks whatever its
+# targets, since xargs takes them from stdin and the rest change who runs it.
+WRAPPERS = {"command", "builtin", "exec", "env", "sudo", "doas", "nohup", "nice",
+            "time", "timeout", "caffeinate", "xargs"}
+# git's global options that take the next word as their value
+GIT_VALUE_OPTIONS = {"-C", "-c", "--git-dir", "--work-tree", "--namespace",
+                     "--exec-path", "--config-env"}
 TMPDIR = os.environ.get("TMPDIR", "").rstrip("/")
 SCRATCH_ROOTS = {r for r in ("/tmp", "/private/tmp", TMPDIR, os.path.realpath(TMPDIR or "/tmp"))
                  if r and r != "/"}
@@ -173,6 +181,21 @@ def after(seg, first, second):
     return [seg[i + 2:] for i in range(len(seg) - 1) if seg[i] == first and seg[i + 1] == second]
 
 
+def git_reset_args(seg):
+    """The arguments of every git reset in seg, past git's global options, so
+    `git -C dir reset --hard` is read as a reset like the plain spelling."""
+    out = []
+    for i, t in enumerate(seg):
+        if os.path.basename(t) != "git":
+            continue
+        j = i + 1
+        while j < len(seg) and seg[j].startswith("-"):
+            j += 2 if seg[j] in GIT_VALUE_OPTIONS else 1
+        if j < len(seg) and seg[j] == "reset":
+            out.append(seg[j + 1:])
+    return out
+
+
 def gh_api_writes(args):
     if args and args[0] == "graphql":
         return any(re.search(r"\bmutation\b", a, re.I) for a in args)
@@ -229,7 +252,7 @@ def main():
     for seg in segments:
         if any(gh_api_writes(a) for a in after(seg, "gh", "api")):
             answer("ask", "gh api call that can write")
-        if any(a in RESET_DESTRUCTIVE for args in after(seg, "git", "reset") for a in args):
+        if any(a in RESET_DESTRUCTIVE for args in git_reset_args(seg) for a in args):
             answer("ask", "git reset that discards working tree changes")
 
     # allow: only when every part is known to be safe
@@ -244,11 +267,13 @@ def main():
         w = words(seg)
         if not w:
             continue
-        if w[0] == "rm":
+        if os.path.basename(w[0]) == "rm":
             targets = rm_targets(w[1:])
             if substituted or not targets or \
                     not all(in_scratch(expand(t, env), cwd) for t in targets):
                 answer("ask", "rm outside the temporary directories")
+        elif w[0] in WRAPPERS and any(os.path.basename(a) == "rm" for a in w[1:]):
+            answer("ask", "rm behind a wrapper, whose targets cannot be read")
         elif w[0] == "cd" and len(w) == 2 and "$" not in w[1]:
             cwd = os.path.normpath(os.path.join(cwd, os.path.expanduser(w[1])))
         elif w[:2] in (["gh", "api"], ["git", "reset"]):

@@ -55,6 +55,10 @@ expect ask 'git reset --hard'
 expect ask 'git reset HEAD~1 --hard'
 expect ask 'git reset --keep origin/main'
 expect ask 'git status && git reset --merge'
+expect ask 'git -C . reset --hard'
+expect ask 'git -c core.pager=cat reset --hard HEAD~1'
+expect ask '/usr/bin/git reset --hard'
+expect ask 'git --no-pager -C ~/x reset --keep'
 
 # ── rm: only inside the temporary directories ───────────────────────────────
 expect allow 'rm /tmp/out.json'
@@ -72,6 +76,16 @@ expect ask 'rm -rf -- -weird' /Users/x
 expect ask 'cd /tmp && cd ~/project && rm x'
 expect ask 'echo $(rm /tmp/x)'
 expect ask '(cd /tmp); rm -rf ~/x'
+
+# ── rm: by its path, or behind a wrapper ────────────────────────────────────
+expect allow '/bin/rm -f /tmp/out.json'
+expect ask '/bin/rm -rf ~/x'
+expect ask 'command rm -rf ~/x'
+expect ask 'sudo rm -rf /tmp/x'
+expect ask 'env FOO=1 rm x'
+expect ask 'nohup rm -rf ~/x'
+expect ask 'echo x | xargs rm -rf'
+expect ask 'find . -name "*.log" | xargs /bin/rm'
 
 # ── rm: a variable is expanded only when its value is certain ───────────────
 expect allow 'S=/private/tmp/claude-1/scratch; rm -f $S/pag*'
