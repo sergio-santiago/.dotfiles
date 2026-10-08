@@ -30,7 +30,7 @@
 #   5-line table with ANSI colors:
 #     ╭──────────┬─────────────────────────╮
 #     │  folder │ 󰧑 Model                 │
-#     │  branch │ ctx% context-bar 󰖙 zone │
+#     │ 󰘬 branch │ ctx% context-bar 󰖙 zone │
 #     │ N+ 󰓢 -N  │ use% usage-bar 󱎫 reset  │
 #     ╰──────────┴─────────────────────────╯
 #
@@ -59,7 +59,7 @@ readonly COLOR_RESET=$'\033[0m'
 # Icon definitions (Nerd Fonts)
 ################################################################################
 readonly ICON_FOLDER=""
-readonly ICON_GIT_BRANCH=" "
+readonly ICON_GIT_BRANCH="󰘬 "
 readonly ICON_GIT_REBASING=""
 readonly ICON_GIT_MERGING=""
 readonly ICON_GIT_CHERRY=""
