@@ -75,6 +75,7 @@ else
 fi
 
 head "🗣️  Voice model"
+FAILED=0
 mkdir -p "$KOKORO_HOME"
 # One model file holds all 54 voices, so unlike a per-voice download there is no
 # half-installed state where a named voice silently does not exist. Downloaded to a
@@ -92,9 +93,18 @@ for pair in "$MODEL|kokoro-v1.0.onnx" "$VOICES|voices-v1.0.bin"; do
     else
       rm -f "$dest.part"
       warn "could not download $name"
+      FAILED=$((FAILED + 1))
     fi
   fi
 done
+
+# A missing model is not a finished setup, so it does not get the usage notes or a
+# zero exit. Re-running picks up where this one stopped.
+if ((FAILED > 0)); then
+  head "❌ Incomplete"
+  echo "  $FAILED download(s) failed. Run 'make speak-setup' again."
+  exit 1
+fi
 
 head "✅ Done"
 echo "  Turn it on and try it out:"
