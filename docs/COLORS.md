@@ -86,8 +86,9 @@ readonly COLOR_ORANGE=$'\033[38;2;255;184;108m'   # Git special states
 readonly COLOR_GREEN=$'\033[38;2;68;243;115m'     # Added lines / fallback model
 readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'   # Clock icon
 readonly COLOR_RED=$'\033[38;2;255;85;85m'        # Deleted lines
-readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Borders, placeholders
+readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Placeholders, zero counts
 readonly COLOR_DIM_BRIGHT=$'\033[38;2;170;170;170m' # Diff arrows when changes present
+readonly COLOR_BORDER_GRADIENT='170;170;170 70;70;70 170;170;170' # Box border, left to right: light grey, dark grey, light grey
 readonly COLOR_RESET=$'\033[0m'
 ```
 
@@ -96,7 +97,12 @@ literal backslash, which prints as escape text.
 
 Five of these are the core palette in RGB. Four are the statusline's own, outside the
 28: the clock's purple `#BD93F9`, the deleted-lines red `#FF5555` and the two greys are
-Dracula values kept because they read better against a pure black terminal.
+Dracula values kept because they read better against a pure black terminal. The border
+gradient is described below.
+
+**Box border gradient** (left → right): `#AAAAAA` → `#464646` → `#AAAAAA`, interpolated
+per column. Greys rather than colour so the frame gives shape without pulling the eye
+away from the chat.
 
 **Gradient bar colors** (green → yellow → orange → red):
 - `#50FA7B` → `#F1FA8C` → `#FFB86C` → `#FF5555` (10 steps for context/usage bars)

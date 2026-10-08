@@ -25,11 +25,11 @@
 #
 # Output:
 #   5-line table with ANSI colors:
-#     ──────────────┬───────────────────────────╮
-#      folder       │ 󰧑 Model                  │
-#      branch       │ ctx% context-bar 󰖙 zone  │
-#      N+ 󰓢 -N     │ use% usage-bar 󱎫 reset   │
-#     ──────────────┴───────────────────────────╯
+#     ╭──────────┬─────────────────────────╮
+#     │  folder │ 󰧑 Model                 │
+#     │  branch │ ctx% context-bar 󰖙 zone │
+#     │ N+ 󰓢 -N  │ use% usage-bar 󱎫 reset  │
+#     ╰──────────┴─────────────────────────╯
 #
 # External dependencies: jq, python3 (both typically pre-installed on macOS).
 ################################################################################
@@ -46,8 +46,9 @@ readonly COLOR_ORANGE=$'\033[38;2;255;184;108m'   # Git special states
 readonly COLOR_GREEN=$'\033[38;2;68;243;115m'     # Added lines / fallback model
 readonly COLOR_PURPLE=$'\033[38;2;189;147;249m'   # Clock icon
 readonly COLOR_RED=$'\033[38;2;255;85;85m'        # Deleted lines
-readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Borders, placeholders
+readonly COLOR_DIM=$'\033[38;2;108;108;108m'      # Placeholders, zero counts
 readonly COLOR_DIM_BRIGHT=$'\033[38;2;170;170;170m' # Diff arrows when changes present
+readonly COLOR_BORDER_GRADIENT='170;170;170 70;70;70 170;170;170' # Box border, left to right: light grey, dark grey, light grey
 readonly COLOR_RESET=$'\033[0m'
 
 ################################################################################
@@ -85,7 +86,9 @@ readonly MAX_BRANCH_LENGTH=40
 readonly ICON_SEPARATOR_LINE='─'
 readonly ICON_SEPARATOR_T_TOP='┬'
 readonly ICON_SEPARATOR_T_BOTTOM='┴'
+readonly ICON_SEPARATOR_TOP_LEFT='╭'
 readonly ICON_SEPARATOR_TOP_RIGHT='╮'
+readonly ICON_SEPARATOR_BOTTOM_LEFT='╰'
 readonly ICON_SEPARATOR_BOTTOM_RIGHT='╯'
 readonly ICON_VBAR='│'
 
@@ -433,14 +436,17 @@ build_diff_cell() {
 # Lay out 6 cells (3 left, 3 right) in a responsive 2-column box.
 # Args: $1..$3 left rows, $4..$6 right rows (each may contain ANSI escapes).
 # Computes visible widths via Python and aligns the dividing │ vertically.
+# The border is drawn in a left-to-right gradient (COLOR_BORDER_GRADIENT).
 ################################################################################
 layout_two_columns() {
-    DIM_COLOR="$COLOR_DIM" \
+    BORDER_GRADIENT="$COLOR_BORDER_GRADIENT" \
     RESET_COLOR="$COLOR_RESET" \
     SEP_LINE="$ICON_SEPARATOR_LINE" \
     SEP_T_TOP="$ICON_SEPARATOR_T_TOP" \
     SEP_T_BOTTOM="$ICON_SEPARATOR_T_BOTTOM" \
+    SEP_TOP_LEFT="$ICON_SEPARATOR_TOP_LEFT" \
     SEP_TOP_RIGHT="$ICON_SEPARATOR_TOP_RIGHT" \
+    SEP_BOTTOM_LEFT="$ICON_SEPARATOR_BOTTOM_LEFT" \
     SEP_BOTTOM_RIGHT="$ICON_SEPARATOR_BOTTOM_RIGHT" \
     VBAR="$ICON_VBAR" \
     python3 - "$@" <<'PYEOF'
@@ -464,12 +470,13 @@ def vwidth(s: str) -> int:
         w += 2 if ea in ('W', 'F') else 1
     return w
 
-DIM = os.environ['DIM_COLOR']
 RESET = os.environ['RESET_COLOR']
 SEP = os.environ['SEP_LINE']
 T_TOP = os.environ['SEP_T_TOP']
 T_BOT = os.environ['SEP_T_BOTTOM']
+TL = os.environ['SEP_TOP_LEFT']
 TR = os.environ['SEP_TOP_RIGHT']
+BL = os.environ['SEP_BOTTOM_LEFT']
 BR = os.environ['SEP_BOTTOM_RIGHT']
 VBAR = os.environ['VBAR']
 
@@ -481,39 +488,50 @@ rw = [vwidth(c) for c in right]
 lmax = max(lw) if lw else 0
 rmax = max(rw) if rw else 0
 
-# Inside-cell padding: 3 leading + content + 1 trailing  (left)
-#                     1 leading + content + 1 trailing  (right)
-LEFT_LPAD, LEFT_RPAD  = 3, 1
+# Inside-cell padding: 1 leading + content + 1 trailing  (both columns)
+LEFT_LPAD, LEFT_RPAD  = 1, 1
 RIGHT_LPAD, RIGHT_RPAD = 1, 1
 
-# Visual trim for the separator line, because the terminal renders box-drawing chars
-# slightly wider than the cell padding suggests, so shave a few chars off
-# the dashes to land the ┬/┴ underneath the content's │.
-LEFT_SEP_TRIM = 3
-RIGHT_SEP_TRIM = 0
+# Every line opens with a non-whitespace char on purpose. Claude Code strips
+# leading whitespace from status line rows, so a row that started with padding
+# would shift left while the rule above it would not.
 
 left_inner  = LEFT_LPAD + lmax + LEFT_RPAD
 right_inner = RIGHT_LPAD + rmax + RIGHT_RPAD
+width = 1 + left_inner + 1 + right_inner + 1   # total columns, borders included
+mid_x = 1 + left_inner                         # column of the middle divider
 
-left_sep  = SEP * max(0, left_inner - LEFT_SEP_TRIM)
-right_sep = SEP * max(0, right_inner - RIGHT_SEP_TRIM)
+# The border runs a horizontal gradient through these stops, so every border char
+# takes the colour of its column, the vertical bars included.
+STOPS = [tuple(int(v) for v in stop.split(';'))
+         for stop in os.environ['BORDER_GRADIENT'].split()]
 
-top    = f"{DIM}{left_sep}{T_TOP}{right_sep}{TR}{RESET}"
-bottom = f"{DIM}{left_sep}{T_BOT}{right_sep}{BR}{RESET}"
+def colour_at(x: int) -> str:
+    t = x / max(1, width - 1) * (len(STOPS) - 1)
+    i = min(int(t), len(STOPS) - 2)
+    f = t - i
+    a, b = STOPS[i], STOPS[i + 1]
+    r, g, bl = (round(a[k] + (b[k] - a[k]) * f) for k in range(3))
+    return f"\x1b[38;2;{r};{g};{bl}m"
 
-print(top)
+def rule(corner_l: str, tee: str, corner_r: str) -> str:
+    chars = [corner_l] + [SEP] * left_inner + [tee] + [SEP] * right_inner + [corner_r]
+    return ''.join(colour_at(x) + ch for x, ch in enumerate(chars)) + RESET
+
+def bar(x: int) -> str:
+    return f"{colour_at(x)}{VBAR}{RESET}"
+
+lines = [rule(TL, T_TOP, TR)]
 for i in range(3):
-    lc, rc = left[i], right[i]
-    lpad = ' ' * (lmax - lw[i])
-    rpad = ' ' * (rmax - rw[i])
-    line = (
-        ' ' * LEFT_LPAD + lc + lpad + ' ' * LEFT_RPAD
-        + f"{DIM}{VBAR}{RESET}"
-        + ' ' * RIGHT_LPAD + rc + rpad + ' ' * RIGHT_RPAD
-        + f"{DIM}{VBAR}{RESET}"
+    lines.append(
+        bar(0)
+        + ' ' * LEFT_LPAD + left[i] + ' ' * (lmax - lw[i]) + ' ' * LEFT_RPAD
+        + bar(mid_x)
+        + ' ' * RIGHT_LPAD + right[i] + ' ' * (rmax - rw[i]) + ' ' * RIGHT_RPAD
+        + bar(width - 1)
     )
-    print(line)
-sys.stdout.write(bottom)
+lines.append(rule(BL, T_BOT, BR))
+sys.stdout.write('\n'.join(lines))
 PYEOF
 }
 
