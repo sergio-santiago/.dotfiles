@@ -21,9 +21,9 @@ COLORS_DOC="$DOTFILES/docs/COLORS.md"
 
 if [[ -t 1 ]]; then
   BOLD=$'\033[1m'; RESET=$'\033[0m'
-  GREEN=$'\033[38;2;68;243;115m'; YELLOW=$'\033[38;2;255;236;153m'; RED=$'\033[38;2;255;77;77m'
+  GREEN=$'\033[38;2;68;243;115m'; YELLOW=$'\033[38;2;255;236;153m'
 else
-  BOLD=""; RESET=""; GREEN=""; YELLOW=""; RED=""
+  BOLD=""; RESET=""; GREEN=""; YELLOW=""
 fi
 pass() { printf "  %s✓%s %s\n" "$GREEN" "$RESET" "$1"; }
 warn() { printf "  %s!%s %s\n" "$YELLOW" "$RESET" "$1"; ISSUES=$((ISSUES+1)); }

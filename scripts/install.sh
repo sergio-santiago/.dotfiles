@@ -25,9 +25,9 @@ BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 if [[ -t 1 ]]; then
   BOLD=$'\033[1m'; DIM=$'\033[2m'; RESET=$'\033[0m'
   GREEN=$'\033[38;2;68;243;115m'; YELLOW=$'\033[38;2;255;236;153m'
-  BLUE=$'\033[38;2;104;213;255m'; RED=$'\033[38;2;255;77;77m'
+  BLUE=$'\033[38;2;104;213;255m'
 else
-  BOLD=""; DIM=""; RESET=""; GREEN=""; YELLOW=""; BLUE=""; RED=""
+  BOLD=""; DIM=""; RESET=""; GREEN=""; YELLOW=""; BLUE=""
 fi
 ok()   { printf "  %s✓%s %s\n" "$GREEN" "$RESET" "$1"; }
 info() { printf "  %s→%s %s\n" "$BLUE" "$RESET" "$1"; }

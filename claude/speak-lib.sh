@@ -127,7 +127,8 @@ speak_turn_off() {
 # Keeps the marker young while the console is in use, so speak_prune measures how
 # long a console has sat idle rather than how long ago it was switched on.
 speak_touch() {
-    local marker="$SPEAK_CONSOLES_DIR/$(speak_console_id)"
+    local marker
+    marker="$SPEAK_CONSOLES_DIR/$(speak_console_id)"
     [[ -e "$marker" ]] && touch "$marker" 2>/dev/null
     return 0
 }
