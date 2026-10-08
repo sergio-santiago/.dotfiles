@@ -661,10 +661,10 @@ main() {
     # session_pct holding what session_reset should. Peeling one field at a time
     # keeps an empty field empty.
     local rest="$json_output" tab=$'\t'
-    model_name="${rest%%$tab*}";      rest="${rest#*$tab}"
-    current_dir="${rest%%$tab*}";     rest="${rest#*$tab}"
-    context_percent="${rest%%$tab*}"; rest="${rest#*$tab}"
-    session_pct="${rest%%$tab*}";     rest="${rest#*$tab}"
+    model_name="${rest%%"$tab"*}";      rest="${rest#*"$tab"}"
+    current_dir="${rest%%"$tab"*}";     rest="${rest#*"$tab"}"
+    context_percent="${rest%%"$tab"*}"; rest="${rest#*"$tab"}"
+    session_pct="${rest%%"$tab"*}";     rest="${rest#*"$tab"}"
     session_reset="$rest"
     folder_name=$(basename "$current_dir")
 
