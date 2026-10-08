@@ -93,19 +93,6 @@ readonly ICON_SEPARATOR_BOTTOM_RIGHT='╯'
 readonly ICON_VBAR='│'
 
 ################################################################################
-# Programming language icons (Nerd Fonts)
-################################################################################
-readonly ICON_LANG_NODE=""
-readonly ICON_LANG_PYTHON=""
-readonly ICON_LANG_RUST=""
-readonly ICON_LANG_GO=""
-readonly ICON_LANG_PHP=""
-readonly ICON_LANG_JAVA=""
-readonly ICON_LANG_KOTLIN=""
-readonly ICON_LANG_C=""
-readonly ICON_LANG_HASKELL=""
-
-################################################################################
 # Context/usage bar gradient colors (green -> yellow -> orange -> red)
 ################################################################################
 readonly GRADIENT_COLORS=(
@@ -148,53 +135,104 @@ parse_input() {
 }
 
 ################################################################################
-# Detect programming language of the project
+# Detect the project's language or framework from marker files in its root
+#
+# One entry per project kind: "NAME|icon|marker marker ...". NAME is for the
+# tests, which assert on it rather than on a glyph nobody can read in a diff.
+# The first entry with any marker present wins, so the order is the policy:
+# frameworks before the language they are written in (a Laravel app also has a
+# composer.json), languages before the generic build and deploy tools, and Docker
+# last of all, since almost every project ships a compose file whatever it is.
+# A marker with * is a glob, anything else a path. Only the root is looked at.
+#
+# A Makefile is deliberately not a marker: every kind of project has one, so on
+# its own it says nothing about the language.
 ################################################################################
-detect_language() {
+readonly LANG_MARKERS=(
+    # Frameworks
+    "LARAVEL||artisan"
+    "SYMFONY||symfony.lock"
+    "RAILS||bin/rails"
+    "DJANGO||manage.py"
+    "NEXT||next.config.js next.config.mjs next.config.ts"
+    "NUXT||nuxt.config.js nuxt.config.ts"
+    "ASTRO||astro.config.mjs astro.config.js astro.config.ts"
+    "SVELTE||svelte.config.js svelte.config.ts"
+    "ANGULAR||angular.json"
+    # JavaScript runtimes, the most specific first
+    "DENO||deno.json deno.jsonc"
+    "BUN||bun.lock bun.lockb"
+    "TYPESCRIPT||tsconfig.json"
+    "NODE||package.json node_modules .nvmrc"
+    # Languages
+    "PYTHON||requirements.txt pyproject.toml setup.py Pipfile uv.lock .python-version venv .venv"
+    "RUST||Cargo.toml Cargo.lock"
+    "GO||go.mod go.sum"
+    "PHP||composer.json composer.lock"
+    "JAVA||pom.xml build.gradle"
+    "KOTLIN||build.gradle.kts *.kt"
+    "HASKELL||stack.yaml cabal.project *.hs"
+    "RUBY||Gemfile .ruby-version"
+    "SWIFT||Package.swift *.xcodeproj"
+    "DART||pubspec.yaml"
+    "ELIXIR||mix.exs"
+    "ERLANG||rebar.config"
+    "SCALA||build.sbt"
+    "CLOJURE||deps.edn project.clj"
+    "OCAML||dune-project *.opam"
+    "ELM||elm.json"
+    "ZIG||build.zig"
+    "NIM||*.nimble"
+    "CRYSTAL||shard.yml"
+    "V||v.mod"
+    "LUA||*.rockspec .luarc.json"
+    "JULIA||Project.toml"
+    "PERL||cpanfile Makefile.PL"
+    "R|󰟔|*.Rproj"
+    "CSHARP||*.csproj *.sln"
+    "FSHARP||*.fsproj"
+    "CPP||*.cpp *.cc *.hpp"
+    "C||*.c *.h"
+    # Build and deploy tools, when no language said anything
+    "CMAKE||CMakeLists.txt"
+    "TERRAFORM||*.tf"
+    "NIX||flake.nix default.nix"
+    "DOCKER||Dockerfile compose.yaml compose.yml docker-compose.yaml docker-compose.yml"
+)
+
+# Prints the first LANG_MARKERS entry with a marker present in $1, or nothing
+find_lang_entry() {
     local dir="${1:-.}"
+    local entry marker markers
+    for entry in "${LANG_MARKERS[@]}"; do
+        # read, not an unquoted expansion, which would glob the markers against
+        # this process's cwd before they ever reached $dir
+        read -ra markers <<< "${entry##*|}"
+        for marker in "${markers[@]}"; do
+            if [[ "$marker" == *'*'* ]]; then
+                compgen -G "$dir/$marker" >/dev/null 2>&1 || continue
+            else
+                [[ -e "$dir/$marker" ]] || continue
+            fi
+            printf '%s' "$entry"
+            return
+        done
+    done
+}
 
-    [[ -f "$dir/package.json" ]] && echo "$ICON_LANG_NODE" && return
-    [[ -d "$dir/node_modules" ]] && echo "$ICON_LANG_NODE" && return
-    [[ -f "$dir/.nvmrc" ]] && echo "$ICON_LANG_NODE" && return
+# The NAME of the detected kind, for the tests
+detect_language_name() {
+    local entry
+    entry=$(find_lang_entry "$1")
+    printf '%s' "${entry%%|*}"
+}
 
-    [[ -f "$dir/requirements.txt" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -f "$dir/pyproject.toml" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -f "$dir/setup.py" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -f "$dir/Pipfile" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -f "$dir/.python-version" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -d "$dir/venv" ]] && echo "$ICON_LANG_PYTHON" && return
-    [[ -d "$dir/.venv" ]] && echo "$ICON_LANG_PYTHON" && return
-
-    [[ -f "$dir/Cargo.toml" ]] && echo "$ICON_LANG_RUST" && return
-    [[ -f "$dir/Cargo.lock" ]] && echo "$ICON_LANG_RUST" && return
-
-    [[ -f "$dir/go.mod" ]] && echo "$ICON_LANG_GO" && return
-    [[ -f "$dir/go.sum" ]] && echo "$ICON_LANG_GO" && return
-
-    [[ -f "$dir/composer.json" ]] && echo "$ICON_LANG_PHP" && return
-    [[ -f "$dir/composer.lock" ]] && echo "$ICON_LANG_PHP" && return
-
-    [[ -f "$dir/pom.xml" ]] && echo "$ICON_LANG_JAVA" && return
-    [[ -f "$dir/build.gradle" ]] && echo "$ICON_LANG_JAVA" && return
-
-    [[ -f "$dir/build.gradle.kts" ]] && echo "$ICON_LANG_KOTLIN" && return
-    if compgen -G "$dir/*.kt" > /dev/null 2>&1; then
-        echo "$ICON_LANG_KOTLIN" && return
-    fi
-
-    [[ -f "$dir/CMakeLists.txt" ]] && echo "$ICON_LANG_C" && return
-    [[ -f "$dir/Makefile" ]] && echo "$ICON_LANG_C" && return
-    if compgen -G "$dir/*.[ch]" > /dev/null 2>&1 || compgen -G "$dir/*.cpp" > /dev/null 2>&1; then
-        echo "$ICON_LANG_C" && return
-    fi
-
-    [[ -f "$dir/stack.yaml" ]] && echo "$ICON_LANG_HASKELL" && return
-    [[ -f "$dir/cabal.project" ]] && echo "$ICON_LANG_HASKELL" && return
-    if compgen -G "$dir/*.hs" > /dev/null 2>&1; then
-        echo "$ICON_LANG_HASKELL" && return
-    fi
-
-    echo ""
+# The icon of the detected kind, or nothing
+detect_language() {
+    local entry
+    entry=$(find_lang_entry "$1")
+    entry="${entry#*|}"
+    printf '%s' "${entry%%|*}"
 }
 
 ################################################################################
@@ -680,4 +718,8 @@ main() {
     format_statusline "$folder_name" "$lang_icon" "$git_info" "$model_name" "$context_percent" "$session_pct" "$session_reset" "$diff_stats"
 }
 
-main
+
+# Sourced by the test suite to reach detect_language_name, so render only when run
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main
+fi
