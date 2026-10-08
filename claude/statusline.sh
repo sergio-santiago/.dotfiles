@@ -141,8 +141,10 @@ parse_input() {
 # tests, which assert on it rather than on a glyph nobody can read in a diff.
 # The first entry with any marker present wins, so the order is the policy:
 # frameworks before the language they are written in (a Laravel app also has a
-# composer.json), languages before the generic build and deploy tools, and Docker
-# last of all, since almost every project ships a compose file whatever it is.
+# composer.json), languages before the JavaScript runtimes (a PHP or Python app
+# often has a package.json for its assets), all of those before the generic build
+# and deploy tools, and Docker last of all, since almost every project ships a
+# compose file whatever it is.
 # A marker with * is a glob, anything else a path. Only the root is looked at.
 #
 # A Makefile is deliberately not a marker: every kind of project has one, so on
@@ -159,11 +161,6 @@ readonly LANG_MARKERS=(
     "ASTRO||astro.config.mjs astro.config.js astro.config.ts"
     "SVELTE||svelte.config.js svelte.config.ts"
     "ANGULAR||angular.json"
-    # JavaScript runtimes, the most specific first
-    "DENO||deno.json deno.jsonc"
-    "BUN||bun.lock bun.lockb"
-    "TYPESCRIPT||tsconfig.json"
-    "NODE||package.json node_modules .nvmrc"
     # Languages
     "PYTHON||requirements.txt pyproject.toml setup.py Pipfile uv.lock .python-version venv .venv"
     "RUST||Cargo.toml Cargo.lock"
@@ -193,6 +190,12 @@ readonly LANG_MARKERS=(
     "FSHARP||*.fsproj"
     "CPP||*.cpp *.cc *.hpp"
     "C||*.c *.h"
+    # JavaScript runtimes, the most specific first, after the languages since a
+    # PHP or Python app often carries a package.json just for its front-end assets
+    "DENO||deno.json deno.jsonc"
+    "BUN||bun.lock bun.lockb"
+    "TYPESCRIPT||tsconfig.json"
+    "NODE||package.json node_modules .nvmrc"
     # Build and deploy tools, when no language said anything
     "CMAKE||CMakeLists.txt"
     "TERRAFORM||*.tf"

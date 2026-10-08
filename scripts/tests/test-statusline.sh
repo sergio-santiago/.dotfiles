@@ -8,7 +8,8 @@
 # the NAME the table picks, which reads in a diff where a glyph would not.
 #
 # The precedence cases are the point: a framework beats its language, TypeScript
-# beats Node, a language beats Docker, and a bare Makefile says nothing.
+# beats Node, a language beats both a package.json that only builds its assets
+# and Docker, and a bare Makefile says nothing.
 ################################################################################
 
 STATUSLINE="$DOTFILES/claude/statusline.sh"
@@ -27,6 +28,8 @@ SL_CASES=(
   "node|NODE|package.json"
   "deno|DENO|deno.json"
   "php-in-docker|PHP|composer.json docker-compose.yml Makefile"
+  "php-with-assets|PHP|composer.json package.json"
+  "python-with-assets|PYTHON|pyproject.toml package.json node_modules"
   "python-uv|PYTHON|uv.lock"
   "rust|RUST|Cargo.toml"
   "go|GO|go.mod"
