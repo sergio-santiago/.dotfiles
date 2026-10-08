@@ -1,0 +1,8 @@
+# Resolve `source` paths relative to the script, as the scripts themselves do
+source-path=SCRIPTDIR
+external-sources=true
+
+# SC2088: a quoted ~ here is always display text or a literal git pattern, never a path
+# SC2016: single-quoted $(...) is deliberate, test inputs fed verbatim to bash-guard
+# SC2174: mkdir -p -m 700 is meant to lock only the leaf directory that holds the files
+disable=SC2088,SC2016,SC2174

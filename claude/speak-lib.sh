@@ -41,6 +41,7 @@ SPEAK_KOKORO_PY="$SPEAK_KOKORO_HOME/venv/bin/python"
 SPEAK_KOKORO_MODEL="$SPEAK_KOKORO_HOME/kokoro-v1.0.onnx"
 SPEAK_KOKORO_VOICES="$SPEAK_KOKORO_HOME/voices-v1.0.bin"
 SPEAK_SYNTH="$HOME/.claude/speak-kokoro.py"
+# shellcheck disable=SC2034  # read by the hooks that source this
 SPEAK_CLEAN="$HOME/.claude/speak-clean.py"
 
 SPEAK_DEFAULT_VOICE="em_alex"
@@ -68,9 +69,12 @@ SPEAK_DEFAULT_MAX_CHARS="10700"
 # on screen, impossible to take back. TIGHT is for that case, which the hook
 # recognises by the tag starting its chunk. POST breaks the line itself, for a block
 # that arrives whole. Measured from real deltas, not assumed.
+# shellcheck disable=SC2034  # read by the hooks that source this
 SPEAK_PRE=$'\033[38;2;170;170;170m󰕾\033[0m \033[38;2;108;108;108m\033[3m'
 SPEAK_HINT=$'\033[38;2;108;108;108m╰──▸/speak summary · /speak full\033[0m'
+# shellcheck disable=SC2034  # read by the hooks that source this
 SPEAK_POST=$'\033[0m\n'"$SPEAK_HINT"
+# shellcheck disable=SC2034  # read by the hooks that source this
 SPEAK_POST_TIGHT=$'\033[0m'"$SPEAK_HINT"
 
 # ── Private storage ─────────────────────────────────────────────────────────

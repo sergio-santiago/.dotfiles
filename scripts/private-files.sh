@@ -19,6 +19,7 @@
 #   Not executable on its own, it only declares the array.
 ################################################################################
 
+# shellcheck disable=SC2034  # read by private-sync.sh, doctor.sh and the tests that source this
 PRIVATE_FILES=(
   # Host aliases with the user to log in as. Not a credential, the keys live in
   # 1Password, but it removes an attacker's enumeration step entirely.

@@ -72,7 +72,8 @@ DOCTOR_OUT="$(env HOME="$DOCTOR_HOME" XDG_CACHE_HOME="$DOCTOR_HOME/.cache" \
 DOCTOR_RC=$?
 
 it "doctor.sh creates none of the trees the installer owns"
-assert_eq "" "$(cd "$DOCTOR_HOME" && ls -d .config .claude .ssh .local 2>/dev/null | tr '\n' ' ')"
+assert_eq "" "$(cd "$DOCTOR_HOME" && for d in .config .claude .ssh .local; do
+  [[ -e "$d" || -L "$d" ]] && printf '%s ' "$d"; done)"
 
 it "a HOME with no symlinks exits 1, so a broken machine is not reported as fine"
 assert_eq 1 "$DOCTOR_RC"

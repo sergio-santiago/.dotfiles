@@ -13,6 +13,7 @@
 #   Not executable on its own, it only declares the array.
 ################################################################################
 
+# shellcheck disable=SC2034  # read by install.sh, doctor.sh and the tests that source this
 LINKS=(
   "ssh/config|$HOME/.ssh/config"
   "fish/conf.d|$HOME/.config/fish/conf.d"
