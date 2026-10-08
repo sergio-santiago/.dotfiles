@@ -300,10 +300,13 @@ speak_say_file() {
         # goes, sentence by sentence, because Kokoro needs about 5 s to render the
         # 18 s a long reply becomes: rendering it all before playing any of it would
         # put five silent seconds in front of every reply.
-        if ! nohup "$SPEAK_KOKORO_PY" "$SPEAK_SYNTH" "$tmp" "$tmp.txt" "$voice" "$speed" \
-            >/dev/null 2>"$tmp.err" && (($? <= 128)); then
-            # Above 128 means a signal, i.e. someone asked us to stop, and that is not
-            # a failure and must not fill the log on every prompt submit.
+        local rc=0
+        nohup "$SPEAK_KOKORO_PY" "$SPEAK_SYNTH" "$tmp" "$tmp.txt" "$voice" "$speed" \
+            >/dev/null 2>"$tmp.err" || rc=$?
+        # Above 128 means a signal, i.e. someone asked us to stop, and that is not
+        # a failure and must not fill the log on every prompt submit. Read from rc
+        # rather than $? in the condition: after `! cmd`, $? is the negated status.
+        if ((rc > 0 && rc <= 128)); then
             speak_log "kokoro failed: $(tr '\n' ' ' <"$tmp.err" 2>/dev/null | tail -c 200)"
         fi
         rm -f "$tmp".*
