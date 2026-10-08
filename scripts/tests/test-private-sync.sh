@@ -155,6 +155,34 @@ priv_run push
 it "a later push re-tightens a copy whose mode had been loosened"
 assert_eq 600 "$(stat -f '%Lp' "$PRIV/ssh/config.private" 2>/dev/null)"
 
+# ── A failed commit or push is a failed run ─────────────────────────────────
+# A signed commit fails when 1Password is locked or the prompt is declined. A
+# pre-commit hook that refuses stands in for that, since the test has no signer.
+fresh_priv_home
+priv_run init >/dev/null
+printf '#!/bin/sh\nexit 1\n' >"$PRIV/.git/hooks/pre-commit"
+chmod +x "$PRIV/.git/hooks/pre-commit"
+priv_run push
+
+it "a push whose commit fails exits 1"
+assert_eq 1 "$RC"
+
+it "it does not claim a commit it never made"
+assert_not_contains "$OUT" "✓ committed"
+
+it "and it leaves no commit behind"
+assert_eq "" "$(git -C "$PRIV" log --oneline 2>/dev/null)"
+
+rm "$PRIV/.git/hooks/pre-commit"
+git -C "$PRIV" remote add origin "$CASE_HOME/no-such-remote.git"
+priv_run push
+
+it "a push the remote refuses exits 1"
+assert_eq 1 "$RC"
+
+it "and says the push failed"
+assert_contains "$OUT" "push failed"
+
 # ── The secret screen, from both sides ──────────────────────────────────────
 # Injected into the SSH config, one line at a time, on top of a known-clean file.
 # Every value below is a documented example or an obvious placeholder.

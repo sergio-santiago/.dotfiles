@@ -410,7 +410,12 @@ do_push() {
     ok "nothing changed, no commit needed"
   else
     git -C "$PRIVATE_REPO" add -A
-    git -C "$PRIVATE_REPO" commit -q -m "chore: sync private config"
+    # A signed commit fails when 1Password is locked or the prompt is declined, and
+    # carrying on would announce a commit and a push that never happened.
+    if ! git -C "$PRIVATE_REPO" commit -q -m "chore: sync private config"; then
+      bad "commit failed. Run 'git -C $(tilde "$PRIVATE_REPO") commit' to see why"
+      exit 1
+    fi
     ok "committed"
   fi
 
@@ -420,7 +425,8 @@ do_push() {
     if git -C "$PRIVATE_REPO" push -u origin "$branch" >/dev/null 2>&1; then
       ok "pushed to origin/$branch"
     else
-      warn "push failed. Run 'git -C $(tilde "$PRIVATE_REPO") push -u origin $branch' to see why"
+      bad "push failed. Run 'git -C $(tilde "$PRIVATE_REPO") push -u origin $branch' to see why"
+      exit 1
     fi
   else
     warn "no remote, so this is committed locally and nowhere else"
