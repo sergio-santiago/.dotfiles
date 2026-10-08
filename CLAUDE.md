@@ -83,11 +83,12 @@ Prefer deleting an unmaintainable number over inventing a fresh one.
 
 ## Before committing
 
-Run all three. They are fast and they are the repo's own contract:
+Run all four. They are fast and they are the repo's own contract:
 
 ```sh
 make test          # the suite
 make colors-check  # palette drift
+make lint          # shellcheck, zero findings
 make doctor        # the live environment
 ```
 

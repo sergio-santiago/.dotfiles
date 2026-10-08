@@ -10,7 +10,7 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link link-dry default-shell doctor colors-check speak-setup brew-maintenance test \
+.PHONY: help install brew link link-dry default-shell doctor colors-check lint speak-setup brew-maintenance test \
         private-init private-status private-push private-pull private-scan
 
 help: ## Show this help
@@ -48,6 +48,9 @@ test: ## Run the test suite
 
 colors-check: ## Lint the linked_data_dark_rainbow palette for drift
 	@bash "$(DOTFILES)/scripts/colors-check.sh"
+
+lint: ## Run ShellCheck over every tracked bash script
+	@bash "$(DOTFILES)/scripts/lint.sh"
 
 # ── The private half ────────────────────────────────────────────────────────
 # This repo is public, so the machine-private files live in a separate private one.

@@ -152,7 +152,7 @@ flowchart LR
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
 linked except the two commands under `bin/`, `speak` and `brew-maintenance`, which need to be on your
 `PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `speak-setup.sh` behind
-`make speak-setup`, `colors-check.sh` behind `make colors-check`, `tests/` behind `make test`, and
+`make speak-setup`, `colors-check.sh` behind `make colors-check`, `lint.sh` behind `make lint`, `tests/` behind `make test`, and
 `docs/COLORS.md` is the source of truth for the palette. `links.sh` holds the symlink map itself,
 sourced by `install.sh`, `doctor.sh` and the test suite, so what gets created, what gets verified and
 what the README documents cannot drift apart. `private-files.sh` is the same idea for the private
@@ -326,6 +326,7 @@ for you. The sections below explain each piece in detail.
 | `make default-shell` | Add Homebrew fish to `/etc/shells` and `chsh` to it |
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
+| `make lint` | Run ShellCheck over every tracked bash script, with the rules disabled on purpose in `.shellcheckrc` |
 | `make speak-setup` | Install Kokoro + the voice model so Claude Code can speak its replies |
 | `make brew-maintenance` | Update, tidy up and review Homebrew (also `bm` in fish) |
 | `make test` | Run the test suite |
