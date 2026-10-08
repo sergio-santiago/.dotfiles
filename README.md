@@ -375,6 +375,7 @@ This will install:
 - **node**: JavaScript runtime
 - **poppler**: PDF rendering library
 - **pyenv**: manage multiple Python versions
+- **shellcheck**: static analysis for shell scripts, catches quoting and logic bugs before they run
 - **starship**: fast and customizable prompt
 - **zoxide**: smarter `cd` command with jump history
 

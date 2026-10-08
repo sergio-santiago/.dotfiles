@@ -17,6 +17,7 @@ brew "mole"                     # deep clean and optimize macOS
 brew "node"                     # JavaScript runtime
 brew "poppler"                  # PDF rendering library
 brew "pyenv"                    # manage multiple Python versions
+brew "shellcheck"               # static analysis for shell scripts
 brew "starship"                 # fast and customizable prompt
 brew "zoxide"                   # smarter cd command with jump history
 
