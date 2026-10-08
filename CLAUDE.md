@@ -40,7 +40,9 @@ failing test rather than a thing to remember. These already exist:
 | `test-install.sh` | the README's `ln -sfh` block against `scripts/links.sh`, as source→destination pairs |
 | `test-doctor.sh` | the `Brewfile` against `doctor.sh`'s `REQUIRED` list, in both directions |
 | `test-private-sync.sh` | that `doctor.sh` and `private-sync.sh` read the same private file map |
-| `colors-check.sh` | Starship's declared colours against `docs/COLORS.md`, plus its total count |
+| `test-git-identity.sh` | the README's git identity table against `git/config` and its `config-*` files, by domain, plus no stray address in the public repo |
+| `test-brew-nudge.sh` | the two visual claims the README makes about the reminder: the `▌` rule and its orange/cyan colours |
+| `colors-check.sh` | Starship's declared colours against `docs/COLORS.md`, plus its total count. `test-colors-check.sh` proves it fails on drift |
 
 **When you add a doc claim that restates code, add the comparison to a test.** When you
 cannot, see mechanism two.
@@ -62,7 +64,10 @@ This is deliberately a lookup and not an instruction to re-read the README.
 | `scripts/private-files.sh` | README *Machine-private config*, which lists what is in scope and what it is worth |
 | the `gh repo create` hint printed by `private-sync.sh init` | the same command in the README's *Creating the remote is a manual step*. The README's copy carries the repo description, the script's is the short form, and they have to stay compatible |
 | the README or `.gitignore` heredocs inside `private-sync.sh init` | the live copies in `~/.dotfiles-private`. `init` only writes them when the repo does not exist yet, so an existing clone keeps the old text: regenerate into a temp dir with `DOTFILES_PRIVATE=/tmp/x private-sync.sh init`, copy the file across, and commit it there too |
-| `claude/settings.json` hooks, or any `claude/speak-*` file | README *Spoken Claude Code replies* |
+| `claude/settings.json` hooks, or any `claude/speak-*` or `claude/hooks/speak-*` file | README *Spoken Claude Code replies* |
+| `claude/statusline.sh` | the script's own header (layout diagram, inputs, dependencies), the README *Claude Code* bullet, and `test-statusline.sh` if `LANG_MARKERS` changed |
+| `claude/hooks/bash-guard.py` | the README *Claude Code* bullet that lists what it asks for, and `test-bash-guard.sh` |
+| `.shellcheckrc` disable list | the reason comment for each code in the file itself, which the README's `make lint` row points to |
 | `ssh/config` include order | the rationale comment in the file itself, and the README's SSH section |
 | an alias in `fish/conf.d/08-aliases.fish` | only if it is one of the few the README names as examples. The README does **not** enumerate aliases, and it should stay that way |
 
