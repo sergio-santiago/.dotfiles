@@ -28,7 +28,7 @@
 #     it, so it dates the package index rather than the run.
 #
 # Tuning:
-#   - set -U brew_nudge_days 14   (default 7, 0 disables the reminder)
+#   - set -g brew_nudge_days 14 in a conf.d file   (default 7, 0 disables the reminder)
 # ==============================================================================
 
 function brew_nudge --description 'Suggest brew maintenance when the last run is old'

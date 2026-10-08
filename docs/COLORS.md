@@ -95,10 +95,11 @@ readonly COLOR_RESET=$'\033[0m'
 `$'…'` and not `'…'`: the former puts real ESC bytes in the variable, the latter a
 literal backslash, which prints as escape text.
 
-Five of these are the core palette in RGB. Four are the statusline's own, outside the
-28: the clock's purple `#BD93F9`, the deleted-lines red `#FF5555` and the two greys are
-Dracula values kept because they read better against a pure black terminal. The border
-gradient is described below.
+Five of these are the core palette in RGB. Five are the statusline's own, outside the
+28: the clock's purple `#BD93F9` and the deleted-lines red `#FF5555` are Dracula values
+kept because they read better on pure black, and three neutral greys (`#6C6C6C`,
+`#AAAAAA`, `#464646`) handle dim text and the box border. The border gradient is
+described below.
 
 **Box border gradient** (left → right): `#AAAAAA` → `#464646` → `#AAAAAA`, interpolated
 per column. Greys rather than colour so the frame gives shape without pulling the eye
@@ -260,4 +261,5 @@ number worth trusting, and `make colors-check` is what keeps it honest.
 
 Three places diverge on purpose, and are documented above where they occur: fish paints
 operators soft green `#5EFC94` rather than pink, FZF's selected background is a plain
-grey `59` rather than purple, and the statusline carries four Dracula values of its own.
+grey `59` rather than purple, and the statusline carries two Dracula values and three
+greys of its own.

@@ -5,4 +5,4 @@
 # controls load order. Custom functions live in functions/*.fish, one per file,
 # autoloaded on first call.
 #
-# Anything put here runs before all of that, on every shell, interactive or not.
+# Anything put here runs after every conf.d file, on every shell, interactive or not.

@@ -127,8 +127,8 @@ flowchart LR
         bat["bat/themes"]
         claude["claude/"]
         misc["gh"]
-        scripts["scripts/<br/>install · doctor · tests<br/>speak · brew-maintenance"]
-        docs["docs/COLORS.md"]
+        scripts["scripts/<br/>install · links · doctor · lint<br/>colors-check · private-sync · tests · bin/"]
+        docs["docs/<br/>COLORS.md · NEW-MACHINE.md"]
         iterm["iterm/<br/>com.googlecode.iterm2.plist"]
     end
     subgraph home["🏠 $HOME"]
@@ -468,7 +468,7 @@ when maintenance last happened. Two surfaces read it:
   215 ms login shell, measured on one Mac in August 2026 rather than guaranteed.
   `test-brew-nudge.sh` is what holds the line, at under 5 ms per call, and it compares the
   blank row, the rule and both colours too.
-  Tune it with `set -U brew_nudge_days 14`, or silence it with `0`.
+  Tune it with `set -g brew_nudge_days 14` in a `conf.d` file, or silence it with `0`.
 - **`make doctor`**, which can afford the expensive question the greeting cannot. It reports the
   age of the last run, the age of the package index, and how many packages are outdated, read
   offline in about half a second.
@@ -611,7 +611,7 @@ commit authored with it stops counting as a contribution. Being wrong the other 
 client repository a gmail address, which is a shrug. The default should be the identity that does
 not hurt to get wrong.
 
-The last three rows are redundant with the default and are kept anyway, so that changing the
+The `config-personal` row is redundant with the default and is kept anyway, so that changing the
 default cannot silently change what those repositories sign with.
 
 The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
@@ -1013,7 +1013,7 @@ console you are in: typing here never cuts off what another pane is saying.
 
 #### How it works
 
-Three hooks in `claude/settings.json`, all no-ops in consoles that are off. Every piece resolves state
+Three of the hooks in `claude/settings.json` (the `speak-*` ones), all no-ops in consoles that are off. Every piece resolves state
 through one shared helper (`claude/speak-lib.sh`), so the indicator can never disagree with reality:
 
 ```mermaid
