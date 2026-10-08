@@ -55,7 +55,9 @@ This repository contains my personal macOS development environment configuration
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
-    - Custom statusline configuration with comprehensive git, system, and environment info.
+    - Custom boxed two-column status line: a project icon detected from marker files in the repo root
+      (framework, language, runtime or build tool, falling back to a folder icon), the folder, git
+      branch and state, diff stats, the model, a context bar with its zone tag, and the 5-hour usage bar.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole

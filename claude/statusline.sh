@@ -4,12 +4,15 @@
 #
 # Description:
 #   Generates a responsive 2-column boxed statusline showing:
-#     Left column:  folder, git branch+status, diff stats (+added / -deleted)
+#     Left column:  project icon + folder, git branch+status,
+#                   diff stats (+added / -deleted)
 #     Right column: AI model + spoken-reply indicator, context bar + zone tag,
 #                   usage bar + reset time
 #
 #   Column widths auto-fit the longest cell on each side (responsive layout).
 #   The middle │ stays vertically aligned regardless of content length.
+#   The icon comes from the first LANG_MARKERS entry with a marker in the root,
+#   or the folder icon when none matches.
 #
 # Input (via stdin):
 #   JSON object matching Claude Code statusLine schema.
@@ -32,6 +35,7 @@
 #     ╰──────────┴─────────────────────────╯
 #
 # External dependencies: jq, python3 (both typically pre-installed on macOS).
+# Optional: lolcat, rainbows the model name when present.
 ################################################################################
 
 set -euo pipefail
