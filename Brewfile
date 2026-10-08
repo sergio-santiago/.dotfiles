@@ -10,6 +10,7 @@ brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
 brew "fzf"                      # fuzzy finder for the terminal
 brew "gh"                       # GitHub CLI tool
+brew "hyperfine"                # command-line benchmarking (shell startup, hooks)
 brew "jq"                       # JSON processor
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor

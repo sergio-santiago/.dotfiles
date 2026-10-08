@@ -374,6 +374,7 @@ This will install:
 - **fish**: friendly interactive shell
 - **fzf**: fuzzy finder for the terminal
 - **gh**: GitHub CLI tool
+- **hyperfine**: command-line benchmarking, for timing shell startup and hooks with warmup and statistics
 - **jq**: JSON processor for command line
 - **lolcat**: rainbow coloring for terminal output
 - **micro**: lightweight terminal text editor
