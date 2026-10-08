@@ -35,7 +35,9 @@ function brew_nudge --description 'Suggest brew maintenance when the last run is
     type -q brew; or return 0
 
     set -l threshold 7
-    set -q brew_nudge_days; and set threshold $brew_nudge_days
+    # A value that is not a whole number falls back to the default, rather than
+    # printing a test error on every new shell.
+    set -q brew_nudge_days; and string match -qr '^\d+$' -- $brew_nudge_days; and set threshold $brew_nudge_days
     test "$threshold" -le 0; and return 0
 
     set -l stamp "$XDG_CACHE_HOME"

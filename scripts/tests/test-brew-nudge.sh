@@ -105,6 +105,11 @@ nudge_run "$OLD" "set -g brew_nudge_days 3"
 it "lowering the threshold below the age brings it back"
 assert_contains "$OUT" "9 days ago"
 
+OUT="$(env XDG_CACHE_HOME="$OLD" PATH="$FAKEBIN:$PATH" \
+  fish --no-config -c "source '$NUDGE'; set -g brew_nudge_days abc; brew_nudge" 2>&1)"
+it "a threshold that is not a number falls back to the default, with no error"
+assert_eq "$(nudge_run "$OLD"; printf '%s' "$OUT")" "$OUT"
+
 # ── Without brew there is nothing to suggest ────────────────────────────────
 OUT="$(env XDG_CACHE_HOME="$OLD" PATH="/usr/bin:/bin" \
   fish --no-config -c "source '$NUDGE'; brew_nudge" 2>/dev/null)"
