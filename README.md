@@ -201,6 +201,7 @@ case is handed a throwaway one.
 | `test-git-identity.sh` | That the public identity map and the README agree, and that no work address leaks in |
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 | `test-statusline.sh` | The status line's project icon: the marker table's precedence, and that a bare `Makefile` picks nothing |
+| `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable and its stamp path from environment variables, so a fake `brew`
