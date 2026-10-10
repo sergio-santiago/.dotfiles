@@ -202,6 +202,7 @@ case is handed a throwaway one.
 | `test-private-sync.sh` | The secret screen, from both sides, and that a refused push copies nothing |
 | `test-git-identity.sh` | That the public identity map and the README agree, and that no work address leaks in |
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
+| `test-claude-settings.sh` | That `claude/settings.json` carries no `autoMode.environment`, which `/auto-mode-setup` fills with a description of a possibly private repo |
 | `test-statusline.sh` | The status line's project icon (the marker table's precedence, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
 | `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
 
