@@ -40,6 +40,11 @@
 
 set -euo pipefail
 
+# This runs on every repaint, so a git call that takes .git/index.lock makes a
+# concurrent `git commit` in the same repo fail with "index.lock: File exists".
+# Read-only from here: skip the optional index refresh that status would write.
+export GIT_OPTIONAL_LOCKS=0
+
 ################################################################################
 # Color definitions (real ESC bytes via $'...')
 ################################################################################
@@ -331,7 +336,9 @@ get_diff_stats() {
     local added=0 deleted=0
     if git -C "$dir" rev-parse --git-dir &>/dev/null; then
         local stats
-        stats=$(git -C "$dir" diff HEAD --shortstat 2>/dev/null || true)
+        # diff-index, not `diff HEAD`: porcelain diff rewrites the index when it
+        # finishes even with GIT_OPTIONAL_LOCKS=0, and that still raced commits.
+        stats=$(git -C "$dir" diff-index --shortstat HEAD 2>/dev/null || true)
         if [[ -n "$stats" ]]; then
             if [[ "$stats" =~ ([0-9]+)[[:space:]]+insertion ]]; then
                 added="${BASH_REMATCH[1]}"
