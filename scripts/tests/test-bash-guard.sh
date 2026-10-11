@@ -105,6 +105,13 @@ expect ask 'S=$HOME/tmp; rm -rf $S/y'
 expect ask 'S=/tmp/x; rm -rf $T/y'
 expect ask 'rm -rf $S/y; S=/tmp/x'
 expect ask 'S=/tmp; rm -rf $S/*'
+# inside an unbroken && chain the rm runs only if the assignment did
+expect allow 'cd /tmp/w && S=/private/tmp/s/png && rm -f $S/p-*'
+expect - 'cd ~/p && ./gen.sh && S="/private/tmp/s/png" && rm -f $S/p-* && ls $S'
+expect ask 'cd /tmp/w && S=/tmp/x || true && rm -rf $S/*'
+expect ask 'cd /tmp/w && S=/tmp/x && true; rm -rf $S/*'
+expect ask 'cd /tmp/w && S=~/project && rm -rf $S/*'
+expect ask 'cd /tmp/w && S=$(mktemp -d) && rm -rf $S'
 
 # Heredoc bodies are data: their parentheses and words are not commands. The
 # check for $( ) still reads the original, since an unquoted heredoc runs it.

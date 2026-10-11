@@ -16,8 +16,9 @@
 #                         working tree, past any global option such as -C
 #              rm         any target outside /tmp, /private/tmp or $TMPDIR. A
 #                         $VAR in a target is expanded only when the same
-#                         command assigned it a literal unconditionally (see
-#                         known_vars), otherwise it asks. Behind a wrapper
+#                         command assigned it a literal unconditionally, or in
+#                         an unbroken && chain (see known_vars), otherwise it
+#                         asks. Behind a wrapper
 #                         (sudo, env, command, xargs...) it always asks
 #     allow  every part is a safe form of the above, a filter from
 #            SAFE_FILTERS or a `cd`, with no substitution and no redirect
@@ -131,25 +132,37 @@ def known_vars(parts, command):
     Only an assignment of a literal that runs unconditionally counts: at the start
     or after `;` or a newline, and followed by `;`, a newline, `&&` or the end.
     `false && S=/tmp/x; rm -rf $S/*` would otherwise expand to `rm -rf /*`, and an
-    assignment inside ( ), { }, a pipe or `&` lives in a subshell. A variable
-    assigned any other way is forgotten, never guessed.
+    assignment inside ( ), { }, a pipe or `&` lives in a subshell. One after `&&`
+    counts too, but only while every separator after it is another `&&`: in
+    `cd x && S=/tmp/y && rm $S/*` the rm runs only if the assignment did. A
+    variable assigned any other way is forgotten, never guessed.
     """
     trusted = not re.search(r"[()]", command) and \
         not any(t in REBINDERS for seg, _, _ in parts for t in seg)
-    env, snapshots = {}, []
+    env, chained, snapshots = {}, set(), []
     for seg, before, after_sep in parts:
+        if before != "&&":
+            for name in chained:
+                env.pop(name, None)
+            chained = set()
         snapshots.append(dict(env))
         matches = [ASSIGNMENT.fullmatch(t) for t in seg]
         if not all(matches):
             continue
         certain = trusted and before in (None, ";", "\n") \
             and after_sep in (None, ";", "\n", "&&")
+        in_chain = trusted and before == "&&" and after_sep in (None, "&&")
         for m in matches:
             name, value = m.group(1), m.group(2)
-            if certain and not re.search(r"[$`]", value):
+            if (certain or in_chain) and not re.search(r"[$`]", value):
                 env[name] = value
+                if in_chain:
+                    chained.add(name)
+                else:
+                    chained.discard(name)
             else:
                 env.pop(name, None)
+                chained.discard(name)
     return snapshots
 
 
