@@ -99,6 +99,10 @@ enables, and authenticate it.
 
 Optional, for spoken replies: `make speak-setup` (about 500 MB of model and venv, outside the repo).
 
+Claude Code keeps its per-project memory in `~/.claude/projects/`, outside every repo. The private
+repo holds a snapshot of it in `claude-memory/`, and its README says how to restore it. Take a fresh
+snapshot by hand before leaving a machine, because nothing keeps it in sync.
+
 ## 6. Two-sided printing (manual-duplex)
 
 For a printer without a duplexer. It prints one side, tells you how to turn the stack, then
