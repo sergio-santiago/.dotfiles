@@ -56,4 +56,8 @@ PRIVATE_FILES=(
   # calibrated pass order and a hand-written FLIP_HINT. Restore it before running
   # the tool's install.sh, which keeps a config it finds. See docs/NEW-MACHINE.md.
   "$HOME/.config/manual-duplex/config|manual-duplex/config"
+
+  # The repos `make backup-check` looks at besides the two dotfiles repos. Only
+  # paths, but a list of paths is a list of what you work on.
+  "$HOME/.config/backup-check/repos|backup-check/repos"
 )

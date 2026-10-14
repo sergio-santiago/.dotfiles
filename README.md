@@ -185,7 +185,8 @@ explanation in [Machine-private config](#️-machine-private-config-the-second-r
                                 aws/config                       by make private-push / pull
                                 git/config.private, identities
                                 finicky/finicky.ts, manual-duplex/config
-                                fish/functions-private/
+                                fish/functions-private/, backup-check/repos
+                                claude-memory/                → written by make memory-snapshot
 ```
 
 ### Tests
@@ -206,6 +207,7 @@ case is handed a throwaway one.
 | `test-claude-settings.sh` | That `claude/settings.json` carries no `autoMode.environment`, which `/auto-mode-setup` fills with a description of a possibly private repo |
 | `test-statusline.sh` | The status line's project icon (the marker table's precedence, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
 | `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
+| `test-backup-check.sh` | That `make backup-check` exits 1 on every way work can still be only on the disk, one at a time against a baseline that passes, and that a `launchd` agent only warns |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable and its stamp path from environment variables, so a fake `brew`
@@ -342,6 +344,8 @@ for you. The sections below explain each piece in detail.
 | `make private-scan` | Screen the private files for credentials, changing nothing |
 | `make private-push` | Copy private config `$HOME` → private repo, commit and push |
 | `make private-pull` | Restore private config from the private repo into `$HOME` (backs up first) |
+| `make memory-snapshot` | Copy Claude Code memory of the listed repos into the private repo |
+| `make backup-check` | List what still lives only on this disk, not in any remote |
 
 > The installer is **idempotent** and **non-destructive**: re-running it is safe, and any existing
 > file it would overwrite is first moved to `~/.dotfiles-backup/<timestamp>/`. `make link-dry`
@@ -824,6 +828,12 @@ decision.
 | `~/.config/git/config.private`, `identity-*` | Which directories commit with which work address | **No.** But it names employers and clients |
 | `~/.config/finicky/finicky.ts` | Link routing rules, naming the work Chrome profiles | **No.** Same reason |
 | `~/.config/manual-duplex/config` | The printer queue (part of its MAC), the calibrated pass order and a hand-written flip message | **No.** Machine-specific, restored before reinstalling the tool |
+| `~/.config/backup-check/repos` | Which repos `make backup-check` looks at, as paths and globs | **No.** But the paths say what you work on |
+
+Beside the map, `make memory-snapshot` writes `claude-memory/`: the Claude Code memory of the repos in
+that list, which lives in `~/.claude/projects/` outside every repo. It is a separate command rather
+than a line in the map because it copies folders, and it is not screened, since memory notes are
+not where credentials go. `make backup-check` fails while the snapshot is out of date.
 
 Neither of the first two grants access to anything. Both are a **target list**, which is a different
 and smaller risk: publishing them would hand over the enumeration step, and if the hosts belong to a

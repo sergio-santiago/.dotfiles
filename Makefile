@@ -11,7 +11,8 @@ SHELL    := /bin/bash
 .DEFAULT_GOAL := help
 
 .PHONY: help install brew link link-dry default-shell doctor colors-check lint speak-setup brew-maintenance test \
-        private-init private-status private-push private-pull private-scan
+        private-init private-status private-push private-pull private-scan \
+        memory-snapshot backup-check
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -70,6 +71,14 @@ private-push: ## Copy private config $$HOME -> private repo, commit and push
 
 private-pull: ## Restore private config from the private repo into $$HOME (backs up first)
 	@bash "$(DOTFILES)/scripts/private-sync.sh" pull
+
+# ── Backup check ────────────────────────────────────────────────────────────
+# Is anything only on this disk? memory-snapshot, private-push, then backup-check.
+memory-snapshot: ## Copy Claude Code memory of the listed repos into the private repo
+	@bash "$(DOTFILES)/scripts/backup-check.sh" snapshot
+
+backup-check: ## List what still lives only on this disk, not in any remote
+	@bash "$(DOTFILES)/scripts/backup-check.sh" check
 
 speak-setup: ## Install Kokoro + the voice model so Claude Code can speak its replies
 	@bash "$(DOTFILES)/scripts/speak-setup.sh"
