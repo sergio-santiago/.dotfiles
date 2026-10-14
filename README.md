@@ -65,7 +65,8 @@ This repository contains my personal macOS development environment configuration
       only for `--hard`, `--merge` or `--keep` (past global options such as `-C`), and `rm` only
       outside the temporary directories or behind a wrapper such as `sudo`, `env` or `xargs`.
       A `$VAR` in an `rm` target counts when the same command assigned it a literal
-      unconditionally, and heredoc bodies are read as data rather than as commands.
+      unconditionally or earlier in an unbroken `&&` chain, and heredoc bodies are read as data
+      rather than as commands.
     - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
