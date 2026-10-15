@@ -44,6 +44,11 @@ else
     set -gx FZF_ALT_C_COMMAND    "find -L . -type d -not -path '*/.git/*' 2>/dev/null"
 end
 
+# ── 🕘 Ctrl+R: show the readable date, not the epoch ────────────────────────
+# fzf's history fields are date, epoch, command and it opens on epoch + command.
+# Its own Alt+T still cycles from here to command only and back to the epoch.
+set -gx FZF_CTRL_R_OPTS '--with-nth=1,3..'
+
 # ── 📐 Responsive preview handling ──────────────────────────────────────────
 function __fzf_apply_responsive_opts
     # Width breakpoints (columns)
