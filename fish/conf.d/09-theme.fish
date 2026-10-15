@@ -18,7 +18,7 @@
 set -g fish_color_autosuggestion '#737994'     # Dim gray-blue for autosuggestions (subtle hint)
 set -g fish_color_command       '#cca5ff'      # Mauve for commands (matches prompt accents)
 set -g fish_color_param         '#68d5ff'      # Sapphire for parameters/args (blue chevron)
-set -g fish_color_comment       '#ff8fa1'      # Flamingo for comments (warm contrast)
+set -g fish_color_comment       'ff8fa1'       # Flamingo for comments (warm contrast). No '#': fzf's Ctrl+R re-parses it and '#' starts a comment
 set -g fish_color_quote         '#ffb86c'      # Peach for quoted strings
 set -g fish_color_redirection   '#ffd54a'      # Bright yellow for redirections (>, >>, 2>)
 set -g fish_color_end           '#90e8ff'      # Sky blue for separators (;, end)

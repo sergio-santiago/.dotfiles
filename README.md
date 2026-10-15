@@ -208,6 +208,7 @@ case is handed a throwaway one.
 | `test-statusline.sh` | The status line's project icon (the marker table's precedence, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
 | `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
 | `test-backup-check.sh` | That `make backup-check` exits 1 on every way work can still be only on the disk, one at a time against a baseline that passes, and that a `launchd` agent only warns |
+| `test-fzf-widgets.sh` | That fzf's Ctrl+R runs with the repo theme. `fzf --fish` hands `$fish_color_comment` back to fish as code, so a `#` in it turns the rest of the line into a comment |
 
 Two of these exist to prove a negative, which is the harder half. `brew-maintenance` takes its brew
 executable and its stamp path from environment variables, so a fake `brew`
