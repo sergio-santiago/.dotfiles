@@ -71,6 +71,8 @@ are in the `Brewfile` instead and arrived with `make install`.
 | Discord | [discord.com](https://discord.com/) |
 | WhatsApp | App Store |
 | MeetingBar | App Store |
+| Caffeine | [caffeine-app.net](https://www.caffeine-app.net/) |
+| Logi Options+ | [logitech.com](https://www.logitech.com/software/logi-options-plus.html) |
 
 **Depending on the job**
 
