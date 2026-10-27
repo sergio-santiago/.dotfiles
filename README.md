@@ -387,6 +387,7 @@ This will install:
 - **micro**: lightweight terminal text editor
 - **mole**: deep clean and optimize macOS
 - **node**: JavaScript runtime
+- **nomicswitch**: pins the audio input to the built-in mic so AirPods never take it over. Runs as a `brew services` agent, from the `marks-zyz/tap` tap
 - **poppler**: PDF rendering library
 - **pyenv**: manage multiple Python versions
 - **shellcheck**: static analysis for shell scripts, catches quoting and logic bugs before they run
@@ -396,8 +397,9 @@ This will install:
 #### 💻 Apps (casks)
 - **Finicky**: control which browser/profile opens links
 - **Fira Code Nerd Font**: a developer-friendly font with ligatures and Nerd Font icons
+- **noTunes**: stops Music from opening when headphones or a Bluetooth device connect
 
-Only these two, because neither updates itself, so Homebrew is what keeps them current. Every
+Only these three, because none updates itself, so Homebrew is what keeps them current. Every
 other app has its own updater or comes from the App Store, where a cask would only add a version
 record that drifts. Those are installed by hand, listed with their links in
 [docs/NEW-MACHINE.md](docs/NEW-MACHINE.md#4-apps-installed-by-hand).

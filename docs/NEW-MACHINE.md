@@ -46,7 +46,7 @@ functions and the manual-duplex settings. See the README's *Machine-private conf
 ## 4. Apps installed by hand
 
 These carry their own updater or come from the App Store, so Homebrew would only add a stale
-version record on top. The few apps that do **not** update themselves (Finicky, the Nerd Font)
+version record on top. The few apps that do **not** update themselves (Finicky, the Nerd Font, noTunes)
 are in the `Brewfile` instead and arrived with `make install`.
 
 **Needed by this repo's configuration**

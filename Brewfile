@@ -2,6 +2,9 @@
 # their own updater or from the App Store are installed by hand: see
 # docs/NEW-MACHINE.md.
 
+# --- Taps ---
+tap "marks-zyz/tap"
+
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "eza"                      # improved ls with icons and colors
@@ -16,6 +19,7 @@ brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
 brew "mole"                     # deep clean and optimize macOS
 brew "node"                     # JavaScript runtime
+brew "marks-zyz/tap/nomicswitch", restart_service: :changed # keep AirPods off the mic input
 brew "poppler"                  # PDF rendering library
 brew "pyenv"                    # manage multiple Python versions
 brew "shellcheck"               # static analysis for shell scripts
@@ -25,3 +29,4 @@ brew "zoxide"                   # smarter cd command with jump history
 # --- Casks (no updater of their own) ---
 cask "finicky"                  # control which browser/profile opens links
 cask "font-fira-code-nerd-font" # developer font with Nerd Font icons
+cask "notunes"                  # stop Music opening when headphones connect
