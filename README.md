@@ -52,6 +52,8 @@ This repository contains my personal macOS development environment configuration
 - 🔗 **Finicky**
     - Browser routing per link (config in TypeScript). The cask is installed from here, the rules are
       restored from the private repo because they name work profiles.
+    - The rules name Chrome profiles by directory rather than display name, so Finicky needs no Full
+      Disk Access. See [docs/NEW-MACHINE.md](docs/NEW-MACHINE.md), step 3.
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**

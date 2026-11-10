@@ -45,6 +45,13 @@ make private-pull
 
 It restores SSH hosts, the work git identity, the Finicky rules and the manual-duplex settings. See the README's *Machine-private config*.
 
+Open Finicky once and accept it as the default browser. Its rules name each Chrome profile by its
+directory (`chrome://version` → *Profile Path*, e.g. `Default` or `Profile 2`), not by its display
+name, so Finicky needs **no Full Disk Access**: do not grant it. A display name would make it read
+Chrome's `Local State`, which macOS only allows with that permission, and that permission lets an
+app read every file in the account. If a profile is ever recreated its directory can change, and the
+rule has to follow it.
+
 ## 4. Apps installed by hand
 
 These carry their own updater or come from the App Store, so Homebrew would only add a stale
