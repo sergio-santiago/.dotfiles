@@ -64,7 +64,7 @@ This is deliberately a lookup and not an instruction to re-read the README.
 | `scripts/private-files.sh` | README *Machine-private config*, which lists what is in scope and what it is worth |
 | the `gh repo create` hint printed by `private-sync.sh init` | the same command in the README's *Creating the remote is a manual step*. The README's copy carries the repo description, the script's is the short form, and they have to stay compatible |
 | the README or `.gitignore` heredocs inside `private-sync.sh init` | the live copies in `~/.dotfiles-private`. `init` only writes them when the repo does not exist yet, so an existing clone keeps the old text: regenerate into a temp dir with `DOTFILES_PRIVATE=/tmp/x private-sync.sh init`, copy the file across, and commit it there too |
-| `claude/settings.json` hooks, or any `claude/speak-*` or `claude/hooks/speak-*` file | README *Spoken Claude Code replies* |
+| `claude/settings.json` hooks | README *Claude Code* bullets, and `test-claude-settings.sh` |
 | `claude/statusline.sh` | the script's own header (layout diagram, inputs, dependencies), the README *Claude Code* bullet, and `test-statusline.sh` if `LANG_MARKERS` changed |
 | `claude/hooks/bash-guard.py` | the README *Claude Code* bullet that lists what it asks for, and `test-bash-guard.sh` |
 | `.shellcheckrc` disable list | the reason comment for each code in the file itself, which the README's `make lint` row points to |

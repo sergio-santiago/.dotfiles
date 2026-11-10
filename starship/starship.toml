@@ -13,7 +13,7 @@
 palette = 'linked_data_dark_rainbow'
 
 # Global command timeout - only affects slow commands, fast ones still display instantly
-command_timeout = 2000  # 2s margin for pyenv and other version managers
+command_timeout = 2000  # 2s margin for version managers and slow repos
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PROMPT FORMAT

@@ -90,7 +90,7 @@ assert_eq "$(bash -c 'source "$1"; for e in "${LANG_MARKERS[@]}"; do [[ $e == RU
   "$(bash -c 'source "$1"; detect_language "$2"' _ "$STATUSLINE" "$SL_ROOT/rust")"
 
 # ── The rendered box ─────────────────────────────────────────────────────────
-# Full renders from a JSON fixture, with a throwaway $HOME so no speak console
+# Full renders from a JSON fixture, with a throwaway $HOME so no local
 # state leaks in, and the ANSI stripped. Widths are measured here with the rule
 # the layout documents (Nerd Font private-use glyphs are one cell, East Asian
 # wide two), so a padding mistake shows up as rows of different widths.

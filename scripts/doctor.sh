@@ -37,7 +37,7 @@ head "🛠️  CLI tools (from Brewfile)"
 # One entry per formula the Brewfile declares, named by the binary it provides:
 # poppler's is pdftotext, every other name matches its formula. A formula absent
 # from here gets installed by `make brew` and then never checked again.
-REQUIRED=(bat espeak-ng eza fd fish fzf gh hyperfine jq lolcat micro mole node nomicswitch pdftotext pyenv shellcheck starship zoxide)
+REQUIRED=(bat eza fd fish fzf gh hyperfine jq lolcat micro mole nomicswitch pdftotext shellcheck starship zoxide)
 for bin in "${REQUIRED[@]}"; do
   if command -v "$bin" >/dev/null 2>&1; then
     pass "$bin"
@@ -209,63 +209,6 @@ if command -v brew >/dev/null 2>&1; then
   fi
 else
   fail "brew not found. Install Homebrew first"
-fi
-
-# ── Spoken Claude Code replies (optional) ───────────────────────────────────
-head "🔊 Spoken replies (optional)"
-KOKORO_HOME="$HOME/.local/share/kokoro"
-KOKORO_PY="$KOKORO_HOME/venv/bin/python"
-
-if [[ -x "$KOKORO_PY" ]]; then
-  # Importing is the real test. The venv is created before kokoro-onnx goes into
-  # it, so a failed pip leaves a python that runs perfectly and cannot speak a word.
-  if "$KOKORO_PY" -c 'import kokoro_onnx' >/dev/null 2>&1; then
-    pass "Kokoro installed"
-  else
-    fail "venv exists but kokoro-onnx is not in it. Re-run 'make speak-setup'"
-  fi
-  # espeak-ng does the grapheme-to-phoneme step, and the copy inside the
-  # espeakng-loader wheel has its data path baked in at build time and cannot be
-  # redirected, so Homebrew's is the one that has to be there. Nothing speaks
-  # without it, and the failure surfaces deep inside a hook nobody reads.
-  if [[ -r /opt/homebrew/lib/libespeak-ng.dylib ]]; then
-    pass "libespeak-ng present"
-  else
-    fail "espeak-ng missing. Run 'brew install espeak-ng', nothing will speak without it"
-  fi
-  # Two files, both mandatory, neither downloaded atomically by anything but our
-  # own setup script. Size-checked rather than merely present: a truncated model
-  # fails deep inside onnxruntime with a message no one will ever see.
-  for pair in "kokoro-v1.0.onnx|300" "voices-v1.0.bin|20"; do
-    name="${pair%%|*}"; min="${pair##*|}"
-    f="$KOKORO_HOME/$name"
-    if [[ ! -r "$f" ]]; then
-      fail "$name missing. Re-run 'make speak-setup'"
-    elif (($(stat -f%z "$f") / 1048576 < min)); then
-      fail "$name is truncated (under ${min} MB). Re-run 'make speak-setup'"
-    else
-      pass "$name ${DIM}($(( $(stat -f%z "$f") / 1048576 )) MB)${RESET}"
-    fi
-  done
-  # The Stop hook pipes every reply through python3 and swallows the failure, so
-  # a broken interpreter means replies are silently never saved.
-  if python3 -c 'import json, re' >/dev/null 2>&1; then
-    pass "python3 can run the reply cleaner"
-  else
-    fail "python3 cannot import json/re, replies will never be prepared"
-  fi
-  # Enabled is per console, so report how many consoles are currently speaking
-  # rather than a single global state.
-  shopt -s nullglob
-  speaking=("$HOME/.claude/speak-consoles/"*)
-  shopt -u nullglob
-  if ((${#speaking[@]} > 0)); then
-    pass "${#speaking[@]} console marker(s) ${DIM}('speak off' in each to silence)${RESET}"
-  else
-    pass "all consoles off ${DIM}(turn one on with 'speak on')${RESET}"
-  fi
-else
-  warn "Kokoro not installed. Run 'make speak-setup' (optional feature)"
 fi
 
 # ── Private config sync ─────────────────────────────────────────────────────

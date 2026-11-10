@@ -17,9 +17,8 @@
 #   - After 01-homebrew, and that order is load-bearing rather than cosmetic.
 #     `brew shellenv` prepends /opt/homebrew/bin on every run, so whichever of the
 #     two files is sourced last wins. This one ran first until August 2026, which
-#     meant Homebrew silently outranked ~/.local/bin: installing espeak-ng put its
-#     own `speak` binary on PATH and shadowed the one in scripts/bin, and `speak
-#     full` started reading the word "full" out loud instead of the last reply.
+#     meant Homebrew silently outranked ~/.local/bin, so any formula shipping a
+#     binary with the same name as one in scripts/bin shadowed it without a word.
 #
 # Notes:
 #   - Uses fish_add_path which is idempotent and handles duplicates.

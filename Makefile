@@ -10,7 +10,7 @@ SHELL    := /bin/bash
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install brew link link-dry default-shell doctor colors-check lint speak-setup brew-maintenance test \
+.PHONY: help install brew link link-dry default-shell doctor colors-check lint brew-maintenance test \
         private-init private-status private-push private-pull private-scan \
         memory-snapshot backup-check
 
@@ -80,5 +80,3 @@ memory-snapshot: ## Copy Claude Code memory of the listed repos into the private
 backup-check: ## List what still lives only on this disk, not in any remote
 	@bash "$(DOTFILES)/scripts/backup-check.sh" check
 
-speak-setup: ## Install Kokoro + the voice model so Claude Code can speak its replies
-	@bash "$(DOTFILES)/scripts/speak-setup.sh"

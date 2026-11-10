@@ -8,7 +8,6 @@ tap "marks-zyz/tap"
 # --- CLI tools ---
 brew "bat"                      # cat clone with syntax highlighting
 brew "eza"                      # improved ls with icons and colors
-brew "espeak-ng"                # phonemizer for the spoken replies (also ships a `speak`)
 brew "fd"                       # fast and user-friendly find
 brew "fish"                     # friendly interactive shell
 brew "fzf"                      # fuzzy finder for the terminal
@@ -18,10 +17,8 @@ brew "jq"                       # JSON processor
 brew "lolcat"                   # rainbow coloring for terminal output
 brew "micro"                    # lightweight terminal text editor
 brew "mole"                     # deep clean and optimize macOS
-brew "node"                     # JavaScript runtime
 brew "marks-zyz/tap/nomicswitch", restart_service: :changed # keep AirPods off the mic input
 brew "poppler"                  # PDF rendering library
-brew "pyenv"                    # manage multiple Python versions
 brew "shellcheck"               # static analysis for shell scripts
 brew "starship"                 # fast and customizable prompt
 brew "zoxide"                   # smarter cd command with jump history

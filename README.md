@@ -70,10 +70,8 @@ This repository contains my personal macOS development environment configuration
     - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
-    - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks, skills and settings all tracked in
+    - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks and settings all tracked in
       `.dotfiles/claude/`, with a custom `statusline.sh`.
-    - 🔊 **Spoken replies**: `/speak summary` reads the last answer out loud through local neural TTS.
-      Offline, free, one switch per terminal. See [Spoken Claude Code replies](#-spoken-claude-code-replies).
 - 🐙 **GitHub CLI (gh)**
     - GitHub command-line tool configured with SSH protocol.
 
@@ -103,7 +101,6 @@ This repository contains my personal macOS development environment configuration
     - [🔐 SSH Configuration (Public/Private Split)](#-ssh-configuration-publicprivate-split)
     - [🗝️ Machine-private config (the second repo)](#️-machine-private-config-the-second-repo)
     - [💻 iTerm2 Configuration (Theme, Colors & Profiles)](#-iterm2-configuration-theme-colors--profiles)
-    - [🔊 Spoken Claude Code replies](#-spoken-claude-code-replies)
 - [💻 Setting up a new Mac](docs/NEW-MACHINE.md)
 - [📋 Color palette reference](docs/COLORS.md)
 
@@ -154,9 +151,8 @@ flowchart LR
 ```
 
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
-linked except the two commands under `bin/`, `speak` and `brew-maintenance`, which need to be on your
-`PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `speak-setup.sh` behind
-`make speak-setup`, `colors-check.sh` behind `make colors-check`, `lint.sh` behind `make lint`, `tests/` behind `make test`, and
+linked except the command under `bin/`, `brew-maintenance`, which needs to be on your
+`PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `colors-check.sh` behind `make colors-check`, `lint.sh` behind `make lint`, `tests/` behind `make test`, and
 `docs/COLORS.md` is the source of truth for the palette. `links.sh` holds the symlink map itself,
 sourced by `install.sh`, `doctor.sh` and the test suite, so what gets created, what gets verified and
 what the README documents cannot drift apart. `private-files.sh` is the same idea for the private
@@ -252,16 +248,13 @@ flowchart TD
     subgraph env["⚙️ Environment (00–02)"]
         x["00 · XDG redirects"] --> h["01 · Homebrew"] --> b["02 · ~/.local/bin"]
     end
-    subgraph ver["📦 Version manager (03)"]
-        py["03 · pyenv"]
-    end
     subgraph tools["🛠️ Interactive tools (05–08)"]
         fzf["05 · fzf"] --> batf["06 · bat"] --> zo["07 · zoxide"] --> al["08 · aliases"]
     end
     subgraph look["🎨 Appearance (09–99)"]
         th["09 · theme"] --> sh["10 · starship"] --> rb["99 · rainbow separator"]
     end
-    env --> ver --> tools --> look
+    env --> tools --> look
 ```
 
 ### Color theme propagation
@@ -337,7 +330,6 @@ for you. The sections below explain each piece in detail.
 | `make doctor` | Verify required tools, symlinks and environment are healthy |
 | `make colors-check` | Lint the `linked_data_dark_rainbow` palette for drift |
 | `make lint` | Run ShellCheck over every tracked bash script, with the rules disabled on purpose in `.shellcheckrc` |
-| `make speak-setup` | Install Kokoro + the voice model so Claude Code can speak its replies |
 | `make brew-maintenance` | Update, tidy up and review Homebrew (also `bm` in fish) |
 | `make test` | Run the test suite |
 | `make private-init` | Create the local private repo for machine-private config (no remote) |
@@ -375,7 +367,6 @@ This will install:
 
 #### 🛠️ CLI tools
 - **bat**: `cat` clone with syntax highlighting
-- **espeak-ng**: phonemizer behind the spoken replies (it also ships a `speak`, hence the PATH order above)
 - **eza**: improved `ls` with colors and icons
 - **fd**: fast and user-friendly alternative to `find`
 - **fish**: friendly interactive shell
@@ -386,10 +377,8 @@ This will install:
 - **lolcat**: rainbow coloring for terminal output
 - **micro**: lightweight terminal text editor
 - **mole**: deep clean and optimize macOS
-- **node**: JavaScript runtime
 - **nomicswitch**: pins the audio input to the built-in mic so AirPods never take it over. Runs as a `brew services` agent, from the `marks-zyz/tap` tap
 - **poppler**: PDF rendering library
-- **pyenv**: manage multiple Python versions
 - **shellcheck**: static analysis for shell scripts, catches quoting and logic bugs before they run
 - **starship**: fast and customizable prompt
 - **zoxide**: smarter `cd` command with jump history
@@ -515,9 +504,7 @@ It wires the repo into `$HOME` like this:
 | `bat/themes` | `~/.config/bat/themes` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
-| `claude/{rules,hooks,skills/speak}` | `~/.claude/…` |
-| `claude/{speak-lib.sh,speak-clean.py,speak-kokoro.py}` | `~/.claude/…` |
-| `scripts/bin/speak` | `~/.local/bin/speak` |
+| `claude/{rules,hooks}` | `~/.claude/…` |
 | `scripts/bin/brew-maintenance` | `~/.local/bin/brew-maintenance` |
 
 <details>
@@ -559,12 +546,6 @@ ln -sfh ~/.dotfiles/claude/settings.json ~/.claude/settings.json
 ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 ln -sfh ~/.dotfiles/claude/rules ~/.claude/rules
 ln -sfh ~/.dotfiles/claude/hooks ~/.claude/hooks
-mkdir -p ~/.claude/skills
-ln -sfh ~/.dotfiles/claude/skills/speak ~/.claude/skills/speak
-ln -sfh ~/.dotfiles/claude/speak-lib.sh ~/.claude/speak-lib.sh
-ln -sfh ~/.dotfiles/claude/speak-clean.py ~/.claude/speak-clean.py
-ln -sfh ~/.dotfiles/claude/speak-kokoro.py ~/.claude/speak-kokoro.py
-ln -sfh ~/.dotfiles/scripts/bin/speak ~/.local/bin/speak
 ln -sfh ~/.dotfiles/scripts/bin/brew-maintenance ~/.local/bin/brew-maintenance
 
 # GitHub CLI (gh)
@@ -674,7 +655,6 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 - `01-homebrew.fish`: Homebrew environment
 - `02-local-bin.fish`: Local user binaries PATH, sourced after Homebrew so it outranks it, plus
   `functions-private/` on the function path
-- `03-pyenv.fish`: Python version management
 - `05-fzf.fish`: Fuzzy finder with fd, bat, eza integration
 - `06-bat.fish`: Bat (cat replacement) configuration
 - `07-zoxide.fish`: Smart directory jumper
@@ -936,151 +916,3 @@ preferences are exported and tracked here:
 
 4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
 5. Restart iTerm2 to apply all changes
-
----
-### 🔊 Spoken Claude Code replies
-
-Dictating prompts is only half of a hands-free loop. This reads the answers back, out loud, through
-**[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**: an 82M-parameter neural TTS model, Apache
-2.0, that runs on the machine. Offline, free, unlimited, no API key. It runs on onnxruntime rather
-than torch, which is what keeps the load under a second instead of five and the venv at 155 MB
-instead of 993 MB.
-
-```bash
-make speak-setup     # one-off: ~340 MB of model + ~155 MB of venv, outside the repo
-/speak on            # arm this console
-```
-
-**Nothing is ever read automatically.** When a console is on, each reply is cleaned and kept ready,
-and the two commands appear under its spoken block. You skim the answer and decide whether it is
-worth hearing. No audio you did not ask for, and no deciding in advance what "reading" should mean.
-
-#### One switch per console
-
-With several sessions open, a global switch is unusable: one console reading aloud while you dictate
-into another means the mic picks up the synthetic voice and your prompt comes out garbled. So each
-terminal tab decides for itself, and the status line shows which:
-
-A speaker icon appears in the status line while a console is on: replies prepared, commands offered. Off shows
-nothing at all: the indicator is there to flag the exception, and off is the rule.
-
-Off by default in every new console. The switch is keyed on the iTerm2 pane UUID, so restarting
-`claude` in the same tab keeps that tab's setting.
-
-#### Commands
-
-`/speak` from the Claude Code prompt, or `speak` from a terminal. Same thing. It is a plain
-executable rather than a fish function precisely so `! speak …` works from inside Claude Code, where
-`!` runs under bash. Both forms read aloud immediately, and `! speak summary` also puts the command's own
-confirmation on screen instead of a line written by Claude.
-
-| Command | What it does |
-|---------|--------------|
-| `/speak` | Toggle this console |
-| `/speak on` / `/speak off` | Set explicitly (`off` also discards what was saved) |
-| `/speak summary` | Read the last reply's summary out loud |
-| `/speak full` | Read the whole last reply out loud |
-| `/speak stop` | Shut up right now, mid-sentence |
-| `/speak test` | Check that audio works at all |
-
-The skill runs `` !`speak $ARGUMENTS` `` *before* the prompt reaches Claude, so the action happens
-immediately and only a one-line confirmation comes back. `disable-model-invocation: true` keeps it
-user-only. Claude cannot decide to start talking on its own.
-
-> **Not named `voice`**: Claude Code's built-in `/voice` is dictation: it *listens*. This is the
-> opposite direction, and reusing the word for both would be a coin flip every time.
-
-Voice, speed and how much of a reply is read are global taste, hand-edited in `~/.claude/speak.conf`:
-
-```ini
-voice=em_alex                 # one model holds all 54: em_santa, ef_dora, af_heart, …
-speed=1.0                     # >1 faster, <1 slower
-max_chars=10700               # optional, caps both the summary and the full text
-```
-
-The file does not exist until you create it. The defaults above are the built-in ones. `speed` and
-`max_chars` are validated before use, so a typo falls back to the default instead of quietly breaking
-the hook.
-
-#### Summary or the whole reply
-
-Both are prepared for every reply, and both strip code, tables, links, paths and markup, whatever a
-voice cannot convey. The difference is length:
-
-- **`summary`** is a closing line Claude writes *to be heard*, about twenty seconds. It exists because
-  a reply adapted from prose never sounds as good as one written for the ear.
-- **`full`** is the entire reply, cleaned. Capped at ten minutes of audio (10 700 chars, the default
-  voice reads 17.8 chars/s, measured) so a runaway reply cannot hold the speaker hostage.
-
-In `full`, inline paths become the name a person would say (`claude/speak-lib.sh` → "speak lib")
-rather than being deleted, which would leave sentences dangling mid-clause.
-
-#### Nothing accumulates
-
-Each console keeps at most one saved reply, overwritten every turn, and `speak off` deletes it.
-Files left behind by consoles you closed are pruned after a week.
-
-#### Cutting a reply off mid-sentence
-
-Claude Code keybindings only map to its own internal actions, so a dedicated hotkey is not possible.
-Three things work: **sending the next message** (the prompt hook kills playback first, so answering
-back silences it), **`/speak stop`**, and **`/speak off`** for good. All three are scoped to the
-console you are in: typing here never cuts off what another pane is saying.
-
-#### How it works
-
-Three of the hooks in `claude/settings.json` (the `speak-*` ones), all no-ops in consoles that are off. Every piece resolves state
-through one shared helper (`claude/speak-lib.sh`), so the indicator can never disagree with reality:
-
-```mermaid
-flowchart LR
-    lib["speak-lib.sh<br/>state · config · playback"]
-    prompt["UserPromptSubmit"] --> vp["speak-prompt.sh<br/>asks for a #60;speak#62; line"]
-    disp["MessageDisplay"] --> sd["speak-display.sh<br/>speaker icon instead of raw tags"]
-    stop["Stop"] --> sp["speak-reply.sh<br/>cleans · saves"]
-    sp --> clean["speak-clean.py"]
-    cmd["speak summary | full"] --> kok["Kokoro (local)"] --> af["afplay"]
-    lib -.-> vp
-    lib -.-> sd
-    lib -.-> sp
-    lib -.-> sl["statusline.sh<br/>speaker icon"]
-    lib -.-> cmd
-```
-
-- **`speak-prompt.sh`** asks Claude for the `<speak>` line, and stops playback. Sending a message
-  means you are done listening. Because the instruction lives in a hook and not in `CLAUDE.md`, it
-  vanishes the moment you run `speak off`. It bails out early on a prompt that *is* a `speak` command,
-  **before** silencing anything, because a turn asking for a reading must not cancel the one its own command
-  just started. That order matters, and the two lines are commented in the hook for a reason.
-- **`speak-display.sh`** rewrites the raw tags on screen into a grey speaker icon with grey italic text, and
-  puts the two commands at the end of a `╰──▸` that descends from the icon's own column. `MessageDisplay` is
-  display-only, so the transcript keeps the real tags, which is what the Stop hook reads. Text
-  arrives in `delta` chunks, so each tag is rewritten independently rather than as a pair: a block
-  split mid-stream still renders. The opening tag only matches at the start of a line, so prose
-  mentioning it mid-sentence is left alone, while a closing tag is rewritten wherever it appears, which is
-  the price of that independence, because a chunk cannot know whether an opening tag arrived in an earlier
-  one. One newline either side of a tag is swallowed with the surrounding blanks, so tags written on
-  lines of their own still render as a single unit.
-
-  Only assistant text streams through this hook. Claude Code's end-of-turn recap is generated
-  separately and reaches the screen without passing any hook, so `speak-prompt.sh` tells Claude the
-  block belongs at the end of a reply and nowhere else.
-- **`speak-reply.sh`** cleans the reply via **`speak-clean.py`** and saves both versions. It prints
-  nothing, plays nothing and never touches Kokoro.
-- **`speak`** does the reading itself, the moment you ask. Synthesis is detached, so nothing waits on
-  audio: the command returns immediately and Kokoro keeps going.
-
-Playback is identified by the temp file it was handed, console id included, so `speak stop` in one
-pane cannot silence another. Starting a *new* reading does stop every other one, because there is only one
-pair of speakers.
-
-The cleaning lives in its own Python file rather than a heredoc inside the hook: embedded Python
-cannot be compiled, linted or run on its own, and turning prose into speech is fiddly enough to be
-worth exercising directly against real payloads.
-
-Synthesis is split by sentence and played as it goes, because rendering a whole reply before playing
-any of it would put about five silent seconds in front of every one. Measured on this machine: 1.8 s
-from a cold start to the first word, and the rest is rendered far faster than it is spoken.
-
-`make doctor` reports whether Kokoro, espeak-ng, the model, the Python the cleaner needs and the
-per-console switches are all in place.

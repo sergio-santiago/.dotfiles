@@ -99,8 +99,6 @@ claude mcp add --scope user --transport http context7 https://mcp.context7.com/m
 Then run `/plugin` inside Claude Code to install the Slack plugin that `claude/settings.json`
 enables, and authenticate it.
 
-Optional, for spoken replies: `make speak-setup` (about 500 MB of model and venv, outside the repo).
-
 Claude Code keeps its per-project memory in `~/.claude/projects/`, outside every repo. The private
 repo holds a snapshot of it in `claude-memory/`, and its README says how to restore it. Take a fresh
 snapshot by hand before leaving a machine, because nothing keeps it in sync.
