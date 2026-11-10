@@ -26,6 +26,9 @@ install what this machine needs and skip the rest.
 git clone https://github.com/sergio-santiago/.dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 make link-dry        # read the plan first
+# Homebrew refuses formulae from third-party taps until trusted. Trust the one
+# formula the Brewfile takes from a tap, not the whole tap
+brew tap marks-zyz/tap && brew trust --formula marks-zyz/tap/nomicswitch
 make install         # Brewfile + every symlink
 make default-shell   # fish as the login shell
 
