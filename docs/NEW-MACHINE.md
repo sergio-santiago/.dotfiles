@@ -70,7 +70,6 @@ are in the `Brewfile` instead and arrived with `make install`.
 | ChatGPT | [chatgpt.com](https://chatgpt.com/) |
 | Claude Usage Tracker | [GitHub releases](https://github.com/hamed-elfayome/Claude-Usage-Tracker/releases) |
 | Spark | [sparkmailapp.com](https://sparkmailapp.com/) |
-| Discord | [discord.com](https://discord.com/) |
 | WhatsApp | App Store |
 | MeetingBar | App Store |
 | Caffeine | [caffeine-app.net](https://www.caffeine-app.net/) |
@@ -82,15 +81,13 @@ are in the `Brewfile` instead and arrived with `make install`.
 |-----|-------|
 | Slack | App Store |
 | Linear | [linear.app](https://linear.app/) |
-| Notion | [notion.com](https://www.notion.com/) |
-| Tailscale | [tailscale.com](https://tailscale.com/) |
-| JetBrains IDEs | Through [JetBrains Toolbox](https://www.jetbrains.com/toolbox-app/), only when a job needs one |
+| PhpStorm | [jetbrains.com/phpstorm](https://www.jetbrains.com/phpstorm/download/), only when a job needs it |
 
 Chrome's web apps (YouTube Music, Calendar, Meet) come back on their own once Chrome sync is on.
 
 Raycast is used with Store extensions only, no custom hotkeys, snippets or quicklinks, so there is
 nothing to export. Reinstall these from the Raycast Store: **Brew**, **Clean Keyboard**,
-**Google Chrome**, **Kill Process**, **Notion** and **Visual Studio Code**.
+**Google Chrome**, **Kill Process** and **Visual Studio Code**.
 
 ## 5. Claude Code, the parts outside this repo
 
