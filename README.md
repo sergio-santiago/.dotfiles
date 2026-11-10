@@ -21,7 +21,7 @@ This repository contains my personal macOS development environment configuration
     - Public/private split config, managed from `.dotfiles/ssh` and using 1Password SSH agent for secure key management.
 - 🗝️ **A linked private repo**
     - This repo is public, so the files that name real machines live in a separate **private** one,
-      `dotfiles-private`. It holds SSH host aliases and AWS SSO profiles, and no credentials.
+      `dotfiles-private`. It holds SSH host aliases and work git identities, and no credentials.
     - Driven from here with `make private-push` / `make private-pull`. **Nothing syncs by itself**:
       no hook, no daemon, no scheduled job. `make doctor` tells you when it has drifted.
     - Every file is screened for credential-shaped content before it is copied, and a single hit
@@ -178,10 +178,8 @@ explanation in [Machine-private config](#️-machine-private-config-the-second-r
 ```
 ~/.dotfiles           public    configs, scripts, docs        → symlinked into $HOME
 ~/.dotfiles-private   PRIVATE   ssh/config.private            → copied to and from $HOME
-                                aws/config                       by make private-push / pull
-                                git/config.private, identities
+                                git/config.private, identity     by make private-push / pull
                                 finicky/finicky.ts, manual-duplex/config
-                                fish/functions-private/, backup-check/repos
                                 claude-memory/                → written by make memory-snapshot
 ```
 
@@ -796,37 +794,35 @@ So the routine is: edit the live file, and the next `make doctor` tells you it i
 #### What is in scope, and what it is worth
 
 `scripts/private-files.sh` is the map, and it lists **files, never directories**. That is the whole
-safety property rather than a style choice: `~/.aws/config` holds nothing but SSO profiles, and a
-single `aws configure` writes long-lived keys to `~/.aws/credentials` right beside it. A glob over
-`~/.aws` would have swept that into a commit on the next push. Adding a line to the map has to be a
+safety property rather than a style choice: `~/.aws/config` can hold nothing but SSO profiles, and
+a single `aws configure` writes long-lived keys to `~/.aws/credentials` right beside it. A glob over
+`~/.aws` would sweep that into a commit on the next push. Adding a line to the map has to be a
 decision.
 
 | File | What it actually contains | Is it a credential? |
 |------|---------------------------|---------------------|
 | `~/.ssh/config.private` | Host aliases: hostnames, the user to log in as, the odd non-default port | **No.** The keys are in 1Password |
-| `~/.aws/config` | SSO profiles: account ids, role names, the start url | **No.** There is no `~/.aws/credentials` under SSO |
-| `~/.config/fish/functions-private/*.fish` | Four wrappers for a personal project: its name, its path, what each command does | **No.** Three lines each, no secret in them |
-| `~/.config/git/config.private`, `identity-*` | Which directories commit with which work address | **No.** But it names employers and clients |
+| `~/.config/git/config.private`, `identity-work` | Which directories commit with the work address | **No.** But it names the employer |
 | `~/.config/finicky/finicky.ts` | Link routing rules, naming the work Chrome profiles | **No.** Same reason |
 | `~/.config/manual-duplex/config` | The printer queue (part of its MAC), the calibrated pass order and a hand-written flip message | **No.** Machine-specific, restored before reinstalling the tool |
-| `~/.config/backup-check/repos` | Which repos `make backup-check` looks at, as paths and globs | **No.** But the paths say what you work on |
 
 Beside the map, `make memory-snapshot` writes `claude-memory/`: the Claude Code memory of the repos in
 that list, which lives in `~/.claude/projects/` outside every repo. It is a separate command rather
 than a line in the map because it copies folders, and it is not screened, since memory notes are
 not where credentials go. `make backup-check` fails while the snapshot is out of date.
 
-Neither of the first two grants access to anything. Both are a **target list**, which is a different
-and smaller risk: publishing them would hand over the enumeration step, and if the hosts belong to a
+The SSH hosts grant access to nothing. They are a **target list**, which is a different and smaller
+risk: publishing them would hand over the enumeration step, and if the hosts belong to a
 client it is their confidentiality and not only yours.
 
-The fish wrappers are a third kind again, and the reason they are here is worth stating because it
-is easy to get wrong. They hold nothing secret. What they hold is a **description of their owner**:
-a project name, a path under `~/Projects`, and a `--description` line saying what the command does.
+Private fish functions are a third kind again, and where they go is worth stating because it is easy
+to get wrong. A wrapper for a personal project holds nothing secret. What it holds is a **description
+of its owner**: a project name, a path under `~/Projects`, and a `--description` line saying what the
+command does.
 That is not machine-private, it is person-private, and a public repo is exactly the wrong place for
 it.
 
-They live in `~/.config/fish/functions-private`, a real directory, and `02-local-bin.fish` adds it
+They go in `~/.config/fish/functions-private`, a real directory, and `02-local-bin.fish` adds it
 to `$fish_function_path`. That indirection is not decoration: `~/.config/fish/functions` is a
 **symlink into this repo**, so a function dropped there is one `git add .` away from being
 published, and it will not look like a mistake until it is one.

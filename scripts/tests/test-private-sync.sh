@@ -35,7 +35,7 @@ fresh_priv_home() {
   CASE_HOME="$(mktemp -d "$SCRATCH/privhome.XXXXXX")"
   export CASE_HOME
   PRIV="$CASE_HOME/.dotfiles-private"
-  mkdir -p "$CASE_HOME/.ssh" "$CASE_HOME/.aws"
+  mkdir -p "$CASE_HOME/.ssh" "$CASE_HOME/.config/git"
   cat >"$CASE_HOME/.ssh/config.private" <<'EOF'
 Host example-one
   HostName 203.0.113.10
@@ -45,11 +45,9 @@ Host example-two
   User example-admin
   Port 2222
 EOF
-  cat >"$CASE_HOME/.aws/config" <<'EOF'
-[profile example]
-sso_account_id = 111122223333
-sso_role_name = ExampleRole
-region = eu-west-1
+  cat >"$CASE_HOME/.config/git/identity-work" <<'EOF'
+[user]
+	email = someone@example.invalid
 EOF
 }
 
@@ -116,8 +114,8 @@ assert_eq 0 "$RC"
 it "the SSH config lands in the repo"
 assert_file "$PRIV/ssh/config.private"
 
-it "the AWS config lands in the repo"
-assert_file "$PRIV/aws/config"
+it "the work git identity lands in the repo"
+assert_file "$PRIV/git/identity-work"
 
 it "the copy is 0600 and not whatever the umask happened to be"
 assert_eq 600 "$(stat -f '%Lp' "$PRIV/ssh/config.private" 2>/dev/null)"
@@ -256,7 +254,7 @@ priv_run init >/dev/null
 priv_run push >/dev/null
 BEFORE_SUM="$(cksum <"$PRIV/ssh/config.private")"
 
-printf 'aws_secret_access_key = wJalrXUtnFEMIexampleexample\n' >>"$CASE_HOME/.aws/config"
+printf 'aws_secret_access_key = wJalrXUtnFEMIexampleexample\n' >>"$CASE_HOME/.config/git/identity-work"
 printf 'Host example-clean\n  HostName 203.0.113.99\n' >>"$CASE_HOME/.ssh/config.private"
 priv_run push
 

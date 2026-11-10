@@ -43,8 +43,7 @@ git clone git@github.com:sergio-santiago/dotfiles-private.git ~/.dotfiles-privat
 make private-pull
 ```
 
-It restores SSH hosts, AWS profiles, the work git identities, the Finicky rules, the private fish
-functions and the manual-duplex settings. See the README's *Machine-private config*.
+It restores SSH hosts, the work git identity, the Finicky rules and the manual-duplex settings. See the README's *Machine-private config*.
 
 ## 4. Apps installed by hand
 

@@ -6,10 +6,10 @@
 #   Copies the few machine-private files this setup needs between $HOME and a
 #   separate PRIVATE git repo (~/.dotfiles-private by default). They cannot live in
 #   this repo because this one is public: ~/.ssh/config.private names real hosts
-#   with the user to log in as, and ~/.aws/config names the account ids and roles
-#   behind the SSO profiles. Neither is a credential, the keys that grant access are in
-#   1Password. Both are a target list, which is worth not publishing, and if the
-#   hosts belong to a client it is their confidentiality and not only yours.
+#   with the user to log in as, and the work git identities name the employer.
+#   Neither is a credential, the keys that grant access are in 1Password. The hosts
+#   are a target list, which is worth not publishing, and if they belong to a client
+#   it is their confidentiality and not only yours.
 #
 #   Plaintext in a private repo rather than ciphertext here, on purpose. Encrypting
 #   would mean a passphrase you can never lose and diffs you cannot read, and git
@@ -207,9 +207,8 @@ The private half of [`.dotfiles`](https://github.com/sergio-santiago/.dotfiles).
 **Keep this repo private.**
 
 Nothing here is a credential. It is configuration that names real machines,
-employers or personal projects: SSH host aliases and AWS SSO profiles, which are a
-target list rather than a way in, plus work git identities, link routing rules and
-a few fish wrappers. The keys and tokens that actually grant access live in
+employers or personal projects: SSH host aliases, which are a target list rather
+than a way in, plus work git identities, link routing rules and printer settings. The keys and tokens that actually grant access live in
 1Password and are synced by nothing.
 
 ## These files are copies, do not edit them here
