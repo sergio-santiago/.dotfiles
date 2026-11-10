@@ -98,8 +98,8 @@ nothing to export. Reinstall these from the Raycast Store: **Brew**, **Clean Key
 claude mcp add --scope user --transport http context7 https://mcp.context7.com/mcp
 ```
 
-Then run `/plugin` inside Claude Code to install the Slack plugin that `claude/settings.json`
-enables, and authenticate it.
+Slack and Gmail come from the claude.ai connectors of the signed-in account: connect them there.
+`claude/settings.json` denies their tools that send anything in your name.
 
 Claude Code keeps its per-project memory in `~/.claude/projects/`, outside every repo. The private
 repo holds a snapshot of it in `claude-memory/`, and its README says how to restore it. Take a fresh

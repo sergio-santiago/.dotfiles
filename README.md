@@ -632,9 +632,12 @@ A few things can't be symlinked and must be done by hand on a new machine. They 
 3. **Install iTerm2 and load its preferences**. See [iTerm2 Configuration](#-iterm2-configuration-theme-colors--profiles) below.
 4. **Create your private SSH hosts** in `~/.ssh/config.private` (the installer creates an empty
    `0600` file for you). See [SSH Configuration](#-ssh-configuration-publicprivate-split) below.
-5. **Install the Claude Code Slack plugin.** `claude/settings.json` enables
-   `slack@claude-plugins-official`, but the plugin itself is cached under `~/.claude/plugins/` and is
-   not part of this repo. Run `/plugin` in Claude Code to install it, then authenticate.
+5. **Connect Slack and Gmail in claude.ai.** Claude Code picks up the claude.ai connectors of the
+   signed-in account, so they are set up there and not in this repo. `claude/settings.json` denies
+   every connector tool that speaks in your name (Slack messages, drafts, reactions and canvases,
+   Gmail sends, replies and forwards), and leaves reading them allowed. The deny names the
+   connector's tools, `mcp__claude_ai_<Service>__…`: a Slack plugin would expose the same actions
+   under other names, which this list does not cover.
 6. **Add the Context7 MCP server.** `claude/rules/context7.md` instructs Claude to fetch library docs
    through Context7, and that rule *is* symlinked, so without the server a new machine gets an
    instruction pointing at a tool that isn't there. MCP servers live in `~/.claude.json`, outside the
