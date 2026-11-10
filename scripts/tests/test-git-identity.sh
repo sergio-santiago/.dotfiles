@@ -98,15 +98,19 @@ done < <(grep -E '^\| .*`git/config-[a-z]+`' "$GITREADME")
 it "every address in the README matches the identity file it points at"
 assert_eq "" "$MISMATCHED"
 
-# ── The default is the personal address, not a work one ─────────────────────
-# The direction of this is the point, not the value. Defaulting to a work
-# address is what put the wrong author on hundreds of public personal commits,
-# because anything cloned outside a listed directory inherits the default.
-DEFAULT_EMAIL="$(awk '/^\[user\]/{u=1;next} /^\[/{u=0} u && /^[[:space:]]*email[[:space:]]*=/{sub(/.*=[[:space:]]*/,"");print;exit}' "$GITCFG")"
+# ── There is no default address, and git refuses rather than guessing ───────
+# Either default has a wrong direction: a work one put the wrong author on
+# hundreds of public personal commits, a personal one puts gmail on work repos
+# cloned outside their directory. So there is none, and useConfigOnly stops git
+# from inventing one out of the login and the hostname instead.
+USER_SECTION="$(awk '/^\[user\]/{u=1;next} /^\[/{u=0} u' "$GITCFG")"
 PERSONAL_EMAIL="$(email_in "$DOTFILES/git/config-personal")"
 
-it "git/config defaults to the personal address, so a stray clone cannot inherit a work one"
-assert_eq "$PERSONAL_EMAIL" "$DEFAULT_EMAIL"
+it "git/config sets no default address"
+assert_eq "" "$(printf '%s\n' "$USER_SECTION" | grep -E '^[[:space:]]*email[[:space:]]*=')"
+
+it "git/config sets useConfigOnly, so an uncovered repo refuses to commit"
+assert_contains "$USER_SECTION" "useConfigOnly = true"
 
 # ── The repositories that live outside ~/Projects are covered explicitly ────
 # These two are personal, public and not under ~/Projects, which is exactly the

@@ -1,4 +1,5 @@
-# Identity override for personal projects (loaded via includeIf for ~/Projects/personal/).
+# Identity for personal projects (loaded via includeIf for ~/Projects/personal/, ~/.dotfiles
+# and ~/.dotfiles-private). There is no default address, so this file is what they get.
 # SSH signing key and name are inherited from the main config.
 [user]
 	email = sersanhen@gmail.com

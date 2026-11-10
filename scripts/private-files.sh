@@ -46,7 +46,6 @@ PRIVATE_FILES=(
   # repo states the mechanism without naming the employers.
   "$HOME/.config/git/config.private|git/config.private"
   "$HOME/.config/git/identity-work|git/identity-work"
-  "$HOME/.config/git/identity-client|git/identity-client"
 
   # Link routing. Its rules name the Chrome profiles, which are named after
   # employers, so the whole file is private rather than symlinked from the repo.

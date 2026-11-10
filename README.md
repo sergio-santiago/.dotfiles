@@ -236,7 +236,7 @@ that the default is the personal one rather than a work one.
 
 ### Fish load order (`conf.d/`)
 
-Fragments are sourced in lexical order. Environment first, then version managers and tools,
+Fragments are sourced in lexical order. Environment first, then interactive tools,
 then appearance, and finally a cosmetic separator hook.
 
 Within the environment group the order of the two PATH fragments is load-bearing: `brew
@@ -581,29 +581,27 @@ chsh -s /opt/homebrew/bin/fish
 
 | Repo location | Identity file | Email |
 |---------------|---------------|-------|
-| anywhere (default) | `git/config` | `@gmail.com` |
 | `~/Projects/personal/…`, `~/.dotfiles`, `~/.dotfiles-private` | `git/config-personal` | `@gmail.com` |
 | each work directory | `~/.config/git/config.private` | the work address |
+| anywhere else | none | git refuses to commit |
 
 The work rows are not in this repo, which is public. `git/config` pulls them in with an optional
 `[include]` of `~/.config/git/config.private`, which holds the `includeIf` per work directory and
-points at small `identity-*` files beside it. All of them are restored by `make private-pull`. git
-skips an include whose file is missing, so a machine without the private half signs everything with
-the personal address, which is the safe direction.
+points at a small `identity-work` file beside it. Both are restored by `make private-pull`. git
+skips an include whose file is missing, so a machine without the private half has no work address
+at all, and a commit in a work repository fails instead of going out with the wrong one.
 
-**The personal address is the default on purpose.** It used to be the work one, with personal as
-the exception, and the failure mode came with it: a repository cloned anywhere outside the two
-listed directories silently inherited the work address. That is how some 380 commits across public
-personal repositories, this one included, came to be authored by a work address.
+**There is no default address, on purpose.** `git/config` sets `user.useConfigOnly`, so in a
+directory no rule covers, git refuses to commit and asks for an address instead of inventing one
+from the login and the hostname.
 
-It is not only untidy. GitHub attributes a commit by matching its author address against the
-addresses registered on the account, so the day a work address is removed from that account, every
-commit authored with it stops counting as a contribution. Being wrong the other way round costs a
-client repository a gmail address, which is a shrug. The default should be the identity that does
-not hurt to get wrong.
-
-The `config-personal` row is redundant with the default and is kept anyway, so that changing the
-default cannot silently change what those repositories sign with.
+Every default has a wrong direction. The work address used to be the default, and a repository
+cloned outside the listed directories silently inherited it: that is how some 380 commits across
+public personal repositories, this one included, came to be authored by a work address. GitHub
+attributes a commit by matching its author address against the addresses on the account, so the
+day a work address is removed from it, every commit authored with it stops counting as a
+contribution. A personal default fails the other way, with gmail on work commits in any work
+repository cloned outside its directory. Refusing turns both into an error at commit time.
 
 The overrides are pulled in via `includeIf "gitdir:…"` using absolute paths, so they work without
 being symlinked. To use them, just clone repos under the matching directory, and check with:
