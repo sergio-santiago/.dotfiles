@@ -903,13 +903,16 @@ preferences are exported and tracked here:
 
 ✅ **To load this config on a new Mac:**
 
-1. Open **iTerm2 > Settings > General > Preferences**
-2. Enable: ✔️ `Load preferences from a custom folder or URL`
+1. Open **iTerm2 > Settings > General > Settings** (*Preferences* in older versions)
+2. Enable: ✔️ `Load settings from a custom folder or URL`
 3. Set the folder path to:
 
    ```bash
    ~/.dotfiles/iterm
    ```
 
-4. For saving changes, set **"Save changes"** to: `When Quitting` (or optionally `Manually`)
-5. Restart iTerm2 to apply all changes
+4. Set **"Save changes"** to `Manually`. The plist lives in this public repo, so `When Quitting`
+   rewrites it on every quit with whatever was tweaked in passing. Use **Save Now** when a change
+   is meant to stay, and never before the restart below: at that point iTerm still holds its
+   factory settings and would write them over the tracked file
+5. Quit iTerm2 (⌘Q) and reopen it to load the tracked settings
