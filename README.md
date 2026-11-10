@@ -67,7 +67,7 @@ This repository contains my personal macOS development environment configuration
       A `$VAR` in an `rm` target counts when the same command assigned it a literal
       unconditionally or earlier in an unbroken `&&` chain, and heredoc bodies are read as data
       rather than as commands.
-    - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs.
+    - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs, session link trailer included.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.
     - Global instructions (`CLAUDE.md`), behaviour rules (`rules/`), hooks and settings all tracked in
