@@ -65,7 +65,7 @@ are in the `Brewfile` instead and arrived with `make install`.
 |-----|-------|
 | Raycast | [raycast.com](https://raycast.com/) |
 | Visual Studio Code | [code.visualstudio.com](https://code.visualstudio.com/) |
-| Docker Desktop | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) |
+| OrbStack | [orbstack.dev](https://orbstack.dev/download). The Docker engine, faster than Docker Desktop on a Mac. Free for personal use only, work use needs a paid licence. On first run it writes a line into `fish/config.fish` and `ssh/config`, both symlinked into this repo: discard them with `git checkout`, its tools already land in `/usr/local/bin` and it does not add them again |
 | Claude | [claude.com/download](https://claude.com/download) |
 | ChatGPT | [chatgpt.com](https://chatgpt.com/) |
 | Claude Usage Tracker | [GitHub releases](https://github.com/hamed-elfayome/Claude-Usage-Tracker/releases) |
