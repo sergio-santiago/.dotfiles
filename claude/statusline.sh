@@ -11,8 +11,10 @@
 #
 #   Column widths auto-fit the longest cell on each side (responsive layout).
 #   The middle │ stays vertically aligned regardless of content length.
-#   The icon comes from the first LANG_MARKERS entry with a marker in the root,
-#   or the folder icon when none matches.
+#   The icon comes from the first LANG_MARKERS entry with a marker in the root.
+#   Frameworks and languages are also looked for in direct subdirectories
+#   before the runtimes and build tools get a say (see find_lang_entry), and
+#   the folder icon shows when nothing matches.
 #
 # Input (via stdin):
 #   JSON object matching Claude Code statusLine schema.
@@ -211,23 +213,50 @@ readonly LANG_MARKERS=(
     "DOCKER||Dockerfile compose.yaml compose.yml docker-compose.yaml docker-compose.yml"
 )
 
-# Prints the first LANG_MARKERS entry with a marker present in $1, or nothing
+# From this NAME on (JavaScript runtimes, build tools) an entry only counts in
+# the root. The ones before it are also looked for one level down.
+readonly ROOT_ONLY_FROM="DENO"
+
+# Succeeds when the entry in $2 has a marker present in $1
+entry_matches() {
+    local dir="$1" entry="$2" marker markers
+    # read, not an unquoted expansion, which would glob the markers against
+    # this process's cwd before they ever reached $dir
+    read -ra markers <<< "${entry##*|}"
+    for marker in "${markers[@]}"; do
+        if [[ "$marker" == *'*'* ]]; then
+            compgen -G "$dir/$marker" >/dev/null 2>&1 && return 0
+        else
+            [[ -e "$dir/$marker" ]] && return 0
+        fi
+    done
+    return 1
+}
+
+# Prints the detected LANG_MARKERS entry for $1, or nothing. Three passes:
+#   1. frameworks and languages in the root
+#   2. the same entries in each direct, non-hidden subdirectory, so a repo whose
+#      backend lives in app/ next to a root tsconfig.json still shows the backend
+#   3. the root-only entries (runtimes, build tools) in the root
+# Within each pass the table order decides, as before.
 find_lang_entry() {
     local dir="${1:-.}"
-    local entry marker markers
+    local entry sub root_only=0
     for entry in "${LANG_MARKERS[@]}"; do
-        # read, not an unquoted expansion, which would glob the markers against
-        # this process's cwd before they ever reached $dir
-        read -ra markers <<< "${entry##*|}"
-        for marker in "${markers[@]}"; do
-            if [[ "$marker" == *'*'* ]]; then
-                compgen -G "$dir/$marker" >/dev/null 2>&1 || continue
-            else
-                [[ -e "$dir/$marker" ]] || continue
-            fi
-            printf '%s' "$entry"
-            return
+        [[ "${entry%%|*}" == "$ROOT_ONLY_FROM" ]] && break
+        entry_matches "$dir" "$entry" && { printf '%s' "$entry"; return; }
+    done
+    for entry in "${LANG_MARKERS[@]}"; do
+        [[ "${entry%%|*}" == "$ROOT_ONLY_FROM" ]] && break
+        for sub in "$dir"/*/; do
+            [[ -d "$sub" ]] || continue
+            entry_matches "${sub%/}" "$entry" && { printf '%s' "$entry"; return; }
         done
+    done
+    for entry in "${LANG_MARKERS[@]}"; do
+        [[ "${entry%%|*}" == "$ROOT_ONLY_FROM" ]] && root_only=1
+        (( root_only )) || continue
+        entry_matches "$dir" "$entry" && { printf '%s' "$entry"; return; }
     done
 }
 

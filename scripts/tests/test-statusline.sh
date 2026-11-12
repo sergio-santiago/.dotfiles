@@ -47,6 +47,12 @@ SL_CASES=(
   "cmake-alone|CMAKE|CMakeLists.txt"
   "terraform|TERRAFORM|main.tf"
   "docker-alone|DOCKER|Dockerfile"
+  # one level down: frameworks and languages before the root's runtimes
+  "nested-symfony|SYMFONY|app/symfony.lock app/composer.json tsconfig.json package.json docker-compose.yaml"
+  "nested-php-in-docker|PHP|api/composer.json docker-compose.yml"
+  "root-language-wins|PYTHON|pyproject.toml web/symfony.lock"
+  "nested-ts-stays-root-only|NODE|package.json web/tsconfig.json"
+  "hidden-subdir-ignored|NODE|package.json .cache/Cargo.toml"
 )
 
 for c in "${SL_CASES[@]}"; do

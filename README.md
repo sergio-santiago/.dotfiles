@@ -57,9 +57,11 @@ This repository contains my personal macOS development environment configuration
 - 💾 **iTerm2 backup**
     - Full export of preferences (profiles, colors, fonts), easily restorable.
 - 🤖 **Claude Code**
-    - Custom boxed two-column status line: a project icon detected from marker files in the repo root
-      (framework, language, runtime or build tool, falling back to a folder icon), the folder, git
-      branch and state, diff stats, the model, a context bar with its zone tag, and the 5-hour usage bar.
+    - Custom boxed two-column status line: a project icon, the folder, git branch and state, diff
+      stats, the model, a context bar with its zone tag, and the 5-hour usage bar.
+    - The project icon comes from marker files in the repo root (framework, language, runtime or
+      build tool, falling back to a folder icon). Frameworks and languages are also looked for one
+      directory down, so a Symfony app in `app/` beats a root `tsconfig.json`.
     - Usage quota bar with 5-hour utilization percentage, gradient bar, and reset countdown.
     - Granular permission rules: read-only git/gh commands auto-allowed, mutations require confirmation.
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
@@ -201,7 +203,7 @@ case is handed a throwaway one.
 | `test-git-identity.sh` | That the public identity map and the README agree, and that no work address leaks in |
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 | `test-claude-settings.sh` | That `claude/settings.json` carries no `autoMode.environment`, which `/auto-mode-setup` fills with a description of a possibly private repo |
-| `test-statusline.sh` | The status line's project icon (the marker table's precedence, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
+| `test-statusline.sh` | The status line's project icon (the marker table's precedence, the one-level-down pass for frameworks and languages, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
 | `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
 | `test-backup-check.sh` | That `make backup-check` exits 1 on every way work can still be only on the disk, one at a time against a baseline that passes, and that a `launchd` agent only warns |
 | `test-fzf-widgets.sh` | That fzf's Ctrl+R runs with the repo theme. `fzf --fish` hands `$fish_color_comment` back to fish as code, so a `#` in it turns the rest of the line into a comment |
