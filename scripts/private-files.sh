@@ -31,6 +31,11 @@ PRIVATE_FILES=(
   "$HOME/.config/git/config.private|git/config.private"
   "$HOME/.config/git/identity-work|git/identity-work"
 
+  # Trusted SSH signers for work directories, pointed at by identity-work. The public
+  # git/allowed_signers holds only the personal address. This one lists the work
+  # address first, because git reports the first principal that matches the key.
+  "$HOME/.config/git/allowed_signers-work|git/allowed_signers-work"
+
   # Link routing. Its rules name the Chrome profiles, which are named after
   # employers, so the whole file is private rather than symlinked from the repo.
   "$HOME/.config/finicky/finicky.ts|finicky/finicky.ts"

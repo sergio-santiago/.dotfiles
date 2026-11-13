@@ -123,7 +123,7 @@ flowchart LR
     subgraph repo["📦 ~/.dotfiles"]
         fish["fish/"]
         starship["starship/starship.toml"]
-        gitc["git/config"]
+        gitc["git/config · allowed_signers"]
         ssh["ssh/config"]
         micro["micro/"]
         bat["bat/themes"]
@@ -136,7 +136,7 @@ flowchart LR
     subgraph home["🏠 $HOME"]
         cfgfish["~/.config/fish/"]
         cfgstar["~/.config/starship.toml"]
-        cfggit["~/.config/git/config"]
+        cfggit["~/.config/git/{config,allowed_signers}"]
         sshcfg["~/.ssh/config"]
         cfgmisc["~/.config/{micro,bat,gh}/"]
         dotclaude["~/.claude/"]
@@ -184,6 +184,7 @@ explanation in [Machine-private config](#️-machine-private-config-the-second-r
 ~/.dotfiles           public    configs, scripts, docs        → symlinked into $HOME
 ~/.dotfiles-private   PRIVATE   ssh/config.private            → copied to and from $HOME
                                 git/config.private, identity     by make private-push / pull
+                                git/allowed_signers-work
                                 finicky/finicky.ts, manual-duplex/config
                                 claude-memory/                → written by make memory-snapshot
 ```
@@ -531,6 +532,7 @@ ln -sfh ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 mkdir -p ~/.config/git
 ln -sfh ~/.dotfiles/git/config ~/.config/git/config
 ln -sfh ~/.dotfiles/git/ignore ~/.config/git/ignore
+ln -sfh ~/.dotfiles/git/allowed_signers ~/.config/git/allowed_signers
 
 # Micro
 mkdir -p ~/.config/micro/colorschemes
@@ -594,6 +596,16 @@ The work rows are not in this repo, which is public. `git/config` pulls them in 
 points at a small `identity-work` file beside it. Both are restored by `make private-pull`. git
 skips an include whose file is missing, so a machine without the private half has no work address
 at all, and a commit in a work repository fails instead of going out with the wrong one.
+
+**Verifying signatures locally.** GitHub checks signatures against the key on the account, but
+`git log --show-signature` and `git verify-commit` need `gpg.ssh.allowedSignersFile`, a list of
+which key is trusted for which address. `git/config` points it at `git/allowed_signers`, symlinked
+to `~/.config/git/allowed_signers`, which holds the public key for the personal address only.
+Work directories need the work address, which cannot be in this repo, so `identity-work` points
+them at `~/.config/git/allowed_signers-work`, restored by `make private-pull`. It lists the work
+address first because git reports the first address that matches the key, not the commit's
+author. Only public keys are in either file, the private key stays in 1Password. Without a signers
+file commits are still signed, they only show "No principal matched" locally.
 
 **There is no default address, on purpose.** `git/config` sets `user.useConfigOnly`, so in a
 directory no rule covers, git refuses to commit and asks for an address instead of inventing one
@@ -812,6 +824,7 @@ decision.
 |------|---------------------------|---------------------|
 | `~/.ssh/config.private` | Host aliases: hostnames, the user to log in as, the odd non-default port | **No.** The keys are in 1Password |
 | `~/.config/git/config.private`, `identity-work` | Which directories commit with the work address | **No.** But it names the employer |
+| `~/.config/git/allowed_signers-work` | The public signing key for the work and personal addresses, for local signature checks | **No.** A public key, but it names the employer |
 | `~/.config/finicky/finicky.ts` | Link routing rules, naming the work Chrome profiles | **No.** Same reason |
 | `~/.config/manual-duplex/config` | The printer queue (part of its MAC), the calibrated pass order and a hand-written flip message | **No.** Machine-specific, restored before reinstalling the tool |
 

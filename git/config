@@ -23,6 +23,12 @@
 
 [gpg "ssh"]
 	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	# Which key is trusted for which address, so `git log --show-signature` and
+	# `git verify-commit` can check signatures locally. This one is git/allowed_signers,
+	# symlinked, with the personal address only. identity-work points work directories
+	# at a private copy that names the work address. Without a signers file git still
+	# signs, it only cannot verify.
+	allowedSignersFile = ~/.config/git/allowed_signers
 
 [commit]
 	gpgsign = true

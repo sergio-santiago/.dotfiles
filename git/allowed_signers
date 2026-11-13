@@ -1,0 +1,6 @@
+# Trusted SSH signers for `git log --show-signature` and `git verify-commit`, read by
+# gpg.ssh.allowedSignersFile in git/config. Public keys only, the private key never
+# leaves 1Password. Work directories use ~/.config/git/allowed_signers-work instead
+# (private, it names the employer), pointed at by identity-work.
+# Format: <principal email> <key type> <public key>
+sersanhen@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN3Uo9wcjJLsXcEcJ85BxA8ZHEJe670weClg+rOwSSWo

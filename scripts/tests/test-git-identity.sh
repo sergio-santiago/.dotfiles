@@ -127,6 +127,22 @@ assert_eq "" "$UNCOVERED"
 it "git/config pulls the work identities from ~/.config/git/config.private"
 assert_contains "$(awk '/^\[include\]/{i=1;next} /^\[/{i=0} i' "$GITCFG")" "path = ~/.config/git/config.private"
 
+# ── Local signature verification ────────────────────────────────────────────
+SIGNERS="$DOTFILES/git/allowed_signers"
+SIGNKEY="$(git config -f "$GITCFG" user.signingkey)"
+
+it "git/config points gpg.ssh.allowedSignersFile at the symlinked git/allowed_signers"
+assert_eq "~/.config/git/allowed_signers" "$(git config -f "$GITCFG" gpg.ssh.allowedSignersFile)"
+
+it "git/allowed_signers trusts user.signingkey for the personal address, and nothing else"
+assert_eq "$PERSONAL_EMAIL $SIGNKEY" "$(grep -v '^#' "$SIGNERS" | grep -v '^$')"
+
+it "git/allowed_signers holds no private key material"
+assert_eq "" "$(grep -c 'PRIVATE KEY' "$SIGNERS" | grep -vx 0)"
+
+it "the work signers file is in the private file map"
+assert_contains "$(cat "$DOTFILES/scripts/private-files.sh")" '"$HOME/.config/git/allowed_signers-work|git/allowed_signers-work"'
+
 # Every address in a tracked file is the personal one, GitHub's ssh user, or a
 # reserved example domain. A work address here would publish an employer.
 LEAKED="$(git -C "$DOTFILES" ls-files -z \
