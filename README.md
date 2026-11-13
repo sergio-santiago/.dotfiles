@@ -42,6 +42,9 @@ This repository contains my personal macOS development environment configuration
     - Custom `linked_data_dark_rainbow` theme for consistent syntax highlighting, pager, and selection colors.
       Implemented across:
         - Starship (`palettes.linked_data_dark_rainbow` palette, three-line prompt with powerline segments)
+          Its language segment only trusts real project markers: a Symfony app shows from a
+          `symfony.lock` in the root or one directory down, and stray `.py` scripts or a front-end
+          `package.json` no longer light up Python or Node.
         - Fish (`09-theme.fish`)
         - Bat (`linked-data-dark-rainbow.tmTheme`)
         - Micro editor (`linked-data-dark-rainbow.micro`)

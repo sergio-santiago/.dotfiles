@@ -43,6 +43,7 @@ $haskell\
 $java\
 $kotlin\
 $nodejs\
+${custom.symfony}\
 $php\
 $python\
 $rust\
@@ -154,7 +155,13 @@ style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
 # ── Node.js ─────────────────────────────────────────────────────────────────
+# Not on package.json or *.js/*.ts: a PHP or Python app carries those just for its
+# front-end assets, and with node in Docker the segment was a bare icon. Only a
+# pinned version or an installed node_modules says the project runs Node here.
 [nodejs]
+detect_files = [".nvmrc", ".node-version"]
+detect_folders = ["node_modules"]
+detect_extensions = []
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
@@ -166,7 +173,10 @@ style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
 
 # ── Python ──────────────────────────────────────────────────────────────────
+# Not on *.py: a helper script in the root does not make a Python project. The
+# default marker files (pyproject.toml, requirements.txt, .python-version...) still do.
 [python]
+detect_extensions = []
 symbol = ""
 style = "fg:black bg:orange"
 format = '[ $symbol( $version) ]($style)'
@@ -211,6 +221,17 @@ command = "id -F | awk '{print $1}'"  # Gets the full name and extracts first
 when = "test $(uname) = Darwin"       # macOS only
 style = "bg:blue fg:black"
 format = "[ $output ]($style)"
+
+# ── Custom: Symfony ─────────────────────────────────────────────────────────
+# A Symfony app, from symfony.lock in the root or one directory down (app/), since
+# the php module only looks in the root and needs a host php to say anything.
+# Same icon as the Claude status line's SYMFONY entry.
+[custom.symfony]
+when = "[ -e symfony.lock ] || ls ./*/symfony.lock >/dev/null 2>&1"
+shell = ["sh"]                  # POSIX test and glob, not the login shell (fish)
+symbol = "\ue757"
+style = "fg:black bg:orange"
+format = "[ $symbol ]($style)"
 
 # ── Custom: Docker Running Containers ───────────────────────────────────────
 # Counts and displays how many Docker containers are running
