@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""
+################################################################################
+# Slack clipboard
+#
+# Description:
+#   Copies a message to the macOS clipboard so that pasting it into Slack keeps
+#   its formatting. The message is written once, in simple markdown, and the
+#   script puts two versions on the clipboard: HTML, which Slack uses, and plain
+#   text, which every other app uses.
+#
+#   Supported, each one checked by pasting into Slack:
+#     [text](url)  **bold**  _italic_  ~strike~  `code`
+#     ``` on its own line opens and closes a code block
+#     "- " bullet   "1. " numbered item   "> " quote
+#     a blank line separates paragraphs, a single newline is kept
+#
+#   What Slack needs, learned the hard way:
+#     - The plain text must carry no markdown marks and no URLs. When it has
+#       them, Slack pastes the plain text and formats it with its own markdown,
+#       so URLs show in full and bold and links are lost.
+#     - One single <div>, paragraphs split with <br><br>. With <p> Slack joins
+#       them. <b>, <i>, <s>, <code>, <pre>, <ul>, <ol>, <blockquote> and <a>
+#       work. <del> does not.
+#
+# Usage:
+#   slack-clip < message.md
+#   slack-clip message.md
+#   SLACK_CLIP_DEBUG=1 slack-clip ...   also prints the generated HTML
+#
+#   Prints the plain text, so the caller can show what was copied.
+################################################################################
+"""
+import html
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+LINK = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
+CODE = re.compile(r"`([^`]+)`")
+BOLD = re.compile(r"\*\*(.+?)\*\*")
+ITALIC = re.compile(r"(?<![\w*])_(.+?)_(?!\w)")
+STRIKE = re.compile(r"(?<!\w)~(.+?)~(?!\w)")
+BULLET = re.compile(r"^\s*[-*•] (.*)$")
+NUMBER = re.compile(r"^\s*\d+[.)] (.*)$")
+QUOTE = re.compile(r"^> ?(.*)$")
+FENCE = "```"
+
+# Writes both flavours to the general pasteboard. JXA, so no extra dependency.
+JXA = """
+ObjC.import('AppKit');
+function run(argv) {
+  const read = p => $.NSString.stringWithContentsOfFileEncodingError(p, $.NSUTF8StringEncoding, null);
+  const pb = $.NSPasteboard.generalPasteboard;
+  pb.clearContents;
+  pb.setStringForType(read(argv[0]), 'public.html');
+  pb.setStringForType(read(argv[1]), 'public.utf8-plain-text');
+}
+"""
+
+
+def inline(text: str) -> str:
+    """Inline marks. Code and links are set aside first so nothing inside them is touched."""
+    slots: list[str] = []
+
+    def keep(fragment: str) -> str:
+        slots.append(fragment)
+        return f"\x00{len(slots) - 1}\x00"
+
+    text = CODE.sub(lambda m: keep(f"<code>{html.escape(m.group(1), quote=False)}</code>"), text)
+    text = LINK.sub(
+        lambda m: keep(f'<a href="{html.escape(m.group(2))}">{inline(m.group(1))}</a>'), text
+    )
+    text = html.escape(text, quote=False)
+    text = BOLD.sub(r"<b>\1</b>", text)
+    text = ITALIC.sub(r"<i>\1</i>", text)
+    text = STRIKE.sub(r"<s>\1</s>", text)
+    return re.sub(r"\x00(\d+)\x00", lambda m: slots[int(m.group(1))], text)
+
+
+def to_html(text: str) -> str:
+    out: list[str] = []
+    lines = text.split("\n")
+    i = 0
+    after_text = False  # the last thing written was a line of text, not a block
+
+    def emit(fragment: str, block: bool) -> None:
+        nonlocal after_text
+        if after_text and not block:
+            out.append("<br>")
+        out.append(fragment)
+        after_text = not block
+
+    while i < len(lines):
+        line = lines[i]
+        if line.strip() == FENCE:
+            j = i + 1
+            while j < len(lines) and lines[j].strip() != FENCE:
+                j += 1
+            emit(f"<pre>{html.escape(chr(10).join(lines[i + 1 : j]), quote=False)}</pre>", True)
+            i = j + 1
+            continue
+        for pattern, tag in ((BULLET, "ul"), (NUMBER, "ol"), (QUOTE, "blockquote")):
+            if pattern.match(line):
+                items = []
+                while i < len(lines) and pattern.match(lines[i]):
+                    items.append(inline(pattern.match(lines[i]).group(1)))
+                    i += 1
+                if tag == "blockquote":
+                    emit(f"<blockquote>{'<br>'.join(items)}</blockquote>", True)
+                else:
+                    emit(f"<{tag}>" + "".join(f"<li>{x}</li>" for x in items) + f"</{tag}>", True)
+                break
+        else:
+            if line.strip() == "":
+                if out:
+                    out.append("<br><br>" if after_text else "<br>")
+                after_text = False
+            else:
+                emit(inline(line), False)
+            i += 1
+    return f'<meta charset="utf-8"><div>{"".join(out)}</div>'
+
+
+def to_plain(text: str) -> str:
+    """Plain text with no markdown marks and no URLs (see the header for why)."""
+    lines = []
+    for line in text.split("\n"):
+        if line.strip() == FENCE:
+            continue
+        line = BULLET.sub(r"• \1", line)
+        line = re.sub(r"^(\s*\d+)\. ", r"\1) ", line)
+        line = QUOTE.sub(r"\1", line)
+        lines.append(line)
+    text = "\n".join(lines)
+    for pattern in (LINK, CODE, BOLD, ITALIC, STRIKE):
+        text = pattern.sub(r"\1", text)
+    return text
+
+
+def main() -> None:
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], encoding="utf-8") as f:
+            text = f.read().strip()
+    else:
+        text = sys.stdin.read().strip()
+    with tempfile.TemporaryDirectory() as d:
+        html_path, plain_path = os.path.join(d, "m.html"), os.path.join(d, "m.txt")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(to_html(text))
+        with open(plain_path, "w", encoding="utf-8") as f:
+            f.write(to_plain(text))
+        subprocess.run(["osascript", "-l", "JavaScript", "-e", JXA, html_path, plain_path], check=True)
+    if os.environ.get("SLACK_CLIP_DEBUG"):
+        print(to_html(text))
+    print(to_plain(text))
+
+
+if __name__ == "__main__":
+    main()

@@ -31,5 +31,6 @@ LINKS=(
   "claude/hooks|$HOME/.claude/hooks"
   "claude/rules|$HOME/.claude/rules"
   "scripts/bin/brew-maintenance|$HOME/.local/bin/brew-maintenance"
+  "scripts/bin/slack-clip|$HOME/.local/bin/slack-clip"
   "gh/config.yml|$HOME/.config/gh/config.yml"
 )

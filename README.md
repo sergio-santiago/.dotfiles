@@ -155,7 +155,8 @@ flowchart LR
 ```
 
 `scripts/` and `docs/` hold tooling and reference rather than configuration, so nothing in them is
-linked except the command under `bin/`, `brew-maintenance`, which needs to be on your
+linked except the commands under `bin/`, `brew-maintenance` and `slack-clip` (copies a markdown
+message to the clipboard so it pastes into Slack with its formatting), which need to be on your
 `PATH`: `install.sh` and `doctor.sh` run behind `make link` and `make doctor`, `colors-check.sh` behind `make colors-check`, `lint.sh` behind `make lint`, `tests/` behind `make test`, and
 `docs/COLORS.md` is the source of truth for the palette. `links.sh` holds the symlink map itself,
 sourced by `install.sh`, `doctor.sh` and the test suite, so what gets created, what gets verified and
@@ -507,7 +508,7 @@ It wires the repo into `$HOME` like this:
 | `gh/config.yml` | `~/.config/gh/config.yml` |
 | `claude/{CLAUDE.md,settings.json,statusline.sh}` | `~/.claude/…` |
 | `claude/{rules,hooks}` | `~/.claude/…` |
-| `scripts/bin/brew-maintenance` | `~/.local/bin/brew-maintenance` |
+| `scripts/bin/{brew-maintenance,slack-clip}` | `~/.local/bin/…` |
 
 <details>
 <summary>Prefer to link manually? (click to expand)</summary>
@@ -549,6 +550,7 @@ ln -sfh ~/.dotfiles/claude/statusline.sh ~/.claude/statusline.sh
 ln -sfh ~/.dotfiles/claude/rules ~/.claude/rules
 ln -sfh ~/.dotfiles/claude/hooks ~/.claude/hooks
 ln -sfh ~/.dotfiles/scripts/bin/brew-maintenance ~/.local/bin/brew-maintenance
+ln -sfh ~/.dotfiles/scripts/bin/slack-clip ~/.local/bin/slack-clip
 
 # GitHub CLI (gh)
 mkdir -p ~/.config/gh
