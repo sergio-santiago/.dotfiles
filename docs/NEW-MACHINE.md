@@ -43,7 +43,7 @@ git clone git@github.com:sergio-santiago/dotfiles-private.git ~/.dotfiles-privat
 make private-pull
 ```
 
-It restores SSH hosts, the work git identity, the Finicky rules and the manual-duplex settings. See the README's *Machine-private config*.
+It restores SSH hosts, the work git identity and its signers file, the Finicky rules and the manual-duplex settings. See the README's *Machine-private config*.
 
 Open Finicky once and accept it as the default browser. Its rules name each Chrome profile by its
 directory (`chrome://version` → *Profile Path*, e.g. `Default` or `Profile 2`), not by its display

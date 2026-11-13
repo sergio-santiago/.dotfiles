@@ -40,7 +40,7 @@ failing test rather than a thing to remember. These already exist:
 | `test-install.sh` | the README's `ln -sfh` block against `scripts/links.sh`, as source→destination pairs |
 | `test-doctor.sh` | the `Brewfile` against `doctor.sh`'s `REQUIRED` list, in both directions |
 | `test-private-sync.sh` | that `doctor.sh` and `private-sync.sh` read the same private file map |
-| `test-git-identity.sh` | the README's git identity table against `git/config` and its `config-*` files, by domain, plus no stray address in the public repo |
+| `test-git-identity.sh` | the README's git identity table against `git/config` and its `config-*` files, by domain, `git/allowed_signers` against `user.signingkey`, plus no stray address in the public repo |
 | `test-brew-nudge.sh` | the two visual claims the README makes about the reminder: the `▌` rule and its orange/cyan colours |
 | `colors-check.sh` | Starship's declared colours against `docs/COLORS.md`, plus its total count. `test-colors-check.sh` proves it fails on drift |
 

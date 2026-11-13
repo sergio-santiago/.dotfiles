@@ -28,8 +28,10 @@ This repository contains my personal macOS development environment configuration
       refuses the whole run. See [Machine-private config](#️-machine-private-config-the-second-repo).
 - 🧠 **Git**
     - SSH-based commit signing (1Password agent) with `micro` as commit editor.
-    - **Directory-based identities** via `includeIf`: the personal address is the default and the
-      work ones are the exceptions, all sharing a single signing key. The work rules live in the
+    - Signatures verify locally too (`git log --show-signature`, `git verify-commit`) through
+      `gpg.ssh.allowedSignersFile`. Public keys only, the private key stays in 1Password.
+    - **Directory-based identities** via `includeIf`, all sharing a single signing key. There is no
+      default address: outside a known directory git refuses to commit. The work rules live in the
       private repo. See [Git identities](#-git-identities-multi-account).
 - ✏️ **Micro editor**
     - Lightweight terminal-based editor with custom settings and a matching `linked-data-dark-rainbow` color scheme for
@@ -285,14 +287,13 @@ are always inherited from the base identity.
 
 ```mermaid
 flowchart TD
-    start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>email: @gmail.com<br/>signingkey: ssh-ed25519 …"]
+    start(["git commit in repo X"]) --> base["Base identity<br/>name: Sergio Santiago<br/>no email<br/>signingkey: ssh-ed25519 …"]
     base --> q{"repo path?"}
     q -->|"a work directory"| w["~/.config/git/config.private<br/>(private repo) → work address"]
     q -->|"~/Projects/personal/*<br/>~/.dotfiles<br/>~/.dotfiles-private"| p["config-personal<br/>→ @gmail.com"]
-    q -->|"anywhere else"| d["keeps @gmail.com"]
+    q -->|"anywhere else"| d["no address<br/>→ git refuses to commit"]
     w --> sign["Sign with 1Password SSH key"]
     p --> sign
-    d --> sign
 ```
 
 ---
