@@ -6,6 +6,9 @@ When I ask for a message to send, show it, then copy it with `slack-clip` (in `~
 without being asked, so it pastes with its formatting. Write it once in simple markdown and pipe
 it in: `slack-clip <<'EOF' ... EOF`. The script's header lists what it supports.
 
+Write it in the language of the conversation it goes into (the thread, channel or person), not
+the language of this session. If that is not known, ask or use the one I used to describe it.
+
 Match the format to the kind of message, the way a person would:
 
 - **A reply in a conversation** (answering someone, a question, a thank-you, a quick heads-up):
