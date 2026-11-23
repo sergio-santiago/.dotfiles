@@ -114,6 +114,7 @@
   "language": "spanish",
   "effortLevel": "high",
   "awaySummaryEnabled": false,
+  "disableAgentView": true,
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
@@ -122,6 +123,13 @@
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
   "preferredNotifChannel": "iterm2_with_bell",
+  "pluginConfigs": {
+    "cc-plugin-agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-and-agents-md"
+      }
+    }
+  },
   "autoContinueAtUsageLimit": true,
   "remoteControlAtStartup": true,
   "skipAutoPermissionPrompt": true,
