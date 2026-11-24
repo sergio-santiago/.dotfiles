@@ -14,12 +14,16 @@
 #                         GraphQL `mutation`
 #              git reset  --hard, --merge or --keep, the modes that touch the
 #                         working tree, past any global option such as -C
-#              rm         any target outside /tmp, /private/tmp or $TMPDIR. A
-#                         $VAR in a target is expanded only when its value is
-#                         certain (see known_vars), a relative target only from
-#                         every directory the command can be in (see main),
-#                         otherwise it asks. Behind a wrapper (sudo, env,
-#                         command, xargs...) or in a quoted $( ) it always asks
+#              rm         any target outside /tmp, /private/tmp or $TMPDIR
+#                         that git cannot restore: committed and unchanged,
+#                         with nothing untracked or ignored under it, and not
+#                         the repo root or .git (see restorable). A $VAR in a
+#                         target is expanded only when its value is certain
+#                         (see known_vars), a relative target only from every
+#                         directory the command can be in (see main), otherwise
+#                         it asks. Behind a wrapper (sudo, env, command,
+#                         xargs...) or in a quoted $( ) it always asks.
+#                         An rm git can restore is left to the normal rules
 #     allow  every part is a safe form of the above, a filter from
 #            SAFE_FILTERS or a `cd`, with no substitution and no redirect
 #            other than to /dev/null or between stdout and stderr.
@@ -29,10 +33,12 @@
 #   A crash asks too, since an empty answer would let the command through.
 ################################################################################
 
+import glob
 import json
 import os
 import re
 import shlex
+import subprocess
 import sys
 
 SAFE_FILTERS = {"jq", "head", "tail", "grep", "rg", "wc", "sort", "uniq", "cut",
@@ -325,6 +331,42 @@ def in_scratch(path, cwds):
     return False
 
 
+def git(cwd, *args):
+    """git's output in cwd, or None when it fails or takes too long. GIT_*
+    variables from the session are dropped, since GIT_DIR would point every
+    question at another repo."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    try:
+        p = subprocess.run(["git", "-C", cwd, *args], capture_output=True,
+                           text=True, timeout=2, env=env)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return p.stdout if p.returncode == 0 else None
+
+
+def restorable(path):
+    """Whether everything rm would delete at path is committed and unchanged,
+    so `git checkout` brings it back. Not the repo root, nothing in .git, and
+    nothing untracked, ignored, staged or modified under it."""
+    if not os.path.lexists(path) or ".git" in path.split("/"):
+        return False
+    where = path if os.path.isdir(path) and not os.path.islink(path) else os.path.dirname(path)
+    top = git(where, "rev-parse", "--show-toplevel")
+    if not top:
+        return False
+    top = os.path.realpath(top.strip())
+    rel = os.path.relpath(os.path.realpath(where), top)
+    if rel.startswith(".."):
+        return False
+    if where != path:
+        rel = os.path.join(rel, os.path.basename(path))
+    if rel in (".", ""):
+        return False
+    tracked = git(top, "ls-files", "--", rel)
+    status = git(top, "status", "--porcelain", "--ignored", "--untracked-files=all", "--", rel)
+    return bool(tracked) and status == ""
+
+
 def rm_targets(args):
     targets, options = [], True
     for a in args:
@@ -379,6 +421,30 @@ def runs_rm_quoted(command):
         if runs_rm_quoted(body):
             return True
     return False
+
+
+def lost_targets(targets, env, cwds):
+    """The targets rm could delete for good: neither in a temporary directory
+    nor committed and unchanged in git. Unreadable ones count as lost."""
+    if not targets:
+        return ["(no target)"]
+    lost = []
+    for t in targets:
+        for p in expand(t, env):
+            if in_scratch(p, cwds):
+                continue
+            if p == "~" or p.startswith("~/"):
+                p = os.path.expanduser(p)
+            if re.search(r"[$`~]", p) or (not p.startswith("/") and None in cwds):
+                lost.append(p)
+                continue
+            fulls = [p] if p.startswith("/") else [os.path.join(c, p) for c in cwds]
+            for full in fulls:
+                matches = glob.glob(full) if re.search(r"[*?\[]", full) else [full]
+                if not matches or not all(restorable(os.path.normpath(m)) for m in matches):
+                    lost.append(p)
+                    break
+    return lost
 
 
 def cd_in_loop(parts):
@@ -447,9 +513,12 @@ def main():
             continue
         if os.path.basename(w[0]) == "rm":
             targets = rm_targets(w[1:])
-            if heredoc_runs or not targets or \
-                    not all(in_scratch(p, cwds) for t in targets for p in expand(t, env)):
-                answer("ask", "rm outside the temporary directories")
+            lost = lost_targets(targets, env, cwds) if not heredoc_runs else ["?"]
+            if lost:
+                answer("ask", f"rm of {lost[0]}, outside the temporary directories "
+                              "and not restorable from git")
+            if not all(in_scratch(p, cwds) for t in targets for p in expand(t, env)):
+                safe = False  # restorable from git: not a question, not an allow
         elif w[0] in WRAPPERS and any(os.path.basename(a) == "rm" for a in w[1:]):
             answer("ask", "rm behind a wrapper, whose targets cannot be read")
         elif w[0] in ("cd", "pushd", "popd"):

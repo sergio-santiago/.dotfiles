@@ -72,7 +72,9 @@ This repository contains my personal macOS development environment configuration
       Where a prefix rule cannot tell safe from unsafe, `hooks/bash-guard.py` reads the whole
       command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
       only for `--hard`, `--merge` or `--keep` (past global options such as `-C`), and `rm` only
-      outside the temporary directories or behind a wrapper such as `sudo`, `env` or `xargs`.
+      for what would be lost for good: outside the temporary directories and not committed and
+      unchanged in git (untracked, ignored, modified, the repo root or `.git`), or behind a wrapper
+      such as `sudo`, `env` or `xargs`. The question names the target it is about.
       A `$VAR` in an `rm` target counts when the command binds it exactly once, to a literal or
       to other known variables, unconditionally or earlier in an unbroken `&&` chain. A `for`
       over fixed words gives its variable each word inside the body. A `cd` counts while `&&`

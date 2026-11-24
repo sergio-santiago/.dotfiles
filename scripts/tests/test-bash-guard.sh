@@ -180,6 +180,40 @@ expect allow $'cat <<EOF\nrm -rf ~\nEOF'
 expect ask $'cat <<EOF\n$(rm -rf ~)\nEOF\nrm /tmp/x'
 expect - $'cat <<EOF\n\\$(date)\nEOF\nrm /tmp/x'
 
+# ── rm: what git can restore is not a question ──────────────────────────────
+# A real repo outside the temporary directories the guard knows about (the
+# runner's scratch sits under the real $TMPDIR, the guard is given a fake one).
+R="$SCRATCH/guard-repo"
+mkdir -p "$R/docs/sub" "$R/var"
+( cd "$R" && git init -q && printf 'a\n' > docs/a.md && printf 'b\n' > docs/sub/b.md \
+  && printf 'c\n' > docs/c.md && printf 'var/\n' > .gitignore \
+  && git add -A && git -c user.name=t -c user.email=t commit -qm init \
+  && printf 'local\n' > var/cache && printf 'new\n' > docs/new.md && printf 'x\n' >> docs/c.md )
+expect - 'rm docs/a.md' "$R"
+expect - 'rm -r docs/sub' "$R"
+expect - "rm $R/docs/a.md $R/docs/sub/b.md"
+expect - 'git rm -q --cached docs/a.md; rm docs/a.md' "$R"
+expect - "cd $R && rm docs/a.md"
+expect - "D=$R/docs; rm \$D/a.md"
+expect ask 'rm docs/c.md' "$R"
+expect ask 'rm docs/new.md' "$R"
+expect ask 'rm -rf var' "$R"
+expect ask 'rm -rf docs' "$R"
+expect ask 'rm docs/*.md' "$R"
+expect - 'rm docs/a*.md' "$R"
+expect ask 'rm -rf .' "$R"
+expect ask "rm -rf $R"
+expect ask 'rm -rf .git' "$R"
+expect ask 'rm .git/HEAD' "$R"
+expect ask 'rm docs/missing.md' "$R"
+expect ask 'rm docs/a.md' "$R/../.."
+expect ask "cd $R; cd \$X; rm docs/a.md"
+it "the question names the target it is about"
+assert_contains "$(jq -n --arg c 'rm docs/a.md docs/new.md' --arg d "$R" '{tool_input: {command: $c}, cwd: $d}' \
+  | TMPDIR=/var/folders/xy/T/ python3 "$GUARD")" 'docs/new.md'
+it "a GIT_DIR from the session does not point the check at another repo"
+assert_eq "-" "$(GIT_DIR=/nonexistent guard 'rm docs/a.md' "$R")"
+
 # ── everything else is left to the normal rules ─────────────────────────────
 expect - 'git status'
 expect - 'gh pr view 1'
