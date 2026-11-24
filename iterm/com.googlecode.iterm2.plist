@@ -493,6 +493,10 @@ The script should do this: \(ai.prompt)</string>
 	<string></string>
 	<key>NeverBlockSystemShutdown</key>
 	<true/>
+	<key>NeverWarnAboutShortLivedSessions_D4873B2B-CCD5-4C37-AF18-188ED1097441</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_D4873B2B-CCD5-4C37-AF18-188ED1097441_selection</key>
+	<integer>0</integer>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -1802,6 +1806,15 @@ The script should do this: \(ai.prompt)</string>
 				<real>0.84313726425170898</real>
 				<key>Red Component</key>
 				<real>0.70196080207824707</real>
+			</dict>
+			<key>Semantic History</key>
+			<dict>
+				<key>action</key>
+				<string>command</string>
+				<key>editor</key>
+				<string>com.github.atom</string>
+				<key>text</key>
+				<string>/Applications/PhpStorm.app/Contents/MacOS/phpstorm --line \2 \1</string>
 			</dict>
 			<key>Send Code When Idle</key>
 			<false/>
