@@ -144,6 +144,11 @@ these rather than adding any: `#FFB86C` (orange) for the `▌` rule, bright blac
 body, `#7FFFD4` (cyan) for the `bm` command. `test-brew-nudge.sh` compares the two hex
 values, so this pair cannot drift silently.
 
+The settings link reminder, in `fish/functions/claude_settings_nudge.fish`, keeps the same
+shape and changes only what tells the two apart: `#FF6CD4` (pink) for its rule instead of
+orange, and 🔗 instead of 🍺. Body and command colours are the same as above, so every reminder
+reads the same way. `test-claude-settings-nudge.sh` compares the pink and the cyan.
+
 ### iTerm2
 All ANSI colors + UI elements. Config: `iterm/com.googlecode.iterm2.plist` (profile
 `Default`, also saved as the preset "Linked Data Dark Rainbow")

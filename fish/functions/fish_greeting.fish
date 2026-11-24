@@ -18,4 +18,8 @@ function fish_greeting
     # Passive suggestion, printed only when maintenance is overdue. Autoloaded and
     # two file reads deep, so it adds 0.24 ms to a ~215 ms login shell.
     brew_nudge
+
+    # Same kind of reminder, printed only when ~/.claude/settings.json has stopped
+    # being a symlink into this repo. Builtins only, no subprocess.
+    claude_settings_nudge
 end
