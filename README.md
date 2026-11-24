@@ -210,6 +210,7 @@ case is handed a throwaway one.
 | `test-git-identity.sh` | That the public identity map and the README agree, and that no work address leaks in |
 | `test-bash-guard.sh` | That the Bash hook lets safe commands through and asks for every write or deletion |
 | `test-claude-settings.sh` | That `claude/settings.json` carries no `autoMode.environment`, which `/auto-mode-setup` fills with a description of a possibly private repo |
+| `test-claude-settings-fix.sh` | That `claude-settings-fix` starts nothing while the link is intact, starts Claude in the repo when it is broken, and that the prompt carries the key diff (and no false diff for a copy that only changed format) |
 | `test-statusline.sh` | The status line's project icon (the marker table's precedence, the one-level-down pass for frameworks and languages, and that a bare `Makefile` picks nothing), that the box's rows line up, and that empty usage fields stay empty |
 | `test-colors-check.sh` | That `colors-check.sh` exits 1 on a drifted Starship colour, a stale colour count or an unreadable core table |
 | `test-backup-check.sh` | That `make backup-check` exits 1 on every way work can still be only on the disk, one at a time against a baseline that passes, and that a `launchd` agent only warns |
@@ -688,6 +689,7 @@ The Fish shell configuration is fully modular and follows a numbered loading ord
 - `fish_greeting.fish`: Compact welcome banner with lolcat rainbow
 - `fish_user_key_bindings.fish`: Custom key bindings
 - `brew_nudge.fish`: Suggests `bm` when the last maintenance run is old enough
+- `claude-settings-fix.fish`: When `~/.claude/settings.json` is no longer a symlink into this repo, opens a Claude Code session here with a ready-made prompt and the diff between both copies. With the link intact it says so and starts nothing
 
 #### Universal variables override this repo
 
