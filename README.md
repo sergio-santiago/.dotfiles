@@ -73,9 +73,11 @@ This repository contains my personal macOS development environment configuration
       command: `gh api` asks only for a method, body or GraphQL mutation that can write, `git reset`
       only for `--hard`, `--merge` or `--keep` (past global options such as `-C`), and `rm` only
       outside the temporary directories or behind a wrapper such as `sudo`, `env` or `xargs`.
-      A `$VAR` in an `rm` target counts when the same command assigned it a literal
-      unconditionally or earlier in an unbroken `&&` chain, and heredoc bodies are read as data
-      rather than as commands.
+      A `$VAR` in an `rm` target counts when the command binds it exactly once, to a literal or
+      to other known variables, unconditionally or earlier in an unbroken `&&` chain. A `for`
+      over fixed words gives its variable each word inside the body. A `cd` counts while `&&`
+      holds or when its directory exists. Heredoc bodies are read as data rather than as
+      commands, and if the hook itself fails it asks rather than letting the command through.
     - Defaults: auto mode, `high` effort, Spanish responses, voice dictation, fullscreen TUI, and no AI attribution in commits/PRs, session link trailer included.
     - The automatic session recap is off (`awaySummaryEnabled`), because it is generated outside the
       hook pipeline and reaches the screen unprocessed. `/recap` still produces one on demand.

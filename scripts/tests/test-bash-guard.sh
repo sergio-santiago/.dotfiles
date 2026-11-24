@@ -74,7 +74,13 @@ expect ask 'rm /tmp/ok ~/notes.md'
 expect ask 'rm -rf $DIR/build'
 expect ask 'rm -rf -- -weird' /Users/x
 expect ask 'cd /tmp && cd ~/project && rm x'
-expect ask 'echo $(rm /tmp/x)'
+expect - 'echo $(rm /tmp/x)'
+expect ask 'echo $(rm ~/x)'
+expect ask 'echo "$(rm -rf ~)"'
+expect ask 'echo "$(cd x && sudo rm -rf ~)"'
+expect - 'echo "$(docker run --rm alpine true)"'
+expect ask 'rm -rf "$(pwd)/x"'
+expect - "python3 -c 'print(\"\$(rm x)\")'"
 expect ask '(cd /tmp); rm -rf ~/x'
 
 # ── rm: by its path, or behind a wrapper ────────────────────────────────────
@@ -113,11 +119,66 @@ expect ask 'cd /tmp/w && S=/tmp/x && true; rm -rf $S/*'
 expect ask 'cd /tmp/w && S=~/project && rm -rf $S/*'
 expect ask 'cd /tmp/w && S=$(mktemp -d) && rm -rf $S'
 
+# A for, a ( ) subshell or a $( ) elsewhere no longer hides a known variable.
+# Each name has to be bound exactly once, so nothing can rebind it.
+S='S=/private/tmp/c/scratchpad/x'
+expect - "$S; rm -rf \$S; for r in a b; do echo \$r; done"
+expect - "$S; rm -rf \$S; mkdir -p \$S/a; for r in a b; do (cd \$S/\$r && git init -q); done"
+expect - "$S; M=\$(cd \$S && pwd -P); rm -rf \$S/old"
+expect allow "$S; J=\$S/cj.txt; rm -f \$J"
+expect allow "$S; cd \$S/repro && rm -rf .claude sub"
+expect - 'for S in /; do true; done; S=/tmp/x; rm -rf $S'
+# a loop variable over fixed words is each of them, and only inside the body
+expect - "$S; for p in .claude a.json; do rm -rf \"\${S:?}\"/\"\${p:?}\"; done"
+expect ask "$S; for p in .claude ../../../..; do rm -rf \$S/\$p; done"
+expect ask "$S; for p in *; do rm -rf \$S/\$p; done"
+expect ask "$S; for p in {a,..}; do rm -rf \$S/\$p; done"
+expect ask "$S; for p in a; do true; done; rm -rf \$S/\$p"
+expect ask "$S; for p in a; do p=/; rm -rf \$p; done"
+expect ask 'for p in /tmp/a ~; do rm -rf $p; done'
+expect - "$S; for p in a b; do rm -rf \$S/\$p; done; for p in c; do rm -rf \$S/\$p; done"
+expect ask "$S; for S in /; do true; done; rm -rf \$S"
+expect ask "$S; for S in /; do rm -rf \$S; done"
+expect ask 'p=/tmp/x; for p in a; do rm -rf $p; done'
+expect ask 'S=/tmp/x; for S in /; do rm -rf $S; done'
+expect ask 'S=/tmp/x; S+=/../..; rm -rf $S'
+expect ask 'S=/tmp/x; S[0]=/; rm -rf $S'
+expect ask 'S=/tmp/x; printf -v S /; rm -rf $S/y'
+expect ask 'S=/tmp/x; unset S; rm -rf $S/y'
+expect ask 'S=/tmp/x; eval "$X"; rm -rf $S/y'
+expect ask 'S=/tmp/x; . ./env.sh; rm -rf $S/y'
+expect ask 'S=/tmp/x; command eval "$X"; rm -rf $S/y'
+expect - "$S; rm -rf \$S; ruff check ."
+expect ask 'S=/tmp/x; (( S++ )); rm -rf $S'
+expect ask 'J=$T/cj.txt; rm -f $J'
+expect ask 'case x in a) S=/tmp/x;; esac; rm -rf $S/y'
+# A keyword in front of rm does not hide it
+expect ask 'for x in a; do rm -rf ~; done'
+expect ask 'if true; then rm -rf ~/x; fi'
+expect ask '{ rm -rf ~/x; }'
+
+# The directory: a cd counts only while && holds, since after any other
+# separator the next command also runs when the cd failed.
+expect allow 'cd /tmp/w && rm -rf x'
+expect ask 'cd /tmp/w; rm -rf x'
+expect ask 'cd /tmp/w && true || rm -rf x'
+expect ask 'cd /tmp/w | rm -rf x'
+expect allow 'cd /tmp/w; rm -rf x' /tmp/other
+# a directory that exists now is one the cd will not fail on
+expect allow 'cd /private/tmp; rm -rf x'
+expect ask '(cd /tmp/w && true); rm -rf x'
+expect allow '(cd /tmp/w && rm -rf x)'
+expect ask 'cd $NOPE && rm -rf x' /tmp/w
+expect ask 'cd /tmp/w && for x in a b; do rm -rf y; cd ~; done'
+expect ask 'cd /tmp/w && pushd ~ && rm -rf y'
+expect ask 'cd "$X"; cd /tmp/w; cd ..; rm -rf y'
+
 # Heredoc bodies are data: their parentheses and words are not commands. The
 # check for $( ) still reads the original, since an unquoted heredoc runs it.
 expect - $'python3 - x <<\'EOF\'\nprint(open("a").read())\nEOF\nS=/tmp/s; rm -f $S/p*'
 expect allow $'cat <<EOF\nrm -rf ~\nEOF'
 expect ask $'cat <<EOF\n$(rm -rf ~)\nEOF\nrm /tmp/x'
+expect - $'cat <<EOF\n\\$(date)\nEOF\nrm /tmp/x'
 
 # ── everything else is left to the normal rules ─────────────────────────────
 expect - 'git status'
