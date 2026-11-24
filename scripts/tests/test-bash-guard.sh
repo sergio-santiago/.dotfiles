@@ -208,6 +208,12 @@ expect ask 'rm .git/HEAD' "$R"
 expect ask 'rm docs/missing.md' "$R"
 expect ask 'rm docs/a.md' "$R/../.."
 expect ask "cd $R; cd \$X; rm docs/a.md"
+( cd "$R" && printf 'k\n' > 'docs/k[1].md' && printf 'k1\n' > docs/k1.md && git add -- ':(literal)docs/k[1].md' \
+  && git -c user.name=t -c user.email=t commit -qm k )
+# the parser loses quotes, so the brackets read as the pattern bash would see
+# unquoted, and that pattern reaches k1.md, which git does not have
+expect ask "rm 'docs/k[1].md'" "$R"
+expect - 'rm docs/a.md docs/sub/b.md' "$R"
 it "the question names the target it is about"
 assert_contains "$(jq -n --arg c 'rm docs/a.md docs/new.md' --arg d "$R" '{tool_input: {command: $c}, cwd: $d}' \
   | TMPDIR=/var/folders/xy/T/ python3 "$GUARD")" 'docs/new.md'
